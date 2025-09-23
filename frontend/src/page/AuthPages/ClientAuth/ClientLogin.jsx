@@ -37,7 +37,7 @@ const ClientLogin = () => {
   useEffect(() => {
     const fetchClinics = async () => {
       try {
-        const response = await fetch("http://localhost:3000/clinic");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/clinic`);
         if (response.ok) {
           const data = await response.json();
           setClinics(data);
@@ -71,7 +71,7 @@ const ClientLogin = () => {
       return;
     }
 
-    const loginClient = "http://localhost:3000/auth/patient/login";
+    const loginClient = `${import.meta.env.VITE_API_URL}/auth/patient/login`;
 
     try {
       const res = await axios.post(loginClient, {

@@ -73,7 +73,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const res = await axios.post(
-        "http://localhost:3000/appointment/add-appointment",
+        `${import.meta.env.VITE_API_URL}/appointment/add-appointment`,
         finalData
       );
 

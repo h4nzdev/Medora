@@ -59,7 +59,7 @@ export default function ClientRegister() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/auth/patient/register",
+        `${import.meta.env.VITE_API_URL}/auth/patient/register`,
         formData
       );
       toast.success(res.data.message);

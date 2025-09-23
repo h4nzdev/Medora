@@ -37,7 +37,7 @@ export default function ClientDashboard() {
   const fetchAppointments = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/appointment/patient/${user._id}`
+        `${import.meta.env.VITE_API_URL}/appointment/patient/${user._id}`
       );
       setAppointments(res.data);
     } catch (error) {
