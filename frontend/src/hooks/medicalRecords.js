@@ -14,7 +14,7 @@ function useMedicalRecords() {
     try {
       setLoading(true);
       const res = await axios.get(
-        `http://localhost:3000/medical-records/patient/${user._id}`
+        `${import.meta.env.VITE_API_URL}/medical-records/patient/${user._id}`
       );
       setRecords(res.data);
       setError(null);

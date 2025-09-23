@@ -180,62 +180,63 @@ export default function ClientDashboard() {
           </h2>
 
           {/* Mobile Card Layout */}
-          <div className="block lg:hidden space-y-4">
-  {completedAppointments.length === 0 ? (
-    <div className="text-center py-10">
-      <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-8 w-fit mx-auto mb-6">
-        <CalendarIcon className="w-16 h-16 text-slate-400 mx-auto" />
-      </div>
-      <h3 className="text-xl font-bold text-slate-700 mb-2">
-        No completed appointments yet
-      </h3>
-      <p className="text-slate-500">
-        Your completed appointments will appear here.
-      </p>
-    </div>
-  ) : (
-    visibleAppointments.map((appointment) => (
-      <div
-        key={appointment._id}
-        className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1">
-            <div className="flex items-center space-x-3">
-              <h3 className="font-semibold text-slate-800 text-lg">
-                {appointment?.doctorId?.name}
-              </h3>
-              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full">
-                {appointment?.doctorId?.specialty}
-              </span>
-            </div>
-            <p className="text-slate-500 text-sm mt-1">
-              {useDate(appointment.date)} at {useTime(appointment.date)}
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            {getStatusBadge(appointment.status)}
-          </div>
-        </div>
+          <div className="block lg:hidden space-y-3 sm:space-y-4">
+            {completedAppointments.length === 0 ? (
+              <div className="text-center py-8 sm:py-10">
+                <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl sm:rounded-2xl p-6 sm:p-8 w-fit mx-auto mb-4 sm:mb-6">
+                  <CalendarIcon className="w-12 h-12 sm:w-16 sm:h-16 text-slate-400 mx-auto" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-slate-700 mb-2">
+                  No completed appointments yet
+                </h3>
+                <p className="text-sm sm:text-base text-slate-500 px-4">
+                  Your completed appointments will appear here.
+                </p>
+              </div>
+            ) : (
+              visibleAppointments.map((appointment) => (
+                <div
+                  key={appointment._id}
+                  className="group relative overflow-hidden bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
+                        <h3 className="font-semibold text-slate-800 text-base sm:text-lg truncate">
+                          {appointment?.doctorId?.name}
+                        </h3>
+                        <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full w-fit">
+                          {appointment?.doctorId?.specialty}
+                        </span>
+                      </div>
+                      <p className="text-slate-500 text-sm mt-1">
+                        {useDate(appointment.date)} at{" "}
+                        {useTime(appointment.date)}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-between sm:justify-end space-x-2 mt-2 sm:mt-0">
+                      {getStatusBadge(appointment.status)}
+                      <button
+                        type="button"
+                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors ml-auto sm:ml-2"
+                        aria-label="More options"
+                      >
+                        <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+                      </button>
+                    </div>
+                  </div>
 
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="inline-block bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium capitalize">
-              {appointment.type}
-            </span>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="inline-block bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium capitalize">
+                        {appointment.type}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-          <button
-            type="button"
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
-            aria-label="More options"
-          >
-            <MoreHorizontal className="h-5 w-5" />
-          </button>
-        </div>
-      </div>
-    ))
-  )}
-</div>
 
           <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="overflow-x-auto">
