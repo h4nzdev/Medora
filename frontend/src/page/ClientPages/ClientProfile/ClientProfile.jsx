@@ -142,7 +142,7 @@ const ClientProfile = () => {
 
   return (
     <div className="w-full flex">
-      <div className="mx-auto flex-1 p-4 sm:p-6">
+      <div className="mx-auto flex-1">
         {/* Header Section - Enhanced Mobile Typography */}
         <header className="mb-6 sm:mb-8">
           <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-4 sm:p-6 lg:p-8">
