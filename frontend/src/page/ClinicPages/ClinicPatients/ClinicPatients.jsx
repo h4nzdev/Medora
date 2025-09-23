@@ -26,7 +26,7 @@ export default function ClinicPatients() {
   const fetchPatients = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/patient/clinic/${user._id}`
+        `${import.meta.env.VITE_API_URL}/patient/clinic/${user._id}`
       );
       setPatients(res.data);
     } catch (error) {

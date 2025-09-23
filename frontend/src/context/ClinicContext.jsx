@@ -8,7 +8,7 @@ export const ClinicProvider = ({ children }) => {
 
   const fetchClinics = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/clinic");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/clinic`);
       setClinics(res.data);
     } catch (error) {
       console.error("Error:", error);

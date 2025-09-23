@@ -8,7 +8,7 @@ export const DoctorProvider = ({ children }) => {
 
   const fetchDoctors = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/doctor");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/doctor`);
       setDoctors(res.data);
     } catch (error) {
       console.error("Error:", error);

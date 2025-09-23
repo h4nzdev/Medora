@@ -30,8 +30,7 @@ export default function ClinicLogin() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const loginClinic = "http://localhost:3000/auth/clinic/login"; // Clinic login endpoint
-
+    const loginClinic = `${import.meta.env.VITE_API_URL}/auth/clinic/login`; // Clinic login endpoint
     try {
       const res = await axios.post(loginClinic, {
         ...formData,

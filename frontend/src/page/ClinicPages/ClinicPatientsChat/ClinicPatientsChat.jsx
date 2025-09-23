@@ -1,12 +1,6 @@
 "use client";
 import { useState, useEffect, useContext } from "react";
-import {
-  User,
-  MessageCircle,
-  Search,
-  ChevronDown,
-  Filter,
-} from "lucide-react";
+import { User, MessageCircle, Search, ChevronDown, Filter } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
 import ClientChatsModal from "./components/ClientChatsModal.jsx";
@@ -30,7 +24,9 @@ export default function ClinicPatientsChat() {
       }
 
       setLoading(true);
-      const res = await axios.get(`http://localhost:3000/chat/clinic/${user._id}`);
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/chat/clinic/${user._id}`
+      );
       const chats = res.data?.chats || [];
 
       const byPatient = new Map();
@@ -239,9 +235,9 @@ export default function ClinicPatientsChat() {
           {/* Results Summary */}
           <div className="mt-6 flex items-center justify-between text-sm text-slate-600">
             <p>
-              Showing {indexOfFirstChat + 1}-{
-                Math.min(indexOfLastChat, chatHistory.length)
-              } of {chatHistory.length} chats
+              Showing {indexOfFirstChat + 1}-
+              {Math.min(indexOfLastChat, chatHistory.length)} of{" "}
+              {chatHistory.length} chats
             </p>
             <div className="flex items-center gap-2">
               <button

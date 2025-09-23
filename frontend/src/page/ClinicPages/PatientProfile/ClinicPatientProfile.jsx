@@ -28,7 +28,9 @@ const ClinicPatientProfile = () => {
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/patient/${id}`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/patient/${id}`
+        );
         setPatient(res.data);
       } catch (error) {
         console.error("Error fetching patient data:", error);

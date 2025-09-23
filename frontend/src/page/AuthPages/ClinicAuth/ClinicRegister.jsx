@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PaymentModal from "../../../components/ClinicComponents/PaymentModal/PaymentModal";
 import logo from "../../../assets/medoralogo.png";
 import { useNavigate } from "react-router-dom";
-import clinic from "../../../assets/clinic.jpg"
+import clinic from "../../../assets/clinic.jpg";
 
 export default function ClinicRegister() {
   const [error, setError] = useState();
@@ -59,7 +59,7 @@ export default function ClinicRegister() {
   const registerClinic = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:3000/auth/clinic/register",
+        `${import.meta.env.VITE_API_URL}/auth/clinic/register`,
         formData
       );
       toast.success(res.data.message);
@@ -92,8 +92,10 @@ export default function ClinicRegister() {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 fixed top-0 left-0 h-screen bg-cover"
-      style={{backgroundImage: `url(${clinic})`}}>
+      <div
+        className="hidden lg:flex lg:w-1/2 fixed top-0 left-0 h-screen bg-cover"
+        style={{ backgroundImage: `url(${clinic})` }}
+      >
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.08),transparent_60%)]" />

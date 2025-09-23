@@ -31,7 +31,9 @@ const ClinicDoctorProfile = () => {
 
   const fetchDoctor = async () => {
     try {
-      const res = await axios.get(`http://localhost:3000/doctor/${id}`);
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/doctor/${id}`
+      );
       setDoctor(res.data);
     } catch (error) {
       console.error("Error:", error);

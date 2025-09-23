@@ -24,7 +24,7 @@ const ClientChat = () => {
     if (user && user._id) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/chat/credits/${user._id}`
+          `${import.meta.env.VITE_API_URL}/chat/credits/${user._id}`
         );
         setChatCredits(response.data);
       } catch (error) {
@@ -97,10 +97,12 @@ const ClientChat = () => {
       if (user && user._id) {
         // Check if user has clinicId (should be populated from login)
         if (!user.clinicId) {
-          throw new Error("Patient clinic information not found. Please log in again.");
+          throw new Error(
+            "Patient clinic information not found. Please log in again."
+          );
         }
-        
-        await axios.post("http://localhost:3000/chat/save-chat", {
+
+        await axios.post(`${import.meta.env.VITE_API_URL}/chat/save-chat`, {
           patientId: user._id,
           clinicId: user.clinicId._id || user.clinicId, // Handle both populated and non-populated clinicId
           role: "Client",
@@ -109,9 +111,12 @@ const ClientChat = () => {
       }
 
       // 2) Ask AI for a reply
-      const response = await axios.post("http://localhost:3000/chat", {
-        message: message,
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/chat`,
+        {
+          message: message,
+        }
+      );
 
       const botMessage = {
         role: "bot",
@@ -122,7 +127,7 @@ const ClientChat = () => {
 
       // 3) Save AI reply immediately
       if (user && user._id) {
-        await axios.post("http://localhost:3000/chat/save-chat", {
+        await axios.post(`${import.meta.env.VITE_API_URL}/chat/save-chat`, {
           patientId: user._id,
           clinicId: user.clinicId._id || user.clinicId, // Handle both populated and non-populated clinicId
           role: "ai",
@@ -133,7 +138,7 @@ const ClientChat = () => {
       // 4) Increment chat credits after successful chat
       if (user && user._id) {
         const creditResponse = await axios.post(
-          "http://localhost:3000/chat/increment-credits",
+          `${import.meta.env.VITE_API_URL}/chat/increment-credit`,
           {
             patientId: user._id,
           }
@@ -142,18 +147,20 @@ const ClientChat = () => {
       }
     } catch (error) {
       console.error("Error fetching bot response:", error);
-      
+
       let errorText = "Sorry, something went wrong. Please try again.";
-      
+
       // Provide more specific error messages
       if (error.message.includes("clinic information not found")) {
-        errorText = "Unable to identify your clinic. Please log out and log in again.";
+        errorText =
+          "Unable to identify your clinic. Please log out and log in again.";
       } else if (error.response?.status === 400) {
-        errorText = "Invalid request. Please check your connection and try again.";
+        errorText =
+          "Invalid request. Please check your connection and try again.";
       } else if (error.response?.status === 500) {
         errorText = "Server error. Please try again in a moment.";
       }
-      
+
       const errorMessage = {
         role: "bot",
         text: errorText,

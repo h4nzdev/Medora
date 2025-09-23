@@ -24,7 +24,7 @@ export default function ClinicMedicalRecords() {
   const fetchRecords = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/medical-records/clinic/${user._id}`
+        `${import.meta.env.VITE_API_URL}/medical-records/clinic/${user._id}`
       );
       setRecords(res.data);
     } catch (error) {}

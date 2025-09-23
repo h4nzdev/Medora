@@ -8,7 +8,7 @@ export const AppointmentProvider = ({ children }) => {
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/appointment");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/appointment`);
       setAppointments(res.data);
     } catch (error) {
       console.error("Error:", error);
