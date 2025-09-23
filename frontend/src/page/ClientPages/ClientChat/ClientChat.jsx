@@ -178,48 +178,48 @@ const ClientChat = () => {
   }, [chatHistory, loading]);
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
+    <div className="w-full h-full flex flex-col min-h-screen">
+      {/* Header - Mobile Optimized */}
+      <div className="bg-white border-b border-gray-200 p-3 sm:p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="bg-cyan-100 p-3 rounded-full">
-              <Bot className="h-6 w-6 text-cyan-600" />
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+            <div className="bg-cyan-100 p-2 sm:p-3 rounded-full flex-shrink-0">
+              <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-600" />
             </div>
-            <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-900">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
                 AI Symptom Checker
               </h1>
-              <p className="text-gray-600">
+              <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
                 Get basic advice for your symptoms. This is not a substitute for
                 professional medical advice.
               </p>
-              {/* Chat Credits Display */}
-              <div className="flex items-center space-x-2 mt-2">
-                <Clock className="h-4 w-4 text-cyan-600" />
+              {/* Chat Credits Display - Mobile Optimized */}
+              <div className="flex items-center space-x-1 sm:space-x-2 mt-1 sm:mt-2">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600 flex-shrink-0" />
                 <span
-                  className={`text-sm font-medium ${
+                  className={`text-xs sm:text-sm font-medium truncate ${
                     chatCredits.canChat ? "text-cyan-600" : "text-red-600"
                   }`}
                 >
                   {chatCredits.canChat
-                    ? `${chatCredits.credits}/${chatCredits.maxCredits} chats remaining today`
-                    : "Daily chat limit reached"}
+                    ? `${chatCredits.credits}/${chatCredits.maxCredits} chats left`
+                    : "Limit reached"}
                 </span>
               </div>
             </div>
           </div>
           <button
             onClick={handleClearHistory}
-            className="text-sm text-cyan-700 hover:text-cyan-900 border border-cyan-200 hover:border-cyan-400 px-3 py-1 rounded-md"
+            className="text-xs sm:text-sm text-cyan-700 hover:text-cyan-900 border border-cyan-200 hover:border-cyan-400 px-2 py-1 sm:px-3 sm:py-1 rounded-md whitespace-nowrap ml-2"
           >
-            Clear history
+            Clear
           </button>
         </div>
       </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4">
+      {/* Chat Messages - Mobile Scrolling Fixed */}
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4">
         {chatHistory.map((chat, index) => (
           <div
             key={index}
@@ -228,31 +228,33 @@ const ClientChat = () => {
             }`}
           >
             <div
-              className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-lg ${
+              className={`max-w-[85%] sm:max-w-xs lg:max-w-md xl:max-w-lg px-3 py-2 sm:px-4 sm:py-3 rounded-lg ${
                 chat.role === "user"
                   ? "bg-cyan-600 text-white"
                   : "bg-white border border-gray-200 text-gray-900"
               }`}
             >
               {chat.role === "bot" && (
-                <div className="flex items-center space-x-2 mb-2">
-                  <Bot className="h-4 w-4 text-cyan-600" />
-                  <span className="text-sm font-medium text-cyan-600">
+                <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
+                  <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600 flex-shrink-0" />
+                  <span className="text-xs sm:text-sm font-medium text-cyan-600">
                     AI Assistant
                   </span>
                 </div>
               )}
-              <p className="md:text-lg text-sm">{chat.text}</p>
+              <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
+                {chat.text}
+              </p>
             </div>
           </div>
         ))}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="max-w-xs lg:max-w-md xl:max-w-lg px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-900">
-              <div className="flex items-center space-x-2 mb-2">
-                <Bot className="h-4 w-4 text-cyan-600" />
-                <span className="text-sm font-medium text-cyan-600">
+            <div className="max-w-[85%] sm:max-w-xs lg:max-w-md xl:max-w-lg px-3 py-2 sm:px-4 sm:py-3 rounded-lg bg-white border border-gray-200 text-gray-900">
+              <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
+                <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600" />
+                <span className="text-xs sm:text-sm font-medium text-cyan-600">
                   AI Assistant
                 </span>
               </div>
@@ -261,16 +263,16 @@ const ClientChat = () => {
           </div>
         )}
 
-        {/* Chat Limit Reached Message */}
+        {/* Chat Limit Reached Message - Mobile Optimized */}
         {!chatCredits.canChat && (
-          <div className="bg-red-50 rounded-xl p-4 lg:p-6 border border-red-200">
-            <div className="flex items-center space-x-2 mb-3">
-              <Clock className="h-5 w-5 text-red-600" />
-              <h3 className="font-medium text-red-900">
+          <div className="bg-red-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-red-200">
+            <div className="flex items-center space-x-2 mb-2 sm:mb-3">
+              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0" />
+              <h3 className="font-medium text-red-900 text-sm sm:text-base">
                 Daily Chat Limit Reached
               </h3>
             </div>
-            <p className="text-sm text-red-800">
+            <p className="text-xs sm:text-sm text-red-800">
               You've used all 5 of your daily chat messages. Your chat credits
               will reset tomorrow. For urgent medical concerns, please contact
               your healthcare provider directly.
@@ -278,54 +280,58 @@ const ClientChat = () => {
           </div>
         )}
 
-        {/* Sample health questions */}
+        {/* Sample health questions - Mobile Grid Optimized */}
         {chatCredits.canChat && (
-          <div className="bg-blue-50 rounded-xl p-4 lg:p-6 border border-blue-200">
-            <h3 className="font-medium text-blue-900 mb-3">
+          <div className="bg-blue-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-blue-200">
+            <h3 className="font-medium text-blue-900 mb-2 sm:mb-3 text-sm sm:text-base">
               Common Questions You Can Ask:
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               <div
                 onClick={() => setMessage("I have a headache and feel tired")}
-                className="text-left p-3 bg-white rounded-lg border border-blue-200 cursor-default select-none"
+                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
               >
-                <p className="text-sm text-blue-800">
+                <p className="text-xs sm:text-sm text-blue-800">
                   "I have a headache and feel tired"
                 </p>
               </div>
               <div
                 onClick={() => setMessage("What are symptoms of flu?")}
-                className="text-left p-3 bg-white rounded-lg border border-blue-200 cursor-default select-none"
+                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
               >
-                <p className="text-sm text-blue-800">
+                <p className="text-xs sm:text-sm text-blue-800">
                   "What are symptoms of flu?"
                 </p>
               </div>
               <div
                 onClick={() => setMessage("When should I see a doctor?")}
-                className="text-left p-3 bg-white rounded-lg border border-blue-200 cursor-default select-none"
+                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
               >
-                <p className="text-sm text-blue-800">
+                <p className="text-xs sm:text-sm text-blue-800">
                   "When should I see a doctor?"
                 </p>
               </div>
               <div
                 onClick={() => setMessage("How to manage stress?")}
-                className="text-left p-3 bg-white rounded-lg border border-blue-200 cursor-default select-none"
+                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
               >
-                <p className="text-sm text-blue-800">"How to manage stress?"</p>
+                <p className="text-xs sm:text-sm text-blue-800">
+                  "How to manage stress?"
+                </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Health Tips */}
-        <div className="bg-cyan-50 rounded-xl p-4 lg:p-6 border border-cyan-200 md:block hidden">
-          <div className="flex items-center space-x-2 mb-3">
-            <Shield className="h-5 w-5 text-cyan-600" />
-            <h3 className="font-medium text-cyan-900">Daily Health Reminder</h3>
+        {/* Health Tips - Mobile Responsive */}
+        <div className="bg-cyan-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-cyan-200 hidden sm:block">
+          <div className="flex items-center space-x-2 mb-2 sm:mb-3">
+            <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600" />
+            <h3 className="font-medium text-cyan-900 text-sm sm:text-base">
+              Daily Health Reminder
+            </h3>
           </div>
-          <p className="text-sm text-cyan-800">
+          <p className="text-xs sm:text-sm text-cyan-800">
             Remember to stay hydrated throughout the day. Aim for 8 glasses of
             water to maintain optimal health and energy levels.
           </p>
@@ -334,9 +340,9 @@ const ClientChat = () => {
         <div ref={bottomRef}></div>
       </div>
 
-      {/* Message Input */}
-      <div className="bg-white border-t border-gray-200 p-4 lg:p-6">
-        <div className="flex space-x-3">
+      {/* Message Input - Mobile Optimized */}
+      <div className="bg-white border-t border-gray-200 p-3 sm:p-4 lg:p-6">
+        <div className="flex space-x-2 sm:space-x-3">
           <input
             type="text"
             placeholder={
@@ -348,18 +354,18 @@ const ClientChat = () => {
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             disabled={!chatCredits.canChat}
-            className={`flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none ${
+            className={`flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none ${
               !chatCredits.canChat ? "bg-gray-100 cursor-not-allowed" : ""
             }`}
           />
           <button
             onClick={handleSendMessage}
             disabled={loading || !chatCredits.canChat}
-            className={`px-6 py-3 rounded-lg flex items-center ${
+            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg flex items-center justify-center min-w-[44px] ${
               !chatCredits.canChat
                 ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                : "bg-cyan-600 text-white hover:bg-cyan-700"
-            } disabled:opacity-50`}
+                : "bg-cyan-600 text-white hover:bg-cyan-700 active:bg-cyan-800"
+            } disabled:opacity-50 transition-colors`}
           >
             <Send className="h-4 w-4" />
           </button>
