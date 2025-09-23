@@ -6,7 +6,12 @@ import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const AddDoctorModal = ({ isOpen, onClose, editMode = false, doctorData = null }) => {
+const AddDoctorModal = ({
+  isOpen,
+  onClose,
+  editMode = false,
+  doctorData = null,
+}) => {
   const { user } = useContext(AuthContext);
   const { fetchDoctors } = useContext(DoctorContext);
   const [formData, setFormData] = useState({
@@ -74,14 +79,17 @@ const AddDoctorModal = ({ isOpen, onClose, editMode = false, doctorData = null }
     try {
       if (editMode && doctorData) {
         // Update existing doctor
-        await axios.put(`${import.meta.env.VITE_API_URL}/doctor/${doctorData._id}`, {
-          ...formData,
-          clinicId: user._id,
-        });
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/doctor/${doctorData._id}`,
+          {
+            ...formData,
+            clinicId: user._id,
+          }
+        );
         toast.success("Doctor updated successfully!");
       } else {
         // Add new doctor
-        await axios.post("http://localhost:3000/doctor/add-doctor", {
+        await axios.post(`${import.meta.env.VITE_API_URL}/doctor/add-doctor`, {
           ...formData,
           clinicId: user._id,
         });
