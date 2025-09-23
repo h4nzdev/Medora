@@ -22,6 +22,7 @@ import heart from "../../assets/heart.jpg";
 import hanz from "../../assets/hanz.jpg";
 import clinic from "../../assets/clinic.jpg";
 import logo from "../../assets/medoralogo.png";
+import axios from "axios";
 
 const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,11 +34,12 @@ const LandingPage = () => {
     try {
       setLoading(true);
       // API call to get all clinics
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/clinic}`);
-      const allClinics = await response.json();
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/clinic`
+      );
 
       // Filter clinics that have basic or pro subscription (not free)
-      const premiumClinics = allClinics.filter(
+      const premiumClinics = response.data.filter(
         (clinic) => clinic.subscriptionPlan !== "free"
       );
 
