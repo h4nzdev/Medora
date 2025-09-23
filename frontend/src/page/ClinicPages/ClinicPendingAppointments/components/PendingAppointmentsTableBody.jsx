@@ -36,7 +36,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
 
       // Update appointment status first
       const res = await axios.patch(
-        `http://localhost:3000/appointment/respond/${appointmentId}`,
+        `${import.meta.env.VITE_API_URL}/appointment/respond/${appointmentId}`,
         { action }
       );
 
