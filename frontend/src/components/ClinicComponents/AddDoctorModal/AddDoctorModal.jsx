@@ -74,7 +74,7 @@ const AddDoctorModal = ({ isOpen, onClose, editMode = false, doctorData = null }
     try {
       if (editMode && doctorData) {
         // Update existing doctor
-        await axios.put(`http://localhost:3000/doctor/${doctorData._id}`, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/doctor/${doctorData._id}`, {
           ...formData,
           clinicId: user._id,
         });

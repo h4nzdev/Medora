@@ -26,7 +26,7 @@ const AddMedicalRecordModal = ({
     { medicine: "", dosage: "", duration: "" },
   ]);
 
-  console.log(appointmentId)
+  console.log(appointmentId);
 
   const handlePrescriptionChange = (index, event) => {
     const values = [...prescriptions];
@@ -51,7 +51,7 @@ const AddMedicalRecordModal = ({
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:3000/medical-records/add-records",
+        `${import.meta.env.VITE_API_URL}/medical-records/add-records`,
         {
           patientId,
           clinicId,
