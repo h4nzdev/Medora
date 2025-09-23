@@ -181,42 +181,61 @@ export default function ClientDashboard() {
 
           {/* Mobile Card Layout */}
           <div className="block lg:hidden space-y-4">
-            <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3">
-                    <h3 className="font-semibold text-slate-800 text-lg">
-                      Dr. Sarah Wilson
-                    </h3>
-                    <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full">
-                      Cardiology
-                    </span>
-                  </div>
-                  <p className="text-slate-500 text-sm mt-1">
-                    2024-09-10 at 09:00 AM
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  {getStatusBadge("confirmed")}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="inline-block bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium">
-                    Consultation
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
-                  aria-label="More options"
-                >
-                  <MoreHorizontal className="h-5 w-5" />
-                </button>
-              </div>
+  {completedAppointments.length === 0 ? (
+    <div className="text-center py-10">
+      <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-8 w-fit mx-auto mb-6">
+        <CalendarIcon className="w-16 h-16 text-slate-400 mx-auto" />
+      </div>
+      <h3 className="text-xl font-bold text-slate-700 mb-2">
+        No completed appointments yet
+      </h3>
+      <p className="text-slate-500">
+        Your completed appointments will appear here.
+      </p>
+    </div>
+  ) : (
+    visibleAppointments.map((appointment) => (
+      <div
+        key={appointment._id}
+        className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex items-center space-x-3">
+              <h3 className="font-semibold text-slate-800 text-lg">
+                {appointment?.doctorId?.name}
+              </h3>
+              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full">
+                {appointment?.doctorId?.specialty}
+              </span>
             </div>
+            <p className="text-slate-500 text-sm mt-1">
+              {useDate(appointment.date)} at {useTime(appointment.date)}
+            </p>
           </div>
+          <div className="flex items-center space-x-2">
+            {getStatusBadge(appointment.status)}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="inline-block bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium capitalize">
+              {appointment.type}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+            aria-label="More options"
+          >
+            <MoreHorizontal className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+    ))
+  )}
+</div>
 
           <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="overflow-x-auto">
