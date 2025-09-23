@@ -56,7 +56,35 @@ export default function ClientRegister() {
     if (!formData.agreeToTerms) {
       toast.error("You must agree to the terms");
       return;
+    }const handleProceedToVerification = async (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
     }
+
+    if (!formData.agreeToTerms) {
+      toast.error("You must agree to the terms");
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/auth/patient/send-verification",
+        { email: formData.email }
+      );
+      // Show the code in the toast for easy testing
+      toast.success(`${res.data.message}. Your code is: ${res.data.code}`);
+      setIsVerificationStep(true);
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to send verification code"
+      );
+    }
+  };
+
 
     try {
       const res = await axios.post(
