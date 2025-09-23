@@ -68,7 +68,7 @@ export default function ClinicSubscriptions() {
   const updateSubscription = async (plan) => {
     try {
       const res = await axios.put(
-        `http://localhost:3000/clinic/${user._id}/subscription`,
+        `${import.meta.env.VITE_API_URL}/clinic/${user._id}/subscription`,
         {
           subscriptionPlan: plan,
         }

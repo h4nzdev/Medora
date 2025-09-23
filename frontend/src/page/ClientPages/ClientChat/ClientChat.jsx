@@ -138,7 +138,7 @@ const ClientChat = () => {
       // 4) Increment chat credits after successful chat
       if (user && user._id) {
         const creditResponse = await axios.post(
-          `${import.meta.env.VITE_API_URL}/chat/increment-credit`,
+          `${import.meta.env.VITE_API_URL}/chat/increment-credits`,
           {
             patientId: user._id,
           }
