@@ -93,7 +93,7 @@ const ClientMedicalRecords = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
       <div className="mx-auto">
         <header className="mb-8 md:mb-10">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">

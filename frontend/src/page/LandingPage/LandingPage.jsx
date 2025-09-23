@@ -33,7 +33,7 @@ const LandingPage = () => {
     try {
       setLoading(true);
       // API call to get all clinics
-      const response = await fetch("http://localhost:3000/clinic");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/clinic}`);
       const allClinics = await response.json();
 
       // Filter clinics that have basic or pro subscription (not free)
