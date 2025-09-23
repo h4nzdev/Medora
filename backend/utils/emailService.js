@@ -1,43 +1,36 @@
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
-import nodemailer from 'nodemailer';
+dotenv.config(); // load .env variables
 
 const sendVerificationEmail = async (to, code) => {
   try {
-    // For this simulation, we are not sending a real email.
-    // Instead, we are logging the action to the console.
-    // In a production environment, you would configure a real email transport here.
-    console.log(`Simulating email sent to ${to} with code ${code}`);
-
-    // Create a transporter object using a test service like Ethereal or Mailtrap,
-    // or a real one like Gmail, etc.
-    // In a real app, these credentials should be in environment variables.
+    // Create transporter using your email credentials
     const transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email', // Using a fake SMTP server for testing
-      port: 587,
-      secure: false, // true for 465, false for other ports
+      service: "gmail", // can also use other providers
       auth: {
-        user: 'account.user', // generated ethereal user
-        pass: 'account.pass', // generated ethereal password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
     // Email content
     const mailOptions = {
-      from: '"Medora" <noreply@medora.com>',
+      from: `"Medora" <${process.env.EMAIL_USER}>`,
       to: to,
-      subject: 'Your Email Verification Code',
+      subject: "Your Email Verification Code",
       text: `Your verification code is ${code}`,
       html: `<b>Your verification code is ${code}</b>`,
     };
 
-    // In a real implementation, you would uncomment the next line.
-    // await transporter.sendMail(mailOptions);
+    // Send the email
+    await transporter.sendMail(mailOptions);
 
-    return { success: true, message: 'Email sent successfully (simulated)' };
-
+    console.log(`Email sent to ${to} with code ${code}`);
+    return { success: true, message: "Email sent successfully" };
   } catch (error) {
-    console.error('Error sending verification email:', error);
-    return { success: false, message: 'Failed to send verification email' };
+    console.error("Error sending verification email:", error);
+    return { success: false, message: "Failed to send verification email" };
   }
 };
 

@@ -22,15 +22,19 @@ export const sendVerification = async (req, res) => {
     if (emailResponse.success) {
       // In a real app, you wouldn't send the code back to the client.
       // You'd store it in the session or a temporary database.
-      res.json({ message: "Verification code sent successfully", code });
+      res.json({ message: "Verification code sent successfully" });
     } else {
       res.status(500).json({ message: emailResponse.message });
     }
   } catch (error) {
-    res.status(500).json({ message: "Error sending verification code", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error sending verification code",
+        error: error.message,
+      });
   }
 };
-
 
 // Login patient with sessions
 export const loginClient = async (req, res) => {
@@ -106,7 +110,7 @@ export const registerClient = async (req, res) => {
     });
 
     await newPatient.save();
-    
+
     // Clean up the verification code
     delete verificationCodes[email];
 
