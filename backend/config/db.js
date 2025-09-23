@@ -1,11 +1,13 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-dotenv.config();
+if (process.env.NODE_ENV !== "production") {
+  dotenv.config();
+}
 
 export const configDB = () => {
   mongoose
-    .connect(process.env.MONGO_URL)
+    .connect(process.env.MONGO_URI)
     .then(() => {
       console.log("Connected to the database!");
     })
