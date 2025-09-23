@@ -5,17 +5,14 @@ yarn-debug.log*
 yarn-error.log*
 
 # Environment variables
-backend/.env
-backend/.env.local
-backend/.env.development.local
-backend/.env.test.local
-backend/.env.production.local
+.env
+.env.local
+.env.*.local
 
 # Logs
-logs
+logs/
 *.log
-logs/*.log
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
