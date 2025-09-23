@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import {
   User,
   Mail,
@@ -7,12 +7,50 @@ import {
   Calendar,
   UserCheck,
   Download,
+  Edit,
 } from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
 import { useDate } from "../../../utils/date";
+import axios from "axios";
 
 const ClientProfile = () => {
-  const { user, initials } = useContext(AuthContext);
+  const { user, initials, setUser } = useContext(AuthContext);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [updatedUser, setUpdatedUser] = useState(null);
+
+  useEffect(() => {
+    if (user) {
+      setUpdatedUser({
+        name: user.name,
+        age: user.age,
+        gender: user.gender,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+      });
+    }
+  }, [user]);
+
+  const handleEditClick = () => {
+    setIsEditMode(!isEditMode);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedUser((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      const response = await axios.put(`http://localhost:3000/patients/${user._id}`, updatedUser);
+      setUser(response.data); // Update user in context
+      setIsEditMode(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      // Handle error display to user
+    }
+  };
+
 
   if (!user) {
     return (
@@ -29,27 +67,32 @@ const ClientProfile = () => {
   const stats = [
     {
       title: "Full Name",
-      value: user.name,
+      value: updatedUser?.name,
       icon: User,
       color: "text-slate-600",
       bgColor: "bg-slate-50",
       borderColor: "border-slate-200",
+      name: "name",
     },
     {
       title: "Age",
-      value: `${user.age} years`,
+      value: `${updatedUser?.age} years`,
       icon: Calendar,
       color: "text-cyan-600",
       bgColor: "bg-cyan-50",
       borderColor: "border-cyan-200",
+      name: "age",
+
     },
     {
       title: "Gender",
-      value: user.gender,
+      value: updatedUser?.gender,
       icon: UserCheck,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
       borderColor: "border-emerald-200",
+      name: "gender",
+
     },
     {
       title: "Role",
@@ -58,33 +101,42 @@ const ClientProfile = () => {
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
+      name: "role",
+      isEditable: false
+
     },
   ];
 
   const contactInfo = [
     {
       title: "Email Address",
-      value: user.email,
+      value: updatedUser?.email,
       icon: Mail,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       borderColor: "border-blue-200",
+      name: "email",
+
     },
     {
       title: "Phone Number",
-      value: user.phone,
+      value: updatedUser?.phone,
       icon: Phone,
       color: "text-green-600",
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
+      name: "phone",
+
     },
     {
       title: "Address",
-      value: user.address,
+      value: updatedUser?.address,
       icon: MapPin,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       borderColor: "border-orange-200",
+      name: "address",
+
     },
   ];
 
@@ -153,7 +205,7 @@ const ClientProfile = () => {
                   {initials}
                 </span>
               </div>
-              
+
               {/* User Info - Larger text on mobile */}
               <div className="text-center sm:text-left flex-1">
                 <h1 className="text-3xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-slate-800 tracking-tight leading-tight">
@@ -171,7 +223,7 @@ const ClientProfile = () => {
                   </span>
                 </div>
               </div>
-              
+
               {/* Registration Info - Larger text on mobile */}
               <div className="text-center sm:text-right mt-4 sm:mt-0">
                 <p className="text-sm sm:text-base font-medium text-slate-600 tracking-wide uppercase">
@@ -184,6 +236,13 @@ const ClientProfile = () => {
                   Patient ID
                 </p>
                 <p className="text-base sm:text-lg lg:text-xl font-bold text-cyan-700 break-all">{user._id}</p>
+                 <button
+                  onClick={handleEditClick}
+                  className="mt-4 flex items-center gap-2 text-white bg-cyan-600 hover:bg-cyan-700 transition-colors px-4 py-2 rounded-lg"
+                >
+                  <Edit className="w-5 h-5" />
+                  <span>{isEditMode ? "Cancel" : "Edit Profile"}</span>
+                </button>
               </div>
             </div>
           </div>
@@ -200,18 +259,28 @@ const ClientProfile = () => {
               return (
                 <div
                   key={index}
-                  className={`${stat.bgColor} backdrop-blur-sm rounded-xl p-5 sm:p-6 border ${stat.borderColor} shadow-sm hover:shadow-md hover:scale-105 transition-all duration-300`}
+                  className={`${stat.bgColor} backdrop-blur-sm rounded-xl p-5 sm:p-6 border ${stat.borderColor} shadow-sm`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="text-sm sm:text-base font-medium text-slate-600 tracking-wide uppercase">
                         {stat.title}
                       </p>
-                      <p
-                        className={`text-xl sm:text-2xl font-bold ${stat.color} mt-2 text-balance capitalize leading-tight`}
-                      >
-                        {stat.value}
-                      </p>
+                      {isEditMode && stat.isEditable !== false ? (
+                        <input
+                          type="text"
+                          name={stat.name}
+                          value={stat.name === 'age' ? parseInt(stat.value) : stat.value}
+                          onChange={handleInputChange}
+                          className={`text-xl sm:text-2xl font-bold ${stat.color} mt-2 text-balance capitalize leading-tight bg-transparent border-b-2 border-slate-300 focus:outline-none focus:border-cyan-500 w-full`}
+                        />
+                      ) : (
+                        <p
+                          className={`text-xl sm:text-2xl font-bold ${stat.color} mt-2 text-balance capitalize leading-tight`}
+                        >
+                          {stat.value}
+                        </p>
+                      )}
                     </div>
                     <div
                       className={`p-3 sm:p-4 ${stat.bgColor} rounded-lg border ${stat.borderColor}`}
@@ -236,11 +305,11 @@ const ClientProfile = () => {
               return (
                 <div
                   key={index}
-                  className="group bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/50 shadow-lg p-5 sm:p-6 hover:shadow-xl hover:scale-105 transition-all duration-300"
+                  className="group bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/50 shadow-lg p-5 sm:p-6"
                 >
                   <div className="flex items-start space-x-4">
                     <div
-                      className={`p-3 sm:p-4 ${contact.bgColor} rounded-lg border ${contact.borderColor} group-hover:scale-110 transition-transform duration-300`}
+                      className={`p-3 sm:p-4 ${contact.bgColor} rounded-lg border ${contact.borderColor}`}
                     >
                       <IconComponent className={`w-7 h-7 sm:w-8 sm:h-8 ${contact.color}`} />
                     </div>
@@ -248,11 +317,21 @@ const ClientProfile = () => {
                       <p className="text-sm sm:text-base font-medium text-slate-600 tracking-wide uppercase">
                         {contact.title}
                       </p>
+                       {isEditMode ? (
+                        <input
+                          type="text"
+                          name={contact.name}
+                          value={contact.value}
+                          onChange={handleInputChange}
+                          className={`text-lg sm:text-xl font-semibold ${contact.color} mt-2 text-balance leading-relaxed break-words bg-transparent border-b-2 border-slate-300 focus:outline-none focus:border-cyan-500 w-full`}
+                        />
+                      ) : (
                       <p
                         className={`text-lg sm:text-xl font-semibold ${contact.color} mt-2 text-balance leading-relaxed break-words`}
                       >
                         {contact.value}
                       </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -260,6 +339,17 @@ const ClientProfile = () => {
             })}
           </div>
         </section>
+
+        {isEditMode && (
+          <div className="flex justify-end mt-6">
+            <button
+              onClick={handleSaveChanges}
+              className="bg-cyan-600 text-white px-6 py-2 rounded-lg hover:bg-cyan-700 transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        )}
 
         {/* Patient History Section - Mobile-First Table Design */}
         <section className="mb-6 sm:mb-8">
@@ -295,7 +385,7 @@ const ClientProfile = () => {
                         {record.severity}
                       </span>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <h3 className="text-lg font-bold text-slate-800">{record.diagnosis}</h3>
                       <div className="flex items-center justify-between">
@@ -311,7 +401,7 @@ const ClientProfile = () => {
                         </span>
                       </div>
                     </div>
-                    
+
                     {record.documents && (
                       <button className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 transition-colors mt-3">
                         <Download className="w-5 h-5" />
