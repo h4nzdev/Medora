@@ -1,5 +1,36 @@
 import bcrypt from "bcrypt";
 import Patient from "../model/patientsModel.js";
+import sendVerificationEmail from "../utils/emailService.js";
+
+// In-memory store for verification codes. In production, use Redis or a similar store.
+const verificationCodes = {};
+
+// Send verification code
+export const sendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationCodes[email] = code;
+
+    // Send the email
+    const emailResponse = await sendVerificationEmail(email, code);
+
+    if (emailResponse.success) {
+      // In a real app, you wouldn't send the code back to the client.
+      // You'd store it in the session or a temporary database.
+      res.json({ message: "Verification code sent successfully", code });
+    } else {
+      res.status(500).json({ message: emailResponse.message });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error sending verification code", error: error.message });
+  }
+};
+
 
 // Login patient with sessions
 export const loginClient = async (req, res) => {
@@ -36,7 +67,13 @@ export const registerClient = async (req, res) => {
       address,
       password,
       emergencyContact,
+      verificationCode, // Added for verification
     } = req.body;
+
+    // Verify the code
+    if (verificationCodes[email] !== verificationCode) {
+      return res.status(400).json({ message: "Invalid verification code." });
+    }
 
     // ✅ Check if email already exists
     const existingPatientByEmail = await Patient.findOne({ email });
@@ -69,6 +106,9 @@ export const registerClient = async (req, res) => {
     });
 
     await newPatient.save();
+    
+    // Clean up the verification code
+    delete verificationCodes[email];
 
     res.status(201).json({
       message: "Patient registered successfully",
