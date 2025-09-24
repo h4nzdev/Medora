@@ -25,8 +25,11 @@ export default function ClinicRegister() {
     subscriptionPlan: "free", // default to free plan
     agreeToTerms: false,
   });
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentSetup, setIsPaymentSetup] = useState(false);
+  const [isVerificationStep, setIsVerificationStep] = useState(false);
+  const [verificationInput, setVerificationInput] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -57,13 +60,59 @@ export default function ClinicRegister() {
     toast.success("Payment details saved successfully!");
   };
 
-  const registerClinic = async () => {
+  const handleProceedToVerification = async (e) => {
+    e.preventDefault();
+    if (isLoading) return;
+    
+    // Client-side validation
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (!formData.agreeToTerms) {
+      toast.error("You must agree to the terms");
+      return;
+    }
+
+    if (formData.subscriptionPlan !== "free" && !isPaymentSetup) {
+      toast.error("Please set up payment details first");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/clinic/send-verification`,
+        { email: formData.email }
+      );
+      toast.success(res.data.message);
+      setIsVerificationStep(true);
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to send verification code"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
+
+    const finalFormData = {
+      ...formData,
+      verificationCode: verificationInput,
+    };
+
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/clinic/register`,
-        formData
+        finalFormData
       );
       toast.success(res.data.message);
       setFormData({
@@ -77,18 +126,12 @@ export default function ClinicRegister() {
         subscriptionPlan: "free",
         agreeToTerms: false,
       });
+      setVerificationInput("");
+      setIsVerificationStep(false);
       navigate("/clinic/login");
     } catch (error) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
-        setError(error.response.data.message);
-      } else {
-        setError("Login failed. Please check your connection and try again.");
-      }
       console.error("Error:", error);
+      toast.error(error.response?.data?.message || "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -172,7 +215,9 @@ export default function ClinicRegister() {
           {/* Back Button */}
           <div className="mb-6">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => 
+                isVerificationStep ? setIsVerificationStep(false) : navigate(-1)
+              }
               className="flex items-center space-x-2 text-slate-600 hover:text-slate-800 transition-colors duration-200 group"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-200" />
@@ -196,10 +241,16 @@ export default function ClinicRegister() {
           {/* Form Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
-              Create Your Clinic Account
+              {isVerificationStep 
+                ? "Verify Your Email" 
+                : "Create Your Clinic Account"
+              }
             </h2>
             <p className="text-slate-600 text-lg">
-              Register your clinic to get started
+              {isVerificationStep 
+                ? `We've sent a 6-digit code to ${formData.email}. Please enter it below.`
+                : "Register your clinic to get started"
+              }
             </p>
           </div>
 
@@ -210,317 +261,336 @@ export default function ClinicRegister() {
           />
 
           {/* Registration Form */}
-          <form
-            className="space-y-6"
-            onSubmit={(e) => {
-              e.preventDefault();
-              registerClinic();
-            }}
-          >
-            {/* Clinic Name & Contact Person */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {isVerificationStep ? (
+            <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label className="block text-sm font-semibold text-slate-700">
-                  Clinic Name
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Verification Code
                 </label>
                 <input
                   type="text"
-                  name="clinicName"
-                  value={formData.clinicName}
-                  onChange={handleInputChange}
-                  placeholder="Downtown Medical Center"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  value={verificationInput}
+                  onChange={(e) => setVerificationInput(e.target.value)}
+                  required
+                  maxLength="6"
+                  placeholder="Enter 6-digit code"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200 text-center text-2xl tracking-widest"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700">
-                  Contact Person
-                </label>
-                <input
-                  type="text"
-                  name="contactPerson"
-                  value={formData.contactPerson}
-                  onChange={handleInputChange}
-                  placeholder="Dr. John Smith"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
-                />
-              </div>
-            </div>
-
-            {/* Email & Phone */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="admin@clinic.com"
-                  autoComplete="off"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  placeholder="+1 (555) 123-4567"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
-                />
-              </div>
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-700">
-                Clinic Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="123 Medical Drive, City, State 12345"
-                className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
-              />
-            </div>
-
-            {/* Password & Confirm Password */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-slate-700">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
-                />
-              </div>
-            </div>
-
-            {/* Plan Selection */}
-            <div className="mt-8 pt-6 border-t border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                Choose Your Plan
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div
-                  className={`border-2 rounded-2xl p-6 transition-all cursor-pointer ${
-                    formData.subscriptionPlan === "free"
-                      ? "border-cyan-500 bg-cyan-50"
-                      : "border-slate-200 hover:border-cyan-300"
-                  }`}
-                  onClick={() => handlePlanSelect("free")}
-                >
-                  <div className="text-center">
-                    <h4 className="font-semibold text-slate-800 mb-2">Free</h4>
-                    <div className="text-2xl font-bold text-slate-800 mb-2">
-                      $0<span className="text-sm font-normal">/month</span>
-                    </div>
-                    <ul className="text-sm text-slate-600 space-y-1">
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Up to 25 patients
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Basic scheduling
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Email support
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div
-                  className={`border-2 rounded-2xl p-6 transition-all cursor-pointer relative ${
-                    formData.subscriptionPlan === "basic"
-                      ? "border-cyan-500 bg-cyan-50"
-                      : "border-slate-200 hover:border-cyan-300"
-                  }`}
-                  onClick={() => handlePlanSelect("basic")}
-                >
-                  {formData.subscriptionPlan === "basic" && (
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-cyan-500 text-white text-xs px-3 py-1 rounded-full">
-                        Selected
-                      </span>
-                    </div>
-                  )}
-                  <div className="text-center">
-                    <h4 className="font-semibold text-slate-800 mb-2">Basic</h4>
-                    <div className="text-2xl font-bold text-slate-800 mb-2">
-                      $29<span className="text-sm font-normal">/month</span>
-                    </div>
-                    <ul className="text-sm text-slate-600 space-y-1">
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Up to 100 patients
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Advanced scheduling
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Priority support
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Basic analytics
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div
-                  className={`border-2 rounded-2xl p-6 transition-all cursor-pointer relative ${
-                    formData.subscriptionPlan === "pro"
-                      ? "border-cyan-500 bg-cyan-50"
-                      : "border-slate-200 hover:border-cyan-300"
-                  }`}
-                  onClick={() => handlePlanSelect("pro")}
-                >
-                  {formData.subscriptionPlan === "pro" && (
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-cyan-500 text-white text-xs px-3 py-1 rounded-full">
-                        Selected
-                      </span>
-                    </div>
-                  )}
-                  <div className="text-center">
-                    <h4 className="font-semibold text-slate-800 mb-2">Pro</h4>
-                    <div className="text-2xl font-bold text-slate-800 mb-2">
-                      $79<span className="text-sm font-normal">/month</span>
-                    </div>
-                    <ul className="text-sm text-slate-600 space-y-1">
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Unlimited patients
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Full features
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        24/7 support
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Advanced analytics
-                      </li>
-                      <li className="flex items-center justify-center">
-                        <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                        Custom integrations
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Agree to Terms */}
-            <div className="flex items-center mt-6">
-              <input
-                type="checkbox"
-                name="agreeToTerms"
-                checked={formData.agreeToTerms}
-                onChange={handleInputChange}
-                className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
-              />
-              <span className="ml-2 text-sm text-slate-600">
-                I agree to the{" "}
-                <a href="#" className="text-cyan-600 hover:text-cyan-700">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-cyan-600 hover:text-cyan-700">
-                  Privacy Policy
-                </a>
-              </span>
-            </div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="border border-red-300 p-4 bg-red-50 flex items-center space-x-3 rounded-2xl mt-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="text-red-500 w-5 h-5 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              <button
+                type="submit"
+                disabled={isLoading || verificationInput.length !== 6}
+                className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
+                  isLoading || verificationInput.length !== 6
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:from-cyan-700 hover:to-cyan-600 hover:scale-[1.02] active:scale-[0.98]"
+                }`}
+              >
+                {isLoading ? "Verifying..." : "Verify & Register"}
+              </button>
+            </form>
+          ) : (
+            <form className="space-y-6" onSubmit={handleProceedToVerification}>
+              {/* Clinic Name & Contact Person */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Clinic Name
+                  </label>
+                  <input
+                    type="text"
+                    name="clinicName"
+                    value={formData.clinicName}
+                    onChange={handleInputChange}
+                    placeholder="Downtown Medical Center"
+                    className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
                   />
-                </svg>
-                <p className="text-red-700 font-medium">{error}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Contact Person
+                  </label>
+                  <input
+                    type="text"
+                    name="contactPerson"
+                    value={formData.contactPerson}
+                    onChange={handleInputChange}
+                    placeholder="Dr. John Smith"
+                    className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  />
+                </div>
               </div>
-            )}
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={
-                (formData.subscriptionPlan !== "free" && !isPaymentSetup) ||
-                isLoading
-              }
-              className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
-                formData.subscriptionPlan !== "free" && !isPaymentSetup
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-              }`}
-              title={
-                formData.subscriptionPlan !== "free" && !isPaymentSetup
-                  ? "Please set up payment first"
-                  : ""
-              }
-            >
-              {isLoading ? (
-                <>
-                  Creating Account... <Loader2 className="animate-spin" />
-                </>
-              ) : (
-                "Create Account"
+              {/* Email & Phone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="admin@clinic.com"
+                    autoComplete="off"
+                    className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+1 (555) 123-4567"
+                    className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  />
+                </div>
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700">
+                  Clinic Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="123 Medical Drive, City, State 12345"
+                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                />
+              </div>
+
+              {/* Password & Confirm Password */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700">
+                    Confirm Password
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  />
+                </div>
+              </div>
+
+              {/* Plan Selection */}
+              <div className="mt-8 pt-6 border-t border-slate-200">
+                <h3 className="text-lg font-semibold text-slate-800 mb-4">
+                  Choose Your Plan
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div
+                    className={`border-2 rounded-2xl p-6 transition-all cursor-pointer ${
+                      formData.subscriptionPlan === "free"
+                        ? "border-cyan-500 bg-cyan-50"
+                        : "border-slate-200 hover:border-cyan-300"
+                    }`}
+                    onClick={() => handlePlanSelect("free")}
+                  >
+                    <div className="text-center">
+                      <h4 className="font-semibold text-slate-800 mb-2">Free</h4>
+                      <div className="text-2xl font-bold text-slate-800 mb-2">
+                        $0<span className="text-sm font-normal">/month</span>
+                      </div>
+                      <ul className="text-sm text-slate-600 space-y-1">
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Up to 25 patients
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Basic scheduling
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Email support
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`border-2 rounded-2xl p-6 transition-all cursor-pointer relative ${
+                      formData.subscriptionPlan === "basic"
+                        ? "border-cyan-500 bg-cyan-50"
+                        : "border-slate-200 hover:border-cyan-300"
+                    }`}
+                    onClick={() => handlePlanSelect("basic")}
+                  >
+                    {formData.subscriptionPlan === "basic" && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-cyan-500 text-white text-xs px-3 py-1 rounded-full">
+                          Selected
+                        </span>
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <h4 className="font-semibold text-slate-800 mb-2">Basic</h4>
+                      <div className="text-2xl font-bold text-slate-800 mb-2">
+                        $29<span className="text-sm font-normal">/month</span>
+                      </div>
+                      <ul className="text-sm text-slate-600 space-y-1">
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Up to 100 patients
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Advanced scheduling
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Priority support
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Basic analytics
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`border-2 rounded-2xl p-6 transition-all cursor-pointer relative ${
+                      formData.subscriptionPlan === "pro"
+                        ? "border-cyan-500 bg-cyan-50"
+                        : "border-slate-200 hover:border-cyan-300"
+                    }`}
+                    onClick={() => handlePlanSelect("pro")}
+                  >
+                    {formData.subscriptionPlan === "pro" && (
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-cyan-500 text-white text-xs px-3 py-1 rounded-full">
+                          Selected
+                        </span>
+                      </div>
+                    )}
+                    <div className="text-center">
+                      <h4 className="font-semibold text-slate-800 mb-2">Pro</h4>
+                      <div className="text-2xl font-bold text-slate-800 mb-2">
+                        $79<span className="text-sm font-normal">/month</span>
+                      </div>
+                      <ul className="text-sm text-slate-600 space-y-1">
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Unlimited patients
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Full features
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          24/7 support
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Advanced analytics
+                        </li>
+                        <li className="flex items-center justify-center">
+                          <Check className="w-4 h-4 text-emerald-500 mr-1" />
+                          Custom integrations
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Agree to Terms */}
+              <div className="flex items-center mt-6">
+                <input
+                  type="checkbox"
+                  name="agreeToTerms"
+                  checked={formData.agreeToTerms}
+                  onChange={handleInputChange}
+                  className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                />
+                <span className="ml-2 text-sm text-slate-600">
+                  I agree to the{" "}
+                  <a href="#" className="text-cyan-600 hover:text-cyan-700">
+                    Terms of Service
+                  </a>{" "}
+                  and{" "}
+                  <a href="#" className="text-cyan-600 hover:text-cyan-700">
+                    Privacy Policy
+                  </a>
+                </span>
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="border border-red-300 p-4 bg-red-50 flex items-center space-x-3 rounded-2xl mt-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="text-red-500 w-5 h-5 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <p className="text-red-700 font-medium">{error}</p>
+                </div>
               )}
-            </button>
-            {formData.subscriptionPlan !== "free" && !isPaymentSetup && (
-              <p className="text-sm text-red-500 mt-2 text-center">
-                Please set up payment details before creating your account
-              </p>
-            )}
-          </form>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={
+                  isLoading ||
+                  !formData.agreeToTerms ||
+                  formData.password !== formData.confirmPassword ||
+                  (formData.subscriptionPlan !== "free" && !isPaymentSetup)
+                }
+                className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
+                  isLoading ||
+                  !formData.agreeToTerms ||
+                  formData.password !== formData.confirmPassword ||
+                  (formData.subscriptionPlan !== "free" && !isPaymentSetup)
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:from-cyan-700 hover:to-cyan-600 hover:scale-[1.02] active:scale-[0.98]"
+                }`}
+              >
+                {isLoading ? "Sending Code..." : "Send Verification Code"}
+              </button>
+              
+              {formData.subscriptionPlan !== "free" && !isPaymentSetup && (
+                <p className="text-sm text-red-500 mt-2 text-center">
+                  Please set up payment details before creating your account
+                </p>
+              )}
+            </form>
+          )}
 
           {/* Divider */}
           <div className="my-8 flex items-center">

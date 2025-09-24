@@ -1,5 +1,34 @@
 import bcrypt from "bcrypt";
 import Clinic from "../model/clinicModel.js";
+import sendVerificationEmail from "../utils/emailService.js";
+
+const verificationCodes = {};
+
+export const sendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required." });
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationCodes[email] = code;
+
+    // Send the email
+    const emailResponse = await sendVerificationEmail(email, code);
+
+    if (emailResponse.success) {
+      res.json({ message: "Verification code sent successfully" });
+    } else {
+      res.status(500).json({ message: emailResponse.message });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error sending verification code",
+      error: error.message,
+    });
+  }
+};
 
 // Login clinic with sessions
 export const loginClinic = async (req, res) => {
