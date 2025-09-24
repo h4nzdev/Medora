@@ -14,8 +14,6 @@ import {
 const MedicalRecordsModal = ({ isOpen, setIsOpen, record }) => {
   if (!isOpen) return null;
 
-  console.log(record)
-
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl border border-slate-200/50 w-full max-w-4xl max-h-[90vh] overflow-y-auto transform transition-all duration-300 ease-out hover:shadow-2xl hover:shadow-cyan-100/20 hide-scroll">
@@ -199,9 +197,7 @@ const MedicalRecordsModal = ({ isOpen, setIsOpen, record }) => {
                         <p className="text-sm font-semibold text-slate-600 mb-1 tracking-wide uppercase">
                           Medication
                         </p>
-                        <p className="font-bold text-slate-800">
-                          {p.medicine}
-                        </p>
+                        <p className="font-bold text-slate-800">{p.medicine}</p>
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-slate-600 mb-1 tracking-wide uppercase">

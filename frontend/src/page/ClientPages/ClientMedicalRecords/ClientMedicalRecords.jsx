@@ -1,4 +1,12 @@
-import { Download, Eye, FileText, Calendar, User, Clock, MoreHorizontal } from "lucide-react";
+import {
+  Download,
+  Eye,
+  FileText,
+  Calendar,
+  User,
+  Clock,
+  MoreHorizontal,
+} from "lucide-react";
 import useMedicalRecords from "../../../hooks/medicalRecords";
 import { useState } from "react";
 import MedicalRecordsModal from "../../../components/ClientComponents/MedicalRecordsModal/MedicalRecordsModal";
@@ -8,8 +16,6 @@ const ClientMedicalRecords = () => {
   const { records } = useMedicalRecords();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-
-  console.log(records)
 
   const openModal = (record) => {
     setSelectedRecord(record);
@@ -138,7 +144,9 @@ const ClientMedicalRecords = () => {
                     <div
                       className={`p-3 md:p-4 rounded-xl ${stat.bgColor} ml-3 flex-shrink-0 shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300 border ${stat.borderColor}`}
                     >
-                      <IconComponent className={`w-6 h-6 md:w-7 md:h-7 ${stat.color}`} />
+                      <IconComponent
+                        className={`w-6 h-6 md:w-7 md:h-7 ${stat.color}`}
+                      />
                     </div>
                   </div>
                 </div>
@@ -153,7 +161,8 @@ const ClientMedicalRecords = () => {
               All Medical Records
             </h2>
             <p className="text-slate-600 mt-2 text-lg">
-              {records.length} medical record{records.length !== 1 ? "s" : ""} found
+              {records.length} medical record{records.length !== 1 ? "s" : ""}{" "}
+              found
             </p>
           </div>
 
@@ -250,7 +259,9 @@ const ClientMedicalRecords = () => {
                       </td>
                       <td className="px-6">
                         <p className="font-semibold text-slate-700 text-base">
-                          {new Date(record.appointmentId?.date).toLocaleDateString()}
+                          {new Date(
+                            record.appointmentId?.date
+                          ).toLocaleDateString()}
                         </p>
                         <p className="text-base text-slate-500 font-medium">
                           {record.createdAt.slice(1, 10)}
@@ -296,7 +307,8 @@ const ClientMedicalRecords = () => {
                         No medical records found
                       </h3>
                       <p className="text-slate-500 text-lg">
-                        Your medical records will appear here after appointments.
+                        Your medical records will appear here after
+                        appointments.
                       </p>
                     </td>
                   </tr>

@@ -55,9 +55,10 @@ const ProfileDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100/80 py-2 z-50 animate-in fade-in-20 zoom-in-95 duration-200">
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100/80 py-2 z-50 animate-in fade-in-20 zoom-in-95 duration-200 md:hidden">
           <Link to="/client/profile">
             <button
+              onClick={() => setIsOpen(false)}
               href="/client/profile"
               className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
             >
@@ -67,6 +68,7 @@ const ProfileDropdown = () => {
           </Link>
           <Link to="/client/calendar">
             <button
+              onClick={() => setIsOpen(false)}
               href="/client/profile"
               className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
             >

@@ -60,7 +60,7 @@ export default function ClientRegister() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/auth/patient/send-verification",
+        `${import.meta.env.VITE_API_URL}/auth/patient/send-verification`,
         { email: formData.email }
       );
       // Show the code in the toast for easy testing
@@ -84,7 +84,7 @@ export default function ClientRegister() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/auth/patient/register",
+        `${import.meta.env.VITE_API_URL}/auth/patient/register`,
         finalFormData
       );
       toast.success(res.data.message);

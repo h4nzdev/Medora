@@ -149,7 +149,7 @@ const ClientReminders = () => {
 
   return (
     <>
-      <div className="w-full min-h-screen bg-slate-50">
+      <div className="w-full min-h-screen bg-slate-50 pb-6">
         <div className="mx-auto">
           <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center">
             <div className="mb-4 sm:mb-0">

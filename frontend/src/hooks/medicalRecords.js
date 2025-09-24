@@ -39,8 +39,6 @@ function useMedicalRecords() {
     return () => clearInterval(interval);
   }, [user]);
 
-  console.log(records);
-
   return { records, loading, error, refetch: fetchRecords };
 }
 
