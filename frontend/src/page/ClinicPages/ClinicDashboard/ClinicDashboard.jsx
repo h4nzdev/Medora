@@ -86,16 +86,6 @@ export default function ClinicDashboard() {
     },
   ];
 
-  const notifications = [
-    {
-      id: 1,
-      message: "Dr. Wilson has 3 appointments today",
-      priority: "medium",
-    },
-    { id: 2, message: "Payment pending from John Smith", priority: "high" },
-    { id: 3, message: "Monthly report is ready", priority: "low" },
-  ];
-
   return (
     <div className="w-full">
       <div className="mx-auto">
@@ -215,39 +205,39 @@ export default function ClinicDashboard() {
                 Recent Appointments
               </h2>
               <div className="space-y-4">
-                {visibleAppointments.length > 0 ? (
-                  visibleAppointments.map((appointment) => (
+                {visibleAppointments?.length > 0 ? (
+                  visibleAppointments?.map((appointment) => (
                     <div
-                      key={appointment.id}
+                      key={appointment?.id}
                       className="group relative overflow-hidden bg-slate-50 border border-slate-200 rounded-xl p-6 hover:shadow-md hover:border-cyan-300 transition-all duration-300 hover:-translate-y-0.5"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center space-x-3">
                             <h3 className="font-semibold text-slate-800 text-lg">
-                              {appointment.patientId.name}
+                              {appointment.patientId?.name}
                             </h3>
                             <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full capitalize">
-                              {appointment.type}
+                              {appointment?.type}
                             </span>
                           </div>
                           <p className="text-slate-600">
-                            {appointment.doctorId.name}
+                            {appointment.doctorId?.name}
                           </p>
                           <p className="text-slate-500 text-sm mt-1">
-                            {useDate(appointment.date)} at{" "}
-                            {useTime(appointment.date)}
+                            {useDate(appointment?.date)} at{" "}
+                            {useTime(appointment?.date)}
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span
                             className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusBadge(
-                              appointment.status
+                              appointment?.status
                             )} shadow-sm`}
                           >
-                            {getStatusIcon(appointment.status)}
+                            {getStatusIcon(appointment?.status)}
                             <span className="ml-2 capitalize">
-                              {appointment.status}
+                              {appointment?.status}
                             </span>
                           </span>
                         </div>
