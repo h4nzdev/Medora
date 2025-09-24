@@ -17,6 +17,7 @@ const ClientProfile = () => {
   const { user, initials, setUser } = useContext(AuthContext);
   const [isEditMode, setIsEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState(null);
+  const [appointmentHistory, setAppointmentHistory] = useState([]);
 
   useEffect(() => {
     if (user) {
@@ -28,6 +29,17 @@ const ClientProfile = () => {
         phone: user.phone,
         address: user.address,
       });
+
+      const fetchAppointmentHistory = async () => {
+        try {
+          const response = await axios.get(`http://localhost:3000/appointment/patient/${user._id}`);
+          setAppointmentHistory(response.data);
+        } catch (error) {
+          console.error("Error fetching appointment history:", error);
+        }
+      };
+
+      fetchAppointmentHistory();
     }
   }, [user]);
 
@@ -42,7 +54,7 @@ const ClientProfile = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const response = await axios.put(`http://localhost:3000/patients/${user._id}`, updatedUser);
+      const response = await axios.put(`http://localhost:5000/api/patients/${user._id}`, updatedUser);
       setUser(response.data); // Update user in context
       setIsEditMode(false);
     } catch (error) {
@@ -140,53 +152,15 @@ const ClientProfile = () => {
     },
   ];
 
-  // Mock patient history data - you can replace this with real data from your user object
-  const patientHistory = [
-    {
-      date: "20 Jan, 2023",
-      diagnosis: "Malaria",
-      severity: "High",
-      visits: 2,
-      status: "Under Treatment",
-      documents: true,
-    },
-    {
-      date: "15 Jan, 2022",
-      diagnosis: "Viral Fever",
-      severity: "Low",
-      visits: 1,
-      status: "Cured",
-      documents: true,
-    },
-    {
-      date: "28 Jun, 2021",
-      diagnosis: "Covid-19",
-      severity: "High",
-      visits: 3,
-      status: "Cured",
-      documents: true,
-    },
-  ];
-
-  const getSeverityColor = (severity) => {
-    switch (severity.toLowerCase()) {
-      case "high":
-        return "bg-red-100 text-red-700 border-red-200";
-      case "medium":
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
-      case "low":
-        return "bg-green-100 text-green-700 border-green-200";
-      default:
-        return "bg-slate-100 text-slate-700 border-slate-200";
-    }
-  };
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case "cured":
+      case "scheduled":
+        return "bg-cyan-100 text-cyan-700 border-cyan-200";
+      case "completed":
         return "bg-emerald-100 text-emerald-700 border-emerald-200";
-      case "under treatment":
-        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "cancelled":
+        return "bg-red-100 text-red-700 border-red-200";
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
@@ -355,148 +329,80 @@ const ClientProfile = () => {
         <section className="mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-              Patient History
+              Appointment History
             </h2>
-            <p className="text-base sm:text-lg text-slate-600 font-medium">Total 35 Visits</p>
+            <p className="text-base sm:text-lg text-slate-600 font-medium">Total {appointmentHistory.length} Appointments</p>
           </div>
 
-          {/* Mobile Card Layout for small screens, Table for larger screens */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
-            {/* Mobile Card Layout */}
-            <div className="block sm:hidden">
-              {patientHistory.map((record, index) => (
-                <div
-                  key={index}
-                  className="p-4 border-b border-slate-100 last:border-b-0"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-slate-500" />
-                        <span className="text-base font-semibold text-slate-700">
-                          {record.date}
-                        </span>
-                      </div>
-                      <span
-                        className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold border ${getSeverityColor(
-                          record.severity
-                        )}`}
-                      >
-                        {record.severity}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-bold text-slate-800">{record.diagnosis}</h3>
-                      <div className="flex items-center justify-between">
-                        <span className="text-base text-slate-600">
-                          <span className="font-medium">{record.visits}</span> visits
-                        </span>
-                        <span
-                          className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(
-                            record.status
-                          )}`}
-                        >
-                          {record.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    {record.documents && (
-                      <button className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 transition-colors mt-3">
-                        <Download className="w-5 h-5" />
-                        <span className="text-base font-medium">
-                          Download Documents
-                        </span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop Table Layout */}
-            <div className="hidden sm:block overflow-x-auto">
-              <table className="w-full min-w-[600px]">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="text-left p-4 text-base font-semibold text-slate-700">
-                      Date Of Visit
-                    </th>
-                    <th className="text-left p-4 text-base font-semibold text-slate-700">
-                      Diagnosis
-                    </th>
-                    <th className="text-left p-4 text-base font-semibold text-slate-700">
-                      Severity
-                    </th>
-                    <th className="text-left p-4 text-base font-semibold text-slate-700">
-                      Total Visits
-                    </th>
-                    <th className="text-left p-4 text-base font-semibold text-slate-700">
-                      Status
-                    </th>
-                    <th className="text-left p-4 text-base font-semibold text-slate-700">
-                      Documents
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {patientHistory.map((record, index) => (
-                    <tr
-                      key={index}
-                      className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5 text-slate-500" />
-                          <span className="text-base font-medium text-slate-700">
-                            {record.date}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-base font-medium text-slate-800">
-                          {record.diagnosis}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold border ${getSeverityColor(
-                            record.severity
-                          )}`}
-                        >
-                          {record.severity}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-base font-medium text-slate-700">
-                          {record.visits}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(
-                            record.status
-                          )}`}
-                        >
-                          {record.status}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        {record.documents && (
-                          <button className="flex items-center gap-2 text-cyan-600 hover:text-cyan-700 transition-colors">
-                            <Download className="w-5 h-5" />
-                            <span className="text-base font-medium">
-                              Download
-                            </span>
-                          </button>
-                        )}
-                      </td>
+            {appointmentHistory.length === 0 ? (
+              <p className="p-4 text-center text-slate-600">No history yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead className="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th className="text-left p-4 text-base font-semibold text-slate-700">
+                        Date
+                      </th>
+                      <th className="text-left p-4 text-base font-semibold text-slate-700">
+                        Clinic ID
+                      </th>
+                      <th className="text-left p-4 text-base font-semibold text-slate-700">
+                        Doctor ID
+                      </th>
+                      <th className="text-left p-4 text-base font-semibold text-slate-700">
+                        Type
+                      </th>
+                      <th className="text-left p-4 text-base font-semibold text-slate-700">
+                        Status
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {appointmentHistory.map((record, index) => (
+                      <tr
+                        key={index}
+                        className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
+                      >
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-5 h-5 text-slate-500" />
+                            <span className="text-base font-medium text-slate-700">
+                              {useDate(record.date)}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-base font-medium text-slate-800">
+                            {record.clinicId}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-base font-medium text-slate-800">
+                            {record.doctorId}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className="text-base font-medium text-slate-700">
+                            {record.type}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor(
+                              record.status
+                            )}`}
+                          >
+                            {record.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </section>
       </div>

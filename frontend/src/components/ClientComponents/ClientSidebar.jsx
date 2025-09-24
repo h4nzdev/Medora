@@ -8,6 +8,7 @@ import {
   Stethoscope,
   User,
   Settings,
+  CalendarDays
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -21,6 +22,7 @@ export default function ClientSidebar() {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", link: "/client/dashboard" },
     { icon: Calendar, label: "Appointments", link: "/client/appointments" },
+    { icon: CalendarDays, label: "Calendar", link: "/client/calendar" },
     { icon: MessageSquare, label: "AI Chat", link: "/client/chats" },
     {
       icon: FileText,
