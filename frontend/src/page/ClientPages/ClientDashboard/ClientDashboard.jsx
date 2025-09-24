@@ -175,26 +175,29 @@ export default function ClientDashboard() {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-6">
+          <h2 className="text-2xl font-semibold text-slate-800 mb-6 hidden lg:block">
             Recent Appointments
+          </h2>
+          <h2 className="text-2xl font-semibold text-slate-800 mb-6 lg:hidden">
+            Upcoming Appointments
           </h2>
 
           {/* Mobile Card Layout */}
           <div className="block lg:hidden space-y-3 sm:space-y-4">
-            {completedAppointments.length === 0 ? (
+            {upcomingAppointments.length === 0 ? (
               <div className="text-center py-8 sm:py-10">
                 <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl sm:rounded-2xl p-6 sm:p-8 w-fit mx-auto mb-4 sm:mb-6">
                   <CalendarIcon className="w-12 h-12 sm:w-16 sm:h-16 text-slate-400 mx-auto" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-bold text-slate-700 mb-2">
-                  No completed appointments yet
+                  No upcoming appointments yet
                 </h3>
                 <p className="text-sm sm:text-base text-slate-500 px-4">
-                  Your completed appointments will appear here.
+                  Your upcoming appointments will appear here.
                 </p>
               </div>
             ) : (
-              visibleAppointments.map((appointment) => (
+              upcomingAppointments.slice(0, 5).map((appointment) => (
                 <div
                   key={appointment._id}
                   className="group relative overflow-hidden bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
