@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useContext } from "react";
-import { User, LogOut } from "lucide-react";
+import { User, LogOut, CalendarDays } from "lucide-react";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
@@ -63,6 +63,15 @@ const ProfileDropdown = () => {
             >
               <User className="w-4 h-4 mr-3" />
               Profile
+            </button>
+          </Link>
+          <Link to="/client/calendar">
+            <button
+              href="/client/profile"
+              className="flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+            >
+              <CalendarDays className="w-4 h-4 mr-3" />
+              Calendar
             </button>
           </Link>
           <button

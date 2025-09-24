@@ -77,7 +77,7 @@ export default function ClientDashboard() {
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl md:text-4xl font-semibold text-slate-800">
+              <h1 className="text-2xl md:text-4xl font-semibold text-slate-800">
                 Welcome, {user.name}!
               </h1>
               <p className="text-slate-600 mt-1">

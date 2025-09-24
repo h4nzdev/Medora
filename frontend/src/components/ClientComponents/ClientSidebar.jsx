@@ -8,7 +8,6 @@ import {
   Stethoscope,
   User,
   Settings,
-  CalendarDays
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -22,7 +21,6 @@ export default function ClientSidebar() {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", link: "/client/dashboard" },
     { icon: Calendar, label: "Appointments", link: "/client/appointments" },
-    { icon: CalendarDays, label: "Calendar", link: "/client/calendar" },
     { icon: MessageSquare, label: "AI Chat", link: "/client/chats" },
     {
       icon: FileText,
@@ -53,7 +51,7 @@ export default function ClientSidebar() {
         setUser(false);
         setRole("Client");
         navigate("/auth/login");
-        toast.success("Logged out successfully!")
+        toast.success("Logged out successfully!");
       }
     });
   };
@@ -93,7 +91,9 @@ export default function ClientSidebar() {
             <span className="text-white font-semibold text-sm">{initials}</span>
           </div>
           <div>
-            <h3 className="turnicate max-w-[150px] font-semibold text-slate-800">{user.name}</h3>
+            <h3 className="turnicate max-w-[150px] font-semibold text-slate-800">
+              {user.name}
+            </h3>
             <p className="text-sm text-slate-500">Patient</p>
           </div>
         </div>

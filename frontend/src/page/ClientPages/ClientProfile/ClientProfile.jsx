@@ -360,7 +360,7 @@ const ClientProfile = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {appointmentHistory.map((record, index) => (
+                    {appointmentHistory?.map((record, index) => (
                       <tr
                         key={index}
                         className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors"
@@ -375,12 +375,12 @@ const ClientProfile = () => {
                         </td>
                         <td className="p-4">
                           <span className="text-base font-medium text-slate-800">
-                            {record.clinicId}
+                            {record.clinicId._id}
                           </span>
                         </td>
                         <td className="p-4">
                           <span className="text-base font-medium text-slate-800">
-                            {record.doctorId}
+                            {record.doctorId._id}
                           </span>
                         </td>
                         <td className="p-4">
