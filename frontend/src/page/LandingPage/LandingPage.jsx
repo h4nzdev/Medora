@@ -361,7 +361,7 @@ const LandingPage = () => {
         style={{ backgroundImage: `url(${clinic})` }}
       >
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="container relative w-full mx-auto z-40">
+        <div className="container relative w-full mx-auto z-40 space-x-4">
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">
               Featured Clinics
