@@ -328,7 +328,9 @@ export default function ClientRegister() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       required
-                      placeholder="+1 (555) 123-4567"
+                      placeholder="09XXXXXXXXX"
+                      maxLength={11}
+                      title="Phone number must start with +639 followed by 9 digits (total 12 characters including +639)"
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>
@@ -402,8 +404,9 @@ export default function ClientRegister() {
                       name="emergencyContact.mobile"
                       value={formData.emergencyContact.mobile}
                       onChange={handleInputChange}
-                      placeholder="+1 555-123-4567"
                       required
+                      placeholder="09XXXXXXXXX"
+                      maxLength={11}
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
                     />
                   </div>

@@ -370,10 +370,10 @@ const ClientLogin = () => {
               }`}
             >
               {isLoading ? (
-                <>
+                <span className="flex items-center">
                   Signing in...
                   <Loader2 className="animate-spin" />
-                </>
+                </span>
               ) : (
                 "Access Dashboard"
               )}

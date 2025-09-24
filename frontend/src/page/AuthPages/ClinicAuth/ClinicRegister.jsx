@@ -25,7 +25,7 @@ export default function ClinicRegister() {
     subscriptionPlan: "free", // default to free plan
     agreeToTerms: false,
   });
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentSetup, setIsPaymentSetup] = useState(false);
   const [isVerificationStep, setIsVerificationStep] = useState(false);
@@ -63,7 +63,7 @@ export default function ClinicRegister() {
   const handleProceedToVerification = async (e) => {
     e.preventDefault();
     if (isLoading) return;
-    
+
     // Client-side validation
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -215,7 +215,7 @@ export default function ClinicRegister() {
           {/* Back Button */}
           <div className="mb-6">
             <button
-              onClick={() => 
+              onClick={() =>
                 isVerificationStep ? setIsVerificationStep(false) : navigate(-1)
               }
               className="flex items-center space-x-2 text-slate-600 hover:text-slate-800 transition-colors duration-200 group"
@@ -241,16 +241,14 @@ export default function ClinicRegister() {
           {/* Form Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
-              {isVerificationStep 
-                ? "Verify Your Email" 
-                : "Create Your Clinic Account"
-              }
+              {isVerificationStep
+                ? "Verify Your Email"
+                : "Create Your Clinic Account"}
             </h2>
             <p className="text-slate-600 text-lg">
-              {isVerificationStep 
+              {isVerificationStep
                 ? `We've sent a 6-digit code to ${formData.email}. Please enter it below.`
-                : "Register your clinic to get started"
-              }
+                : "Register your clinic to get started"}
             </p>
           </div>
 
@@ -346,7 +344,9 @@ export default function ClinicRegister() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="+1 (555) 123-4567"
+                    required
+                    placeholder="09XXXXXXXXX"
+                    maxLength={11}
                     className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
                   />
                 </div>
@@ -412,7 +412,9 @@ export default function ClinicRegister() {
                     onClick={() => handlePlanSelect("free")}
                   >
                     <div className="text-center">
-                      <h4 className="font-semibold text-slate-800 mb-2">Free</h4>
+                      <h4 className="font-semibold text-slate-800 mb-2">
+                        Free
+                      </h4>
                       <div className="text-2xl font-bold text-slate-800 mb-2">
                         $0<span className="text-sm font-normal">/month</span>
                       </div>
@@ -449,7 +451,9 @@ export default function ClinicRegister() {
                       </div>
                     )}
                     <div className="text-center">
-                      <h4 className="font-semibold text-slate-800 mb-2">Basic</h4>
+                      <h4 className="font-semibold text-slate-800 mb-2">
+                        Basic
+                      </h4>
                       <div className="text-2xl font-bold text-slate-800 mb-2">
                         $29<span className="text-sm font-normal">/month</span>
                       </div>
@@ -583,7 +587,7 @@ export default function ClinicRegister() {
               >
                 {isLoading ? "Sending Code..." : "Send Verification Code"}
               </button>
-              
+
               {formData.subscriptionPlan !== "free" && !isPaymentSetup && (
                 <p className="text-sm text-red-500 mt-2 text-center">
                   Please set up payment details before creating your account
