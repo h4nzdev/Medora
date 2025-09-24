@@ -12,22 +12,26 @@ import {
 import { AuthContext } from "../../../context/AuthContext";
 import { useDate } from "../../../utils/date";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const ClientProfile = () => {
   const { user, initials, setUser } = useContext(AuthContext);
   const [isEditMode, setIsEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState(null);
   const [appointmentHistory, setAppointmentHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (user) {
+      // Create a safe copy of user data for editing
       setUpdatedUser({
-        name: user.name,
-        age: user.age,
-        gender: user.gender,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
+        name: user.name || "",
+        age: user.age || "",
+        gender: user.gender || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        address: user.address || "",
       });
 
       const fetchAppointmentHistory = async () => {
@@ -47,24 +51,58 @@ const ClientProfile = () => {
 
   const handleEditClick = () => {
     setIsEditMode(!isEditMode);
+    setError(""); // Clear any previous errors
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUpdatedUser((prev) => ({ ...prev, [name]: value }));
+    setUpdatedUser((prev) => ({
+      ...prev,
+      [name]:
+        name === "age" ? (value === "" ? "" : parseInt(value) || 0) : value,
+    }));
   };
 
   const handleSaveChanges = async () => {
+    if (!updatedUser) return;
+
+    setIsLoading(true);
+    setError("");
+
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/patient/${user._id}`,
         updatedUser
       );
-      setUser(response.data.patient);
-      setIsEditMode(false);
+
+      // Ensure we have the updated patient data
+      if (response.data && response.data.patient) {
+        setUser(response.data.patient);
+        setIsEditMode(false);
+        toast.success(response.data.message);
+      } else {
+        throw new Error("Invalid response from server");
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
+      setError(error.response?.data?.message || "Failed to update profile");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset to original user data
+    setUpdatedUser({
+      name: user.name || "",
+      age: user.age || "",
+      gender: user.gender || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      address: user.address || "",
+    });
+    setIsEditMode(false);
+    setError("");
   };
 
   if (!user) {
@@ -79,10 +117,30 @@ const ClientProfile = () => {
     );
   }
 
+  // Add error display
+  if (error) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl border border-red-200 shadow-lg p-6 max-w-md">
+          <div className="text-red-600 text-center">
+            <p className="text-lg font-semibold mb-2">Error</p>
+            <p>{error}</p>
+            <button
+              onClick={() => setError("")}
+              className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const stats = [
     {
       title: "Full Name",
-      value: updatedUser?.name,
+      value: updatedUser?.name || "",
       icon: User,
       color: "text-slate-600",
       bgColor: "bg-slate-50",
@@ -91,7 +149,7 @@ const ClientProfile = () => {
     },
     {
       title: "Age",
-      value: `${updatedUser?.age} years`,
+      value: `${updatedUser?.age || ""} years`,
       icon: Calendar,
       color: "text-cyan-600",
       bgColor: "bg-cyan-50",
@@ -100,7 +158,7 @@ const ClientProfile = () => {
     },
     {
       title: "Gender",
-      value: updatedUser?.gender,
+      value: updatedUser?.gender || "",
       icon: UserCheck,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
@@ -109,7 +167,7 @@ const ClientProfile = () => {
     },
     {
       title: "Role",
-      value: user.role,
+      value: user.role || "",
       icon: User,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
@@ -122,7 +180,7 @@ const ClientProfile = () => {
   const contactInfo = [
     {
       title: "Email Address",
-      value: updatedUser?.email,
+      value: updatedUser?.email || "",
       icon: Mail,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
@@ -131,7 +189,7 @@ const ClientProfile = () => {
     },
     {
       title: "Phone Number",
-      value: updatedUser?.phone,
+      value: updatedUser?.phone || "",
       icon: Phone,
       color: "text-green-600",
       bgColor: "bg-green-50",
@@ -140,7 +198,7 @@ const ClientProfile = () => {
     },
     {
       title: "Address",
-      value: updatedUser?.address,
+      value: updatedUser?.address || "",
       icon: MapPin,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
@@ -150,7 +208,7 @@ const ClientProfile = () => {
   ];
 
   const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status?.toLowerCase()) {
       case "scheduled":
         return "bg-cyan-100 text-cyan-700 border-cyan-200";
       case "completed":
@@ -209,8 +267,9 @@ const ClientProfile = () => {
                   {user._id}
                 </p>
                 <button
-                  onClick={handleEditClick}
-                  className="mt-4 flex items-center gap-2 text-white bg-cyan-600 hover:bg-cyan-700 transition-colors px-4 py-2 rounded-lg text-base"
+                  onClick={isEditMode ? handleCancelEdit : handleEditClick}
+                  disabled={isLoading}
+                  className="mt-4 flex items-center gap-2 text-white bg-cyan-600 hover:bg-cyan-700 transition-colors px-4 py-2 rounded-lg text-base disabled:opacity-50"
                 >
                   <Edit className="w-5 h-5" />
                   <span>{isEditMode ? "Cancel" : "Edit Profile"}</span>
@@ -219,6 +278,13 @@ const ClientProfile = () => {
             </div>
           </div>
         </header>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
 
         {/* Personal Information Section */}
         <section className="mb-8">
@@ -247,15 +313,12 @@ const ClientProfile = () => {
                       </p>
                       {isEditMode && stat.isEditable !== false ? (
                         <input
-                          type="text"
+                          type={stat.name === "age" ? "number" : "text"}
                           name={stat.name}
-                          value={
-                            stat.name === "age"
-                              ? parseInt(stat.value) || ""
-                              : stat.value || ""
-                          }
+                          value={stat.value.replace(" years", "")}
                           onChange={handleInputChange}
                           className={`text-xl sm:text-2xl font-bold ${stat.color} mt-2 capitalize leading-tight bg-white/70 border-2 border-slate-300 focus:outline-none focus:border-cyan-500 w-full rounded px-3 py-2`}
+                          disabled={isLoading}
                         />
                       ) : (
                         <p
@@ -300,10 +363,11 @@ const ClientProfile = () => {
                       {isEditMode ? (
                         <textarea
                           name={contact.name}
-                          value={contact.value || ""}
+                          value={contact.value}
                           onChange={handleInputChange}
                           rows="2"
                           className={`text-lg sm:text-xl font-semibold ${contact.color} mt-2 leading-relaxed bg-white/70 border-2 border-slate-300 focus:outline-none focus:border-cyan-500 w-full rounded px-3 py-2 resize-none`}
+                          disabled={isLoading}
                         />
                       ) : (
                         <p
@@ -321,17 +385,25 @@ const ClientProfile = () => {
         </section>
 
         {isEditMode && (
-          <div className="flex justify-center sm:justify-end mt-6 mb-8">
+          <div className="flex justify-center sm:justify-end mt-6 mb-8 gap-4">
+            <button
+              onClick={handleCancelEdit}
+              disabled={isLoading}
+              className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-lg font-medium disabled:opacity-50"
+            >
+              Cancel
+            </button>
             <button
               onClick={handleSaveChanges}
-              className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors text-lg font-medium"
+              disabled={isLoading}
+              className="bg-cyan-600 text-white px-6 py-3 rounded-lg hover:bg-cyan-700 transition-colors text-lg font-medium disabled:opacity-50"
             >
-              Save Changes
+              {isLoading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         )}
 
-        {/* Appointment History Section */}
+        {/* Rest of your component remains the same */}
         <section className="mb-8">
           <div className="flex flex-col space-y-2 mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
