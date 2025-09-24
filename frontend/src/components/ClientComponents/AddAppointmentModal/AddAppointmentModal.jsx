@@ -1,7 +1,7 @@
 'use client';
 
 import { useContext, useState } from "react";
-import { X, Calendar, CreditCard } from "lucide-react";
+import { X, Calendar, CreditCard, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { DoctorContext } from "../../../context/DoctorContext";
@@ -24,6 +24,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
   );
 
   const [currentTab, setCurrentTab] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     doctorId: "",
     date: new Date(),
@@ -57,6 +58,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
   };
 
   const handlePaymentSubmit = async (paymentData) => {
+    setIsLoading(true);
     try {
       const datePart = formData.date.toISOString().split('T')[0];
       const appointmentDateTime = `${datePart}T${formData.time}:00.000Z`;
@@ -89,6 +91,8 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
     } catch (error) {
       console.error("Error booking appointment:", error);
       toast.error("Failed to book appointment. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -153,11 +157,20 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
                     </button>
                     <button
                         type="submit"
-                        disabled={!formData.doctorId || !formData.date || !formData.time}
+                        disabled={!formData.doctorId || !formData.date || !formData.time || isLoading}
                         className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
                         >
-                        <CreditCard className="w-4 h-4" />
-                        Proceed to Payment
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            <>
+                                <CreditCard className="w-4 h-4" />
+                                Proceed to Payment
+                            </>
+                        )}
                     </button>
                 </div>
             )}
@@ -168,6 +181,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
         isOpen={isPaymentModalOpen}
         onClose={handlePaymentModalClose}
         onSubmit={handlePaymentSubmit}
+        loading={isLoading}
       />
     </div>
   );

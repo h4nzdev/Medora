@@ -11,6 +11,7 @@ import {
   Check,
   Banknote,
   Smartphone as PhoneIcon,
+  Loader2,
 } from "lucide-react";
 
 const banks = ["PayMaya", "Metrobank", "BDO", "GCash"];
@@ -30,7 +31,12 @@ const bankColors = {
   GCash: "from-slate-600 to-slate-700",
 };
 
-export default function ClientPaymentModal({ isOpen, onClose, onSubmit }) {
+export default function ClientPaymentModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [step, setStep] = useState(1);
   const [selectedBank, setSelectedBank] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
@@ -63,12 +69,12 @@ export default function ClientPaymentModal({ isOpen, onClose, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ 
-      paymentMethod: "online", 
+    onSubmit({
+      paymentMethod: "online",
       bankDetails: {
         ...bankDetails,
-        bank: selectedBank
-      }
+        bank: selectedBank,
+      },
     });
   };
 
@@ -162,35 +168,42 @@ export default function ClientPaymentModal({ isOpen, onClose, onSubmit }) {
                 {/* Cash Payment Option */}
                 <button
                   onClick={() => handlePaymentMethodSelect("cash")}
+                  disabled={loading}
                   className="group relative p-4 border border-slate-200 rounded-xl hover:border-cyan-300 hover:shadow-md transition-all duration-200 text-left overflow-hidden"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm">
-                      <Banknote className="w-6 h-6" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-slate-800 group-hover:text-cyan-600 transition-colors">
-                        Pay Cash on Arrival
-                      </h3>
-                      <p className="text-sm text-slate-600">
-                        Pay directly when you arrive at the clinic
-                      </p>
-                    </div>
-                    <div className="text-slate-500 group-hover:text-cyan-600 transition-colors">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    </div>
+                    {loading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      <>
+                        <div className="p-3 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm">
+                          <Banknote className="w-6 h-6" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-slate-800 group-hover:text-cyan-600 transition-colors">
+                            Pay Cash on Arrival
+                          </h3>
+                          <p className="text-sm text-slate-600">
+                            Pay directly when you arrive at the clinic
+                          </p>
+                        </div>
+                        <div className="text-slate-500 group-hover:text-cyan-600 transition-colors">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </button>
 
