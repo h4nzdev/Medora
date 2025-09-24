@@ -60,7 +60,7 @@ const ClientProfile = () => {
         `${import.meta.env.VITE_API_URL}/patient/${user._id}`,
         updatedUser
       );
-      setUser(response.data);
+      setUser(response.data.patient);
       setIsEditMode(false);
     } catch (error) {
       console.error("Error updating profile:", error);
