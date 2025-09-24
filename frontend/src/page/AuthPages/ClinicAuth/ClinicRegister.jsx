@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, Star, Check, ArrowLeft } from "lucide-react";
+import { Shield, Star, Check, ArrowLeft, Loader2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,6 +13,7 @@ import clinic from "../../../assets/clinic.jpg";
 export default function ClinicRegister() {
   const [error, setError] = useState();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     clinicName: "",
     contactPerson: "",
@@ -57,6 +58,8 @@ export default function ClinicRegister() {
   };
 
   const registerClinic = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/clinic/register`,
@@ -86,6 +89,8 @@ export default function ClinicRegister() {
         setError("Login failed. Please check your connection and try again.");
       }
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -487,7 +492,10 @@ export default function ClinicRegister() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={formData.subscriptionPlan !== "free" && !isPaymentSetup}
+              disabled={
+                (formData.subscriptionPlan !== "free" && !isPaymentSetup) ||
+                isLoading
+              }
               className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
                 formData.subscriptionPlan !== "free" && !isPaymentSetup
                   ? "opacity-50 cursor-not-allowed"
@@ -499,7 +507,13 @@ export default function ClinicRegister() {
                   : ""
               }
             >
-              Create Account
+              {isLoading ? (
+                <>
+                  Creating Account... <Loader2 className="animate-spin" />
+                </>
+              ) : (
+                "Create Account"
+              )}
             </button>
             {formData.subscriptionPlan !== "free" && !isPaymentSetup && (
               <p className="text-sm text-red-500 mt-2 text-center">

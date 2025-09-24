@@ -8,6 +8,7 @@ import {
   Pill,
   Stethoscope,
   ClipboardList,
+  Loader2,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -22,6 +23,7 @@ const AddMedicalRecordModal = ({
   const [diagnosis, setDiagnosis] = useState("");
   const [treatment, setTreatment] = useState("");
   const [notes, setNotes] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [prescriptions, setPrescriptions] = useState([
     { medicine: "", dosage: "", duration: "" },
   ]);
@@ -49,6 +51,8 @@ const AddMedicalRecordModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+    setIsLoading(true);
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/medical-records/add-records`,
@@ -67,6 +71,8 @@ const AddMedicalRecordModal = ({
       onClose(); // Close modal on success
     } catch (error) {
       console.error("Error adding medical record:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -250,9 +256,17 @@ const AddMedicalRecordModal = ({
             </button>
             <button
               type="submit"
+              disabled={isLoading}
               className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white rounded-xl hover:from-cyan-700 hover:to-cyan-800 hover:shadow-xl hover:scale-105 transition-all duration-300 font-semibold tracking-wide shadow-lg"
             >
-              Add Medical Record
+              {isLoading ? (
+                <>
+                  Adding Medicalrecords
+                  <Loader2 className="animate-spin"/>
+                </>
+              ) : (
+                "Add Medical Record"
+              )}
             </button>
           </div>
         </form>

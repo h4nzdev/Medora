@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Stethoscope,
   ArrowLeft,
+  Loader2,
 } from "lucide-react";
 import { useContext, useState } from "react";
 import axios from "axios";
@@ -23,6 +24,7 @@ export default function ClinicLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -30,6 +32,8 @@ export default function ClinicLogin() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+    setIsLoading(true);
     const loginClinic = `${import.meta.env.VITE_API_URL}/auth/clinic/login`; // Clinic login endpoint
     try {
       const res = await axios.post(loginClinic, {
@@ -62,6 +66,8 @@ export default function ClinicLogin() {
         setError("Login failed. Please check your connection and try again.");
       }
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -253,9 +259,17 @@ export default function ClinicLogin() {
             {/* Sign In Button */}
             <button
               type="submit"
+              disabled={isLoading}
               className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25"
             >
-              Sign In to Dashboard
+              {isLoading ? (
+                <>
+                  Signing in...
+                  <Loader2 className="animate-spin" />
+                </>
+              ) : (
+                "Sign In to Dashboard"
+              )}
             </button>
           </form>
 

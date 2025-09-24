@@ -12,6 +12,7 @@ export default function ClientRegister() {
   const { clinics } = useContext(ClinicContext);
   const [error, setError] = useState();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     clinicId: "",
     name: "",
@@ -47,7 +48,8 @@ export default function ClientRegister() {
 
   const handleProceedToVerification = async (e) => {
     e.preventDefault();
-
+    if (isLoading) return;
+    setIsLoading(true);
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -71,11 +73,14 @@ export default function ClientRegister() {
       toast.error(
         error.response?.data?.message || "Failed to send verification code"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const finalFormData = {
       ...formData,
@@ -107,6 +112,8 @@ export default function ClientRegister() {
     } catch (error) {
       console.error("Error:", error);
       toast.error(error.response?.data?.message || "Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -224,9 +231,14 @@ export default function ClientRegister() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25"
+                  disabled={isLoading || verificationInput.length !== 6} // Also disable if code not complete
+                  className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
+                    isLoading || verificationInput.length !== 6
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:from-cyan-700 hover:to-cyan-600 hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
                 >
-                  Verify & Register
+                  {isLoading ? "Verifying..." : "Verify & Register"}
                 </button>
               </form>
             ) : (
@@ -449,9 +461,20 @@ export default function ClientRegister() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25"
+                  disabled={
+                    isLoading ||
+                    !formData.agreeToTerms ||
+                    formData.password !== formData.confirmPassword
+                  }
+                  className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
+                    isLoading ||
+                    !formData.agreeToTerms ||
+                    formData.password !== formData.confirmPassword
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:from-cyan-700 hover:to-cyan-600 hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
                 >
-                  Create Account
+                  {isLoading ? "Sending Code..." : "Send Verification Code"}
                 </button>
               </form>
             )}

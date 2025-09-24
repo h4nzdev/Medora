@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import axios from "axios";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
@@ -14,6 +14,7 @@ const AddDoctorModal = ({
 }) => {
   const { user } = useContext(AuthContext);
   const { fetchDoctors } = useContext(DoctorContext);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     gender: "",
@@ -76,6 +77,8 @@ const AddDoctorModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoading) return;
+    setIsLoading(true);
     try {
       if (editMode && doctorData) {
         // Update existing doctor
@@ -104,6 +107,8 @@ const AddDoctorModal = ({
         toast.error("Error adding doctor");
       }
       console.error("Error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -443,9 +448,17 @@ const AddDoctorModal = ({
               </button>
               <button
                 type="submit"
+                disabled={isLoading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                {editMode ? "Update Doctor" : "Add Doctor"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    "Adding Doctor..."
+                  </>
+                ) : (
+                  <>{editMode ? "Update Doctor" : "Add Doctor"}</>
+                )}
               </button>
             </div>
           </form>

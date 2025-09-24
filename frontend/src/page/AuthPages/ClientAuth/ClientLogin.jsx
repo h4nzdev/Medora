@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   Calendar,
   ChevronDown,
+  Loader2,
 } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
@@ -25,6 +26,7 @@ const ClientLogin = () => {
   const [clinics, setClinics] = useState([]);
   const [selectedClinic, setSelectedClinic] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -36,6 +38,7 @@ const ClientLogin = () => {
 
   useEffect(() => {
     const fetchClinics = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`${import.meta.env.VITE_API_URL}/clinic`);
         if (response.ok) {
@@ -46,6 +49,8 @@ const ClientLogin = () => {
         }
       } catch (error) {
         console.error("Error fetching clinics:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -357,14 +362,21 @@ const ClientLogin = () => {
 
             <button
               type="submit"
-              disabled={!selectedClinic}
+              disabled={!selectedClinic || isLoading}
               className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
                 !selectedClinic
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:from-cyan-700 hover:to-cyan-600"
               }`}
             >
-              Access Dashboard
+              {isLoading ? (
+                <>
+                  Signing in...
+                  <Loader2 className="animate-spin" />
+                </>
+              ) : (
+                "Access Dashboard"
+              )}
             </button>
           </form>
 
