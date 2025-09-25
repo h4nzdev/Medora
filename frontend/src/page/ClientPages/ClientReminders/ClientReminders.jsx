@@ -62,7 +62,7 @@ const ClientReminders = () => {
     if (isNotificationModalOpen && dueReminder) {
       callTimer.current = setTimeout(() => {
         toast.info(
-          `📞 Mock call initiated for reminder: ${dueReminder.name}. You did not acknowledge in time.`
+          `Calling ${user.phone} initiated for reminder: ${dueReminder.name}. You did not acknowledge in time.`
         );
         setIsNotificationModalOpen(false);
         setDueReminder(null);

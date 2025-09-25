@@ -24,7 +24,7 @@ export default function ClientRegister() {
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
-    emergencyContact: { name: "", email: "", mobile: "" },
+    emergencyContact: { name: "", email: "", phone: "" },
   });
 
   const [isVerificationStep, setIsVerificationStep] = useState(false);
@@ -104,7 +104,7 @@ export default function ClientRegister() {
         password: "",
         confirmPassword: "",
         agreeToTerms: false,
-        emergencyContact: { name: "", email: "", mobile: "" },
+        emergencyContact: { name: "", email: "", phone: "" },
       });
       setVerificationInput("");
       setIsVerificationStep(false);
@@ -401,8 +401,8 @@ export default function ClientRegister() {
                     </label>
                     <input
                       type="tel"
-                      name="emergencyContact.mobile"
-                      value={formData.emergencyContact.mobile}
+                      name="emergencyContact.phone"
+                      value={formData.emergencyContact.phone}
                       onChange={handleInputChange}
                       required
                       placeholder="09XXXXXXXXX"
