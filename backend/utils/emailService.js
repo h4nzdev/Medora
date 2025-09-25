@@ -1,40 +1,29 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import { Resend } from "resend";
 
-dotenv.config(); // load .env variables
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendVerificationEmail = async (to, code) => {
   try {
-    // Create transporter using your email credentials
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      // Add these specific options
-      connectionTimeout: 30000,
-      greetingTimeout: 30000,
-      socketTimeout: 30000,
-      tls: {
-        // Allow connections from Render's IPs
-        rejectUnauthorized: false,
-      },
-    });
-
-    // Email content
-    const mailOptions = {
-      from: `"Medora" <${process.env.EMAIL_USER}>`,
+    const { data, error } = await resend.emails.send({
+      from: "Medora <onboarding@resend.dev>", // You can change this later
       to: to,
       subject: "Your Email Verification Code",
-      text: `Your verification code is ${code}`,
-      html: `<b>Your verification code is ${code}</b>`,
-    };
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Medora - Email Verification</h2>
+          <p>Your verification code is:</p>
+          <h1 style="background: #f4f4f4; padding: 10px; text-align: center; border-radius: 5px;">
+            ${code}
+          </h1>
+          <p>This code will expire in 10 minutes.</p>
+        </div>
+      `,
+    });
 
-    // Send the email
-    await transporter.sendMail(mailOptions);
+    if (error) {
+      console.error("Resend error:", error);
+      throw error;
+    }
 
     console.log(`Email sent to ${to} with code ${code}`);
     return { success: true, message: "Email sent successfully" };
