@@ -15,11 +15,11 @@ const storage = multer.diskStorage({
 // Init upload
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 1MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },
-}).single("clinicPicture");
+});
 
 // Check file type
 function checkFileType(file, cb) {
