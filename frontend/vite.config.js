@@ -10,84 +10,87 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "mask-icon.svg"],
+      includeAssets: [
+        "favicon.ico", 
+        "apple-touch-icon.png", 
+        "mask-icon.svg",
+        "icon-192.png",
+        "icon-512.png",
+        "icon-maskable-192.png",
+        "icon-maskable-512.png"
+      ],
       manifest: {
-        name: "Medora - Patient Portal",
+        name: "Medora",
         short_name: "Medora",
         description: "Your personal health companion.",
         theme_color: "#ffffff",
+        background_color: "#ffffff",
         start_url: "/",
         display: "standalone",
-        background_color: "#ffffff",
         icons: [
+          // Regular icons (should be properly sized with transparent background)
           {
-            src: "medoralogo.png",
+            src: "icon-192.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "medoralogo.png", 
+            src: "icon-512.png",
             sizes: "512x512",
             type: "image/png",
           },
-          // Add more sizes for better compatibility
           {
-            src: "medoralogo.png",
+            src: "icon-144.png",
             sizes: "144x144",
             type: "image/png",
           },
           {
-            src: "medoralogo.png",
-            sizes: "256x256", 
+            src: "icon-256.png",
+            sizes: "256x256",
             type: "image/png",
           },
-          // Apple touch icon
+          // Apple touch icon (should have some background/padding)
           {
-            src: "medoralogo.png",
+            src: "apple-touch-icon.png",
             sizes: "180x180",
             type: "image/png",
-            purpose: "apple touch icon"
+            purpose: "apple touch icon",
           },
-          // Maskable icon for Android
+          // Maskable icons (need 20% safe area padding)
           {
-            src: "medoralogo.png",
+            src: "icon-maskable-192.png",
             sizes: "192x192",
             type: "image/png",
-            purpose: "maskable"
+            purpose: "maskable",
           },
           {
-            src: "medoralogo.png",
+            src: "icon-maskable-512.png",
             sizes: "512x512",
-            type: "image/png", 
-            purpose: "maskable"
-          }
+            type: "image/png",
+            purpose: "maskable",
+          },
         ],
-        // Add these for better mobile experience
         orientation: "portrait",
         categories: ["health", "medical"],
-        // Splash screen for iOS
-        ios: true,
       },
-      // Add workbox for offline support
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\./,
-            handler: 'NetworkFirst',
+            handler: "NetworkFirst",
             options: {
-              cacheName: 'api-cache',
+              cacheName: "api-cache",
               cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
-      // Enable dev mode for testing
       devOptions: {
-        enabled: false // Set to true during development to test PWA
-      }
+        enabled: false,
+      },
     }),
   ],
 });
