@@ -7,7 +7,7 @@ const ClientSettings = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   return (
-    <div className="w-full min-h-screen bg-slate-50">
+    <div className="w-full min-h-screen bg-slate-50 pb-6">
       <div className="mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Settings</h1>
