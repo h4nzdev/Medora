@@ -234,10 +234,18 @@ const ClientProfile = () => {
           <div className="bg-white rounded-xl border border-slate-200 shadow-lg p-6 lg:p-8">
             <div className="flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-6">
               {/* Avatar */}
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-cyan-700 flex items-center justify-center shadow-lg">
-                <span className="text-3xl sm:text-4xl font-bold text-white tracking-wide">
-                  {initials}
-                </span>
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-cyan-700 flex items-center justify-center shadow-lg overflow-hidden">
+                {user.patientPicture ? (
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}/${user.patientPicture.replace(/\\/g, '/')}`}
+                    alt="Patient Picture"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-3xl sm:text-4xl font-bold text-white tracking-wide">
+                    {initials}
+                  </span>
+                )}
               </div>
 
               {/* User Info */}
