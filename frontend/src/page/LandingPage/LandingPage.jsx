@@ -702,7 +702,7 @@ const LandingPage = () => {
           {/* Bottom Bar */}
           <div className="border-t border-slate-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-400">
-              © 2024 Medora. All rights reserved.
+              © 2025 Medora. All rights reserved.
             </p>
             <div className="flex items-center gap-6 text-sm text-slate-400">
               <a
