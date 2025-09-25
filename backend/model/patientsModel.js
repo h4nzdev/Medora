@@ -39,6 +39,9 @@ const PatientSchema = new mongoose.Schema({
     type: String,
     required: true, // will be hashed before save
   },
+  patientPicture: {
+    type: String, // URL to the patient's profile picture
+  },
   createdAt: {
     type: Date,
     default: Date.now,
