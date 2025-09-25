@@ -48,20 +48,43 @@ const ClinicPatientProfile = () => {
     );
   }
 
+  // Generate initials for avatar placeholder
+  const getInitials = (name) => {
+    if (!name) return "NA";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const initials = getInitials(patient.name);
+
   return (
     <div className="w-full min-h-screen bg-slate-50">
-      <div className="mx-auto6">
+      <div className="mx-auto">
         <header className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
             <button
               onClick={() => navigate("/clinic/patients")}
               type="button"
-              className="bg-white hover:bg-slate-100 border border-slate-200 p-3 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+              className="bg-white hover:bg-slate-100 border border-slate-200 p-3 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
             >
               <ArrowLeft className="w-6 h-6 text-slate-600" />
             </button>
-            <div className="bg-cyan-500 p-3 rounded-2xl shadow-lg">
+            <div className="bg-cyan-500 p-3 rounded-2xl shadow-md">
               <Eye className="w-8 h-8 text-white" />
+            </div>
+            {/* Avatar Placeholder */}
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center shadow-md border border-slate-200">
+              <img
+                src={`${import.meta.env.VITE_API_URL}/${
+                  patient.patientPicture
+                }`}
+                alt={patient.name}
+                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:border-blue-200"
+              />
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-semibold text-slate-800">
@@ -76,7 +99,7 @@ const ClinicPatientProfile = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
               <h2 className="text-2xl font-semibold text-slate-800 mb-6">
                 Personal Information
               </h2>
@@ -94,7 +117,7 @@ const ClinicPatientProfile = () => {
                   color="blue"
                 />
                 <InfoCard
-                  icon={UserCheck}
+                  icon={User}
                   title="Gender"
                   value={patient.gender}
                   color="emerald"
@@ -110,7 +133,7 @@ const ClinicPatientProfile = () => {
           </div>
 
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
               <h2 className="text-2xl font-semibold text-slate-800 mb-6">
                 Account Details
               </h2>
@@ -146,7 +169,7 @@ const ClinicPatientProfile = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl p-8 w-full shadow">
+        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
           <h2 className="text-2xl font-semibold text-slate-800 mb-6">
             Contact Information
           </h2>
@@ -173,7 +196,7 @@ const ClinicPatientProfile = () => {
         </div>
 
         <div className="mt-12">
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
             <h2 className="text-2xl font-semibold text-slate-800 mb-6">
               Appointment History
             </h2>

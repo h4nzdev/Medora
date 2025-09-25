@@ -27,12 +27,10 @@ export const sendVerification = async (req, res) => {
       res.status(500).json({ message: emailResponse.message });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error sending verification code",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error sending verification code",
+      error: error.message,
+    });
   }
 };
 
@@ -106,7 +104,7 @@ export const registerClient = async (req, res) => {
       email,
       address,
       password: hashedPassword,
-      patientPicture: req.file ? `/public/uploads/${req.file.filename}` : '',
+      patientPicture: req.file ? `uploads/${req.file.filename}` : "",
       emergencyContact, // 👈 added this line
     });
 

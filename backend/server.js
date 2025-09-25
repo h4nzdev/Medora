@@ -10,8 +10,8 @@ import medicalRecordsRouter from "./routes/medicalRecordsRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import cors from "cors";
 import dotenv from "dotenv";
-import path from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 configDB();
@@ -20,13 +20,11 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 app.use(express.json());
 app.use(cors());
 
 // Serve static files from the 'public' directory
-app.use('/public', express.static(path.join(__dirname, 'public')));
-
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 app.use("/clinic", clinicRoutes);
 app.use("/doctor", doctorRouter);
