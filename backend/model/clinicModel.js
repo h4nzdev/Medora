@@ -26,6 +26,10 @@ const ClinicSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  clinicPicture: {
+    type: String, 
+    required: false,
+  },
   agreeToTerms: {
     type: Boolean,
     default: false,
