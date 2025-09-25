@@ -77,7 +77,13 @@ const ClientProfile = () => {
 
       // Ensure we have the updated patient data
       if (response.data && response.data.patient) {
-        setUser(response.data.patient);
+        // Merge the updated data with existing user data to preserve clinic info
+        const mergedUser = {
+          ...user, // Keep existing data including clinicId
+          ...response.data.patient, // Override with updated fields
+        };
+
+        setUser(mergedUser);
         setIsEditMode(false);
         toast.success(response.data.message);
       } else {

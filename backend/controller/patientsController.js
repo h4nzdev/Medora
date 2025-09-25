@@ -89,15 +89,15 @@ export const updatePatient = async (req, res) => {
       updateData.password = await bcrypt.hash(password, 10);
     }
 
-    // Update the patient and return the full document with populated fields
+    // Update the patient
     const updatedPatient = await Patient.findByIdAndUpdate(
       req.params.id,
       updateData,
       {
         new: true,
-        runValidators: true, // This ensures validation runs on update
+        runValidators: true,
       }
-    ).populate("clinicId", "name plan"); // Populate the clinic data
+    ).populate("clinicId", "name plan clinicName"); // Add clinicName to the populated fields
 
     if (!updatedPatient)
       return res
