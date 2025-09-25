@@ -11,18 +11,22 @@ import chatRoutes from "./routes/chatRoutes.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 configDB();
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
 app.use(express.json());
 app.use(cors());
-app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server is running on PORT : 3000`);
-});
+// Serve static files from the 'public' directory
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
 
 app.use("/clinic", clinicRoutes);
 app.use("/doctor", doctorRouter);
@@ -32,3 +36,7 @@ app.use("/auth/clinic", clinicAuthRoutes);
 app.use("/auth/patient", patientAuthRouter);
 app.use("/medical-records", medicalRecordsRouter);
 app.use("/", chatRoutes);
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server is running on PORT : 3000`);
+});
