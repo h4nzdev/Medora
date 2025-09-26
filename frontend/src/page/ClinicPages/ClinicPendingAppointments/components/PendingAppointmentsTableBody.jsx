@@ -6,6 +6,8 @@ import {
   CheckCheck,
   Ban,
   Loader2,
+  Video,
+  Building
 } from "lucide-react";
 import React, { useContext, useState } from "react";
 import axios from "axios";
@@ -162,6 +164,14 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
             <td className="px-4">
               <span className="inline-block bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-sm capitalize">
                 {appointment.type}
+              </span>
+            </td>
+            <td className="px-4">
+              <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-md text-sm capitalize ${
+                appointment.bookingType === "online" ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+              }`}>
+                {appointment.bookingType === "online" ? <Video className="w-4 h-4" /> : <Building className="w-4 h-4" />}
+                {appointment.bookingType}
               </span>
             </td>
             <td className="px-4">

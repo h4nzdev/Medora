@@ -309,6 +309,7 @@ export default function ClinicAppointments() {
                     Date & Time
                   </th>
                   <th className='font-semibold text-slate-700 px-4'>Type</th>
+                  <th className='font-semibold text-slate-700 px-4'>Booking Type</th>
                   <th className='font-semibold text-slate-700 px-4'>Status</th>
                   <th className='font-semibold text-slate-700 px-4'>Contact</th>
                   <th className='font-semibold text-slate-700 px-4 text-right'>

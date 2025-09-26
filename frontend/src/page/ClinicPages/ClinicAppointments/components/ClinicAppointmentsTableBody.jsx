@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useDate, useTime } from "../../../../utils/date";
+import { Video, Building } from "lucide-react";
 
 const ClinicAppointmentsTableBody = ({ appointments }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,6 +100,14 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
                     {appointment.type}
                   </span>
                 </td>
+                 <td className="px-4">
+              <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-md text-sm capitalize ${
+                appointment.bookingType === "online" ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+              }`}>
+                {appointment.bookingType === "online" ? <Video className="w-4 h-4" /> : <Building className="w-4 h-4" />}
+                {appointment.bookingType}
+              </span>
+            </td>
                 <td className="px-4">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm w-fit ${getStatusBadge(
