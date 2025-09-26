@@ -6,7 +6,7 @@ import Doctor from "../model/doctorModel.js";
 // Create appointment
 export const addAppointment = async (req, res) => {
   try {
-    const { clinicId, doctorId, patientId, date, time, type } = req.body;
+    const { clinicId, doctorId, patientId, date, time, type, bookingType } = req.body;
 
     // check if clinic exists
     const clinic = await Clinic.findById(clinicId);
@@ -54,6 +54,7 @@ export const addAppointment = async (req, res) => {
       date,
       time,
       type,
+      bookingType,
       status: "pending", // default status
     });
 

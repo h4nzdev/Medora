@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { X, Calendar, CreditCard, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -9,29 +9,41 @@ import { AuthContext } from "../../../context/AuthContext";
 import axios from "axios";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import ClientPaymentModal from "../ClientPaymentModal/ClientPaymentModal";
+import useMedicalRecords from "../../../hooks/medicalRecords";
 
 // Import the new tab components
 import DateTab from "./Tabs/DateTab";
 import TimeTab from "./Tabs/TimeTab";
 import DetailsTab from "./Tabs/DetailsTab";
+import BookingTab from "./Tabs/BookingTab";
 
 const AddAppointmentModal = ({ isOpen, onClose }) => {
   const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
   const { fetchAppointments } = useContext(AppointmentContext);
+  const { records } = useMedicalRecords();
+
   const doctorClinic = doctors?.filter(
     (doc) => doc.clinicId?._id === user.clinicId?._id
   );
 
   const [currentTab, setCurrentTab] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(true);
   const [formData, setFormData] = useState({
     doctorId: "",
     date: new Date(),
     time: "",
     type: "consultation",
     status: "scheduled",
+    bookingType: "walk-in",
   });
+
+  useEffect(() => {
+    if (records.length > 0) {
+      setIsFirstTime(false);
+    }
+  }, [records]);
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
@@ -105,17 +117,26 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
   }
 
   const tabContent = () => {
+    const totalSteps = isFirstTime ? 3 : 4;
     switch (currentTab) {
       case 1:
         return <DateTab formData={formData} setFormData={setFormData} nextTab={nextTab} />;
       case 2:
         return <TimeTab formData={formData} setFormData={setFormData} nextTab={nextTab} prevTab={prevTab} />;
       case 3:
+        return isFirstTime ? (
+          <DetailsTab formData={formData} setFormData={setFormData} doctors={doctorClinic} appointmentTypes={appointmentTypes} prevTab={prevTab} />
+        ) : (
+          <BookingTab formData={formData} setFormData={setFormData} nextTab={nextTab} prevTab={prevTab} />
+        );
+      case 4:
         return <DetailsTab formData={formData} setFormData={setFormData} doctors={doctorClinic} appointmentTypes={appointmentTypes} prevTab={prevTab} />;
       default:
         return null;
     }
   }
+
+  const totalSteps = isFirstTime ? 3 : 4;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-300">
@@ -130,7 +151,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
                 Schedule Appointment
               </h2>
               <p className="text-slate-500 text-sm mt-0.5">
-                Step {currentTab} of 3
+                Step {currentTab} of {totalSteps}
               </p>
             </div>
           </div>
@@ -146,7 +167,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
         <form onSubmit={handleAddAppointment} className="p-6 space-y-6">
             {tabContent()}
 
-            {currentTab === 3 && (
+            {currentTab === totalSteps && (
                  <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
                     <button
                         type="button"
