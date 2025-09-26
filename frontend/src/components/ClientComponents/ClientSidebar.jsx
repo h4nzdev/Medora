@@ -8,6 +8,7 @@ import {
   Stethoscope,
   User,
   Settings,
+  Clock,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext } from "react";
@@ -20,6 +21,7 @@ export default function ClientSidebar() {
   const { user, initials } = useContext(AuthContext);
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", link: "/client/dashboard" },
+    { icon: Clock, label: "Timeline", link: "/client/timeline" },
     { icon: Calendar, label: "Appointments", link: "/client/appointments" },
     { icon: MessageSquare, label: "AI Chat", link: "/client/chats" },
     {
