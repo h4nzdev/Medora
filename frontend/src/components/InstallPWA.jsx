@@ -215,20 +215,20 @@ const InstallPWA = () => {
                     d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"
                   />
                 </svg>
-                <span>Install App</span>
+                <span className="md:text-md text-sm">Install App</span>
               </button>
 
               <div className="flex space-x-2">
                 <button
                   onClick={handleRemindLater}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-3 px-4 rounded-xl transition-all duration-200"
+                  className="md:text-md text-sm flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-3 px-4 rounded-xl transition-all duration-200"
                 >
                   Remind Later
                 </button>
 
                 <button
                   onClick={handleDismiss}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-3 px-4 rounded-xl transition-all duration-200"
+                  className="md:text-md text-sm flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium py-3 px-4 rounded-xl transition-all duration-200"
                 >
                   No Thanks
                 </button>
