@@ -17,21 +17,17 @@ import TimeTab from "./Tabs/TimeTab";
 import DetailsTab from "./Tabs/DetailsTab";
 import BookingTab from "./Tabs/BookingTab";
 
-const AddAppointmentModal = ({ isOpen, onClose }) => {
+const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
   const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
   const { fetchAppointments } = useContext(AppointmentContext);
   const { records } = useMedicalRecords();
 
-  const doctorClinic = doctors?.filter(
-    (doc) => doc.clinicId?._id === user.clinicId?._id
-  );
-
   const [currentTab, setCurrentTab] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(true);
   const [formData, setFormData] = useState({
-    doctorId: "",
+    doctorId: doctorId || "",
     date: new Date(),
     time: "",
     type: "consultation",
@@ -117,7 +113,7 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
   }
 
   const tabContent = () => {
-    const totalSteps = isFirstTime ? 3 : 4;
+    const totalSteps = 3;
     switch (currentTab) {
       case 1:
         return <DateTab formData={formData} setFormData={setFormData} nextTab={nextTab} />;
@@ -125,18 +121,18 @@ const AddAppointmentModal = ({ isOpen, onClose }) => {
         return <TimeTab formData={formData} setFormData={setFormData} nextTab={nextTab} prevTab={prevTab} />;
       case 3:
         return isFirstTime ? (
-          <DetailsTab formData={formData} setFormData={setFormData} doctors={doctorClinic} appointmentTypes={appointmentTypes} prevTab={prevTab} />
+          <DetailsTab formData={formData} setFormData={setFormData} doctors={doctors} appointmentTypes={appointmentTypes} prevTab={prevTab} />
         ) : (
           <BookingTab formData={formData} setFormData={setFormData} nextTab={nextTab} prevTab={prevTab} />
         );
       case 4:
-        return <DetailsTab formData={formData} setFormData={setFormData} doctors={doctorClinic} appointmentTypes={appointmentTypes} prevTab={prevTab} />;
+        return <DetailsTab formData={formData} setFormData={setFormData} doctors={doctors} appointmentTypes={appointmentTypes} prevTab={prevTab} />;
       default:
         return null;
     }
   }
 
-  const totalSteps = isFirstTime ? 3 : 4;
+  const totalSteps = 3;
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-300">

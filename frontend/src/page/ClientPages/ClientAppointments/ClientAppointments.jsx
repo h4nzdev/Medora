@@ -8,7 +8,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useContext, useState } from "react";
-import AddAppointmentModal from "../../../components/ClientComponents/AddAppointmentModal/AddAppointmentModal";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AppointmentContext } from "../../../context/AppointmentContext";
@@ -20,12 +19,13 @@ import {
 } from "../../../utils/appointmentStats.jsx";
 import { getStatusBadge } from "../../../utils/clientAppointment.jsx";
 import { useDate, useTime } from "../../../utils/date.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function ClientAppointments() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { appointments } = useContext(AppointmentContext);
   const { user } = useContext(AuthContext);
   const { clinics } = useContext(ClinicContext); // new
+  const navigate = useNavigate();
 
   // Plan limits
   const planLimits = {
@@ -58,7 +58,7 @@ export default function ClientAppointments() {
         `The clinic has reached its appointment limit for the ${plan} plan.`
       );
     } else {
-      setIsModalOpen(true);
+      navigate('/doctors');
     }
   };
 
@@ -109,10 +109,6 @@ export default function ClientAppointments() {
 
   return (
     <>
-      <AddAppointmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
       <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
         <div className="mx-auto">
           <header className="mb-8 md:mb-10">

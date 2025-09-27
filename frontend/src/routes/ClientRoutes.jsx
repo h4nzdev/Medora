@@ -10,6 +10,8 @@ import ClientProfile from "../page/ClientPages/ClientProfile/ClientProfile";
 import ClientSettings from "../page/ClientPages/ClientSettings/ClinicSettings";
 import ClientCalendar from "../page/ClientPages/ClientCalendar/ClientCalendar";
 import ClientTimeline from "../page/ClientPages/ClientTimeline/ClientTimeline";
+import DoctorsList from "../page/ClientPages/DoctorsList/DoctorsList";
+import DoctorProfile from "../page/ClientPages/DoctorProfile/DoctorProfile";
 
 const ClientRoutes = () => {
   return (
@@ -39,6 +41,22 @@ const ClientRoutes = () => {
               <ClientAppointments />
             </ClientLayout>
           }
+        />
+        <Route 
+            path="/client/doctors" 
+            element={
+                <ClientLayout>
+                    <DoctorsList />
+                </ClientLayout>
+            }
+        />
+        <Route 
+            path="/client/doctor/:id" 
+            element={
+                <ClientLayout>
+                    <DoctorProfile />
+                </ClientLayout>
+            }
         />
         <Route
           path="/client/calendar"
