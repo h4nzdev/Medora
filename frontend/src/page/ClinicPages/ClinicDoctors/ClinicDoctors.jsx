@@ -16,11 +16,21 @@ import ClinicDoctorsStats from "./components/ClinicDoctorsStats";
 
 import AddDoctorModal from "../../../components/ClinicComponents/AddDoctorModal/AddDoctorModal";
 import { useContext, useState } from "react";
+import { DoctorContext } from "../../../context/DoctorContext";
+import { AuthContext } from "../../../context/AuthContext";
+import ClinicDoctorsList from "./components/ClinicDoctorsList";
 
 export default function ClinicDoctors() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const { doctors } = useContext(DoctorContext);
+  const { user } = useContext(AuthContext);
+
+  const clinicDoctors = doctors?.filter(
+    (doctor) => doctor.clinicId?._id === user._id
+  );
+
   return (
     <div className="w-full min-h-screen bg-slate-50">
       <div className="mx-auto">
@@ -98,8 +108,8 @@ export default function ClinicDoctors() {
             doctorData={selectedDoctor}
           />
 
-          {/* Table */}
-          <div className="rounded-xl border border-slate-200">
+          {/* Desktop Table */}
+          <div className="hidden md:block rounded-xl border border-slate-200">
             <table className="w-full text-left">
               <thead className="bg-slate-50">
                 <tr>
@@ -117,7 +127,7 @@ export default function ClinicDoctors() {
                   </th>
                 </tr>
               </thead>
-              <ClinicDoctorsTableBody 
+              <ClinicDoctorsTableBody
                 onEditDoctor={(doctor) => {
                   setEditMode(true);
                   setSelectedDoctor(doctor);
@@ -125,6 +135,11 @@ export default function ClinicDoctors() {
                 }}
               />
             </table>
+          </div>
+
+          {/* Mobile List */}
+          <div className="block md:hidden">
+            <ClinicDoctorsList doctors={clinicDoctors} />
           </div>
 
           {/* Results Summary */}

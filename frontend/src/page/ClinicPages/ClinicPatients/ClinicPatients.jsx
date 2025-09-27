@@ -15,6 +15,7 @@ import ClinicPatientsTableBody from "./components/ClinicPatientsTableBody";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import axios from "axios";
+import ClinicPatientsList from "./components/ClinicPatientsList";
 
 export default function ClinicPatients() {
   const [patients, setPatients] = useState([]);
@@ -173,8 +174,8 @@ export default function ClinicPatients() {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="rounded-xl border border-slate-200">
+          {/* Desktop Table */}
+          <div className="hidden md:block rounded-xl border border-slate-200">
             <table className="w-full text-left">
               <thead className="bg-slate-50">
                 <tr>
@@ -193,6 +194,11 @@ export default function ClinicPatients() {
               </thead>
               <ClinicPatientsTableBody patients={currentPatients} />
             </table>
+          </div>
+
+          {/* Mobile List */}
+          <div className="block md:hidden">
+            <ClinicPatientsList patients={currentPatients} />
           </div>
 
           {/* Results Summary */}

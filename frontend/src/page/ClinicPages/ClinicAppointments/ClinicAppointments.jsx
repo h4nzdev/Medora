@@ -14,6 +14,7 @@ import ClinicAppointmentsTableBody from "./components/ClinicAppointmentsTableBod
 import { useContext, useState } from "react";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
+import ClinicAppointmentsList from "./components/ClinicAppointmentsList";
 
 export default function ClinicAppointments() {
   const { appointments } = useContext(AppointmentContext);
@@ -296,8 +297,8 @@ export default function ClinicAppointments() {
             </button>
           </div>
 
-          {/* Table */}
-          <div className='rounded-xl border border-slate-200 overflow-visible'>
+          {/* Desktop Table */}
+          <div className='hidden md:block rounded-xl border border-slate-200 overflow-visible'>
             <table className='w-full text-left'>
               <thead className='bg-slate-50'>
                 <tr>
@@ -319,6 +320,11 @@ export default function ClinicAppointments() {
               </thead>
               <ClinicAppointmentsTableBody appointments={currentAppointments} />
             </table>
+          </div>
+
+          {/* Mobile List */}
+          <div className="block md:hidden">
+            <ClinicAppointmentsList appointments={currentAppointments} />
           </div>
 
           {/* Results Summary */}

@@ -14,11 +14,11 @@ const ClinicPatientsTableBody = ({ patients }) => {
               hover:shadow-sm hover:scale-[1.002] hover:z-10 relative
             `}
           >
-            {/* Picture column */}
+            {/* Combined Picture and Name column */}
             <td className="py-4 px-4">
-              <div className="relative">
-                {patient.patientPicture ? (
-                  <div className="relative">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  {patient.patientPicture ? (
                     <img
                       src={`${import.meta.env.VITE_API_URL}/${
                         patient.patientPicture
@@ -26,30 +26,22 @@ const ClinicPatientsTableBody = ({ patients }) => {
                       alt={patient.name}
                       className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:border-blue-200"
                     />
-                    <div className="absolute top-0 right-22 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-                  </div>
-                ) : (
-                  <div className="relative">
+                  ) : (
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center font-bold text-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-110">
                       {patient.name
                         ? patient.name.charAt(0).toUpperCase()
                         : "?"}
                     </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"></div>
-                  </div>
-                )}
-              </div>
-            </td>
-
-            {/* Name column with enhanced styling */}
-            <td className="py-4 px-4">
-              <div className="flex flex-col">
-                <p className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors duration-200">
-                  {patient.name}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">
-                  ID: {patient._id.slice(-6).toUpperCase()}
-                </p>
+                  )}
+                </div>
+                <div className="flex flex-col">
+                  <p className="font-semibold text-slate-800 group-hover:text-blue-700 transition-colors duration-200">
+                    {patient.name}
+                  </p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    ID: {patient._id.slice(-6).toUpperCase()}
+                  </p>
+                </div>
               </div>
             </td>
 
@@ -163,7 +155,7 @@ const ClinicPatientsTableBody = ({ patients }) => {
         ))
       ) : (
         <tr>
-          <td colSpan="8" className="text-center py-16">
+          <td colSpan="7" className="text-center py-16">
             <div className="flex flex-col items-center justify-center">
               <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                 <svg

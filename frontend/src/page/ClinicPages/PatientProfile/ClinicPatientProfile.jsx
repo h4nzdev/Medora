@@ -43,7 +43,10 @@ const ClinicPatientProfile = () => {
   if (!patient) {
     return (
       <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center">
-        <p className="text-slate-600">Loading patient data...</p>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <p className="text-slate-600 font-medium">Loading patient data...</p>
+        </div>
       </div>
     );
   }
@@ -63,9 +66,9 @@ const ClinicPatientProfile = () => {
 
   return (
     <div className="w-full min-h-screen bg-slate-50">
-      <div className="mx-auto">
+      <div className="mx-auto px-4 py-6">
         <header className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
+          <div className="flex items-center space-x-4 mb-6">
             <button
               onClick={() => navigate("/clinic/patients")}
               type="button"
@@ -73,36 +76,72 @@ const ClinicPatientProfile = () => {
             >
               <ArrowLeft className="w-6 h-6 text-slate-600" />
             </button>
-            <div className="bg-cyan-500 p-3 rounded-2xl shadow-md">
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-3 rounded-2xl shadow-lg">
               <Eye className="w-8 h-8 text-white" />
             </div>
-            {/* Avatar Placeholder */}
-            <div className="w-16 h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center shadow-md border border-slate-200">
-              <img
-                src={`${import.meta.env.VITE_API_URL}/${
-                  patient.patientPicture
-                }`}
-                alt={patient.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:border-blue-200"
-              />
+
+            {/* Enhanced Profile Picture */}
+            <div className="relative">
+              {patient.patientPicture ? (
+                <div className="relative">
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}/${
+                      patient.patientPicture
+                    }`}
+                    alt={patient.name}
+                    className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      e.target.nextElementSibling.style.display = "flex";
+                    }}
+                  />
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl hidden items-center justify-center font-bold text-white text-2xl shadow-lg border-4 border-white">
+                    {initials}
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-md"></div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-white text-2xl shadow-lg border-4 border-white">
+                    {initials}
+                  </div>
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-md"></div>
+                </div>
+              )}
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-semibold text-slate-800">
-                View Patient Profile
+
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
+                {patient.name}
               </h1>
-              <p className="text-slate-600 mt-1">
-                Patient information and details
+              <p className="text-slate-600 mt-1 text-lg">
+                Patient Profile & Medical History
               </p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Active Patient
+                </span>
+                <span className="text-slate-400 text-sm">
+                  ID: {patient._id.slice(-8).toUpperCase()}
+                </span>
+              </div>
             </div>
           </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-              <h2 className="text-2xl font-semibold text-slate-800 mb-6">
-                Personal Information
-              </h2>
+            {/* Personal Information */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">
+                  Personal Information
+                </h2>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <InfoCard
                   icon={User}
@@ -113,11 +152,11 @@ const ClinicPatientProfile = () => {
                 <InfoCard
                   icon={Calendar}
                   title="Age"
-                  value={`${patient.age} years`}
+                  value={`${patient.age} years old`}
                   color="blue"
                 />
                 <InfoCard
-                  icon={User}
+                  icon={UserCheck}
                   title="Gender"
                   value={patient.gender}
                   color="emerald"
@@ -130,156 +169,215 @@ const ClinicPatientProfile = () => {
                 />
               </div>
             </div>
+
+            {/* Contact Information */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">
+                  Contact Information
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+                <InfoCard
+                  icon={Mail}
+                  title="Email Address"
+                  value={patient.email}
+                  color="red"
+                  fullWidth={true}
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InfoCard
+                    icon={Phone}
+                    title="Phone Number"
+                    value={patient.phone}
+                    color="indigo"
+                  />
+                  <InfoCard
+                    icon={MapPin}
+                    title="Address"
+                    value={patient.address}
+                    color="orange"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
+          {/* Sidebar */}
           <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-              <h2 className="text-2xl font-semibold text-slate-800 mb-6">
-                Account Details
-              </h2>
+            {/* Account Details */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-800">
+                  Account Details
+                </h2>
+              </div>
               <div className="space-y-4">
-                <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="bg-slate-100 p-3 rounded-xl">
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                  <div className="bg-white p-3 rounded-xl shadow-sm">
                     <User className="w-6 h-6 text-slate-600" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm font-medium text-slate-600">
                       Patient ID
                     </p>
-                    <p className="text-lg font-semibold text-slate-800">
-                      #{patient._id}
+                    <p className="text-lg font-bold text-slate-800 font-mono">
+                      #{patient._id.slice(-12).toUpperCase()}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="bg-slate-100 p-3 rounded-xl">
+                <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
+                  <div className="bg-white p-3 rounded-xl shadow-sm">
                     <Calendar className="w-6 h-6 text-slate-600" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="text-sm font-medium text-slate-600">
-                      Joined Date
+                      Member Since
                     </p>
-                    <p className="text-lg font-semibold text-slate-800">
+                    <p className="text-lg font-bold text-slate-800">
                       {useDate(patient.createdAt)}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Quick Stats */}
+            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
+              <h3 className="text-xl font-bold mb-4">Quick Stats</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-100">Total Appointments</span>
+                  <span className="text-2xl font-bold">
+                    {patientAppointments?.length || 0}
+                  </span>
+                </div>
+                <div className="h-px bg-blue-400/30"></div>
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-100">Account Status</span>
+                  <span className="bg-green-500 px-3 py-1 rounded-full text-sm font-medium">
+                    Active
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-6">
-            Contact Information
-          </h2>
-          <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
-            <InfoCard
-              icon={Mail}
-              title="Email Address"
-              value={patient.email}
-              color="red"
-            />
-            <InfoCard
-              icon={Phone}
-              title="Phone Number"
-              value={patient.phone}
-              color="indigo"
-            />
-            <InfoCard
-              icon={MapPin}
-              title="Address"
-              value={patient.address}
-              color="orange"
-            />
-          </div>
-        </div>
-
+        {/* Appointment History */}
         <div className="mt-12">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-            <h2 className="text-2xl font-semibold text-slate-800 mb-6">
-              Appointment History
-            </h2>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-left py-4 px-6 font-semibold text-slate-700">
-                      Doctor Name
-                    </th>
-                    <th className="text-left py-4 px-6 font-semibold text-slate-700">
-                      Date & Time
-                    </th>
-                    <th className="text-left py-4 px-6 font-semibold text-slate-700">
-                      Type
-                    </th>
-                    <th className="text-left py-4 px-6 font-semibold text-slate-700">
-                      Status
-                    </th>
-                    <th className="text-left py-4 px-6 font-semibold text-slate-700">
-                      Created
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {patientAppointments?.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Calendar className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800">
+                  Appointment History
+                </h2>
+                <p className="text-slate-600">
+                  Complete medical appointment records
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50">
                     <tr>
-                      <td colSpan="5" className="text-center py-12">
-                        <div className="bg-slate-100 p-4 rounded-xl w-fit mx-auto mb-4">
-                          <Calendar className="w-8 h-8 text-slate-400" />
-                        </div>
-                        <p className="text-slate-500 text-lg">
-                          No appointments found
-                        </p>
-                        <p className="text-slate-400 text-sm">
-                          This patient has no scheduled appointments
-                        </p>
-                      </td>
+                      <th className="text-left py-4 px-6 font-bold text-slate-700">
+                        Doctor
+                      </th>
+                      <th className="text-left py-4 px-6 font-bold text-slate-700">
+                        Date & Time
+                      </th>
+                      <th className="text-left py-4 px-6 font-bold text-slate-700">
+                        Type
+                      </th>
+                      <th className="text-left py-4 px-6 font-bold text-slate-700">
+                        Status
+                      </th>
+                      <th className="text-left py-4 px-6 font-bold text-slate-700">
+                        Created
+                      </th>
                     </tr>
-                  ) : (
-                    patientAppointments?.map((app) => (
-                      <tr
-                        key={app._id}
-                        className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
-                      >
-                        <td className="py-4 px-6">
-                          <div className="flex items-center space-x-3">
-                            <div className="bg-blue-100 p-2 rounded-lg">
-                              <User className="w-4 h-4 text-blue-600" />
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {patientAppointments?.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="text-center py-16">
+                          <div className="flex flex-col items-center">
+                            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+                              <Calendar className="w-8 h-8 text-slate-400" />
                             </div>
-                            <span className="font-medium text-slate-800">
-                              {app.doctorId?.name}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <div>
-                            <p className="font-medium text-slate-800">
-                              {useDate(app.date)}
+                            <p className="text-slate-600 font-semibold text-lg mb-2">
+                              No appointments found
                             </p>
-                            <p className="text-sm text-slate-500">
-                              {useTime(app.date)}
+                            <p className="text-slate-500 text-sm">
+                              This patient has no scheduled appointments yet
                             </p>
                           </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 capitalize">
-                            {app.type}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6">
-                          {getStatusBadge(app.status)}
-                        </td>
-                        <td className="py-4 px-6">
-                          <p className="text-sm text-slate-600">
-                            {useDate(app.createdAt)}
-                          </p>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      patientAppointments?.map((app, index) => (
+                        <tr
+                          key={app._id}
+                          className={`hover:bg-slate-50 transition-colors ${
+                            index % 2 === 0 ? "bg-white" : "bg-slate-50/30"
+                          }`}
+                        >
+                          <td className="py-4 px-6">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <User className="w-5 h-5 text-blue-600" />
+                              </div>
+                              <div>
+                                <p className="font-semibold text-slate-800">
+                                  {app.doctorId?.name || "Unknown Doctor"}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  Medical Professional
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div>
+                              <p className="font-semibold text-slate-800">
+                                {useDate(app.date)}
+                              </p>
+                              <p className="text-sm text-slate-500 font-mono">
+                                {useTime(app.date)}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-semibold bg-purple-100 text-purple-800 capitalize">
+                              {app.type}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6">
+                            {getStatusBadge(app.status)}
+                          </td>
+                          <td className="py-4 px-6">
+                            <p className="text-sm text-slate-600 font-medium">
+                              {useDate(app.createdAt)}
+                            </p>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -290,28 +388,47 @@ const ClinicPatientProfile = () => {
 
 const InfoCard = ({ icon: Icon, title, value, color, fullWidth = false }) => {
   const colorClasses = {
-    cyan: { bg: "bg-cyan-50", text: "text-cyan-600", iconBg: "bg-cyan-100" },
-    blue: { bg: "bg-blue-50", text: "text-blue-600", iconBg: "bg-blue-100" },
+    cyan: {
+      bg: "bg-cyan-50",
+      text: "text-cyan-600",
+      iconBg: "bg-cyan-100",
+      border: "border-cyan-200",
+    },
+    blue: {
+      bg: "bg-blue-50",
+      text: "text-blue-600",
+      iconBg: "bg-blue-100",
+      border: "border-blue-200",
+    },
     emerald: {
       bg: "bg-emerald-50",
       text: "text-emerald-600",
       iconBg: "bg-emerald-100",
+      border: "border-emerald-200",
     },
     purple: {
       bg: "bg-purple-50",
       text: "text-purple-600",
       iconBg: "bg-purple-100",
+      border: "border-purple-200",
     },
-    red: { bg: "bg-red-50", text: "text-red-600", iconBg: "bg-red-100" },
+    red: {
+      bg: "bg-red-50",
+      text: "text-red-600",
+      iconBg: "bg-red-100",
+      border: "border-red-200",
+    },
     indigo: {
       bg: "bg-indigo-50",
       text: "text-indigo-600",
       iconBg: "bg-indigo-100",
+      border: "border-indigo-200",
     },
     orange: {
       bg: "bg-orange-50",
       text: "text-orange-600",
       iconBg: "bg-orange-100",
+      border: "border-orange-200",
     },
   };
 
@@ -319,16 +436,20 @@ const InfoCard = ({ icon: Icon, title, value, color, fullWidth = false }) => {
 
   return (
     <div
-      className={`flex items-center space-x-4 p-4 ${classes.bg} rounded-xl ${
+      className={`flex items-center space-x-4 p-5 ${
+        classes.bg
+      } rounded-xl border ${
+        classes.border
+      } hover:shadow-sm transition-all duration-200 ${
         fullWidth ? "md:col-span-2" : ""
       }`}
     >
-      <div className={`${classes.iconBg} p-3 rounded-xl`}>
+      <div className={`${classes.iconBg} p-3 rounded-xl shadow-sm`}>
         <Icon className={`w-6 h-6 ${classes.text}`} />
       </div>
-      <div>
-        <p className="text-sm font-medium text-slate-600">{title}</p>
-        <p className={`text-lg font-semibold text-slate-800`}>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-slate-600 mb-1">{title}</p>
+        <p className="text-lg font-bold text-slate-800 break-words">
           {value || "N/A"}
         </p>
       </div>
