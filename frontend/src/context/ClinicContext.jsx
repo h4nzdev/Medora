@@ -1,5 +1,8 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
+import io from "socket.io-client";
+
+const socket = io(import.meta.env.VITE_API_URL);
 
 export const ClinicContext = createContext();
 
@@ -18,11 +21,13 @@ export const ClinicProvider = ({ children }) => {
   useEffect(() => {
     fetchClinics();
 
-    const interval = setInterval(() => {
-      fetchClinics()
-    }, 5000)
+    socket.on("clinic_updated", () => {
+      fetchClinics();
+    });
 
-    return () => clearInterval(interval)
+    return () => {
+      socket.off("clinic_updated");
+    };
   }, []);
 
   return (

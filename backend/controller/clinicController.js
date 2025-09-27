@@ -29,6 +29,7 @@ export const updateClinic = async (req, res) => {
       new: true,
     });
     if (!clinic) return res.status(404).json({ error: "Clinic not found" });
+    req.io.emit("clinic_updated");
     res.json({ message: "Clinic updated", clinic });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -40,6 +41,7 @@ export const deleteClinic = async (req, res) => {
   try {
     const clinic = await Clinic.findByIdAndDelete(req.params.id);
     if (!clinic) return res.status(404).json({ error: "Clinic not found" });
+    req.io.emit("clinic_updated");
     res.json({ message: "Clinic deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -64,6 +66,7 @@ export const addDoctorToClinic = async (req, res) => {
 
     if (!clinic) return res.status(404).json({ error: "Clinic not found" });
 
+    req.io.emit("clinic_updated");
     res.status(201).json({ message: "Doctor added to clinic", clinic });
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -87,6 +90,7 @@ export const updateSubscriptionPlan = async (req, res) => {
       return res.status(404).json({ error: "Clinic not found" });
     }
 
+    req.io.emit("clinic_updated");
     res.json({
       message: "Subscription plan updated successfully",
       clinic,

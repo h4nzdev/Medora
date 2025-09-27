@@ -98,6 +98,7 @@ export const clinicRegister = async (req, res) => {
 
     // 6. Save to database
     await newClinic.save();
+    req.io.emit("clinic_updated");
 
     // 7. Success response
     res.status(201).json({
