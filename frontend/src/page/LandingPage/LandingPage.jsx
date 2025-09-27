@@ -71,7 +71,10 @@ const LandingPage = () => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-200">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+            <div
+              onClick={() => scrollToSection("hero")}
+              className="flex items-center gap-3 cursor-pointer"
+            >
               <img src={logo} alt="logo" className="w-10 h-10" />
               <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                 Medora
@@ -179,7 +182,10 @@ const LandingPage = () => {
 
       {/* Enhanced Hero Section with Image Placeholder */}
       {/* Enhanced Hero Section with Mobile Centering Fix */}
-      <main className="pt-32 pb-24 container mx-auto px-6 relative overflow-hidden">
+      <main
+        className="pt-32 pb-24 container mx-auto px-6 relative overflow-hidden"
+        id="hero"
+      >
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content - Fixed Mobile Centering */}
           <div className="text-center lg:text-left">
@@ -408,12 +414,30 @@ const LandingPage = () => {
                   {/* Clinic Image Placeholder */}
                   <div className="h-58 bg-gradient-to-br from-cyan-50 to-cyan-100 flex items-center justify-center relative overflow-hidden">
                     <div className="text-center">
-                      <div className="w-20 h-20 bg-cyan-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Stethoscope className="w-10 h-10 text-cyan-600" />
-                      </div>
-                      <p className="text-cyan-600 font-medium text-sm">
-                        Medical Center
-                      </p>
+                      {clinic.clinicPicture ? (
+                        <img
+                          src={`${import.meta.env.VITE_API_URL}${
+                            clinic.clinicPicture
+                          }`}
+                          alt={clinic.clinicName}
+                          onError={(e) => {
+                            console.error(
+                              "Image failed to load:",
+                              e.target.src
+                            );
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <>
+                          <div className="w-20 h-20 bg-cyan-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Stethoscope className="w-10 h-10 text-cyan-600" />
+                          </div>
+                          <p className="text-cyan-600 font-medium text-sm">
+                            Medical Center
+                          </p>
+                        </>
+                      )}
                     </div>
                     {/* Subscription Badge */}
                     <div className="absolute top-4 right-4">

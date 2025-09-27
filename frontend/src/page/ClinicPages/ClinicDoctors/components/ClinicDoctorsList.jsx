@@ -3,8 +3,8 @@ import React from 'react';
 const ClinicDoctorsList = ({ doctors }) => {
   return (
     <div className="space-y-4">
-      {doctors.length > 0 ? (
-        doctors.map((doctor) => (
+      {doctors?.length > 0 ? (
+        doctors?.map((doctor) => (
           <div
             key={doctor._id}
             className="bg-white p-4 rounded-xl shadow-md border border-slate-200"

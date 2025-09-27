@@ -73,7 +73,7 @@ export const getDoctorById = async (req, res) => {
   }
 };
 
-// ➤ Update doctor (can update phone, status, etc.)
+// ➤ Update doctor
 export const updateDoctor = async (req, res) => {
   try {
     const {
@@ -88,30 +88,42 @@ export const updateDoctor = async (req, res) => {
       availability,
     } = req.body;
 
+    // Parse availability if it's a string (from FormData)
+    let availabilityData = availability;
+    if (typeof availability === "string") {
+      try {
+        availabilityData = JSON.parse(availability);
+      } catch (parseError) {
+        console.error("Error parsing availability:", parseError);
+        availabilityData = [];
+      }
+    }
+
     const updateData = {
       name,
       gender,
       qualification,
       specialty,
-      experience,
+      experience: parseInt(experience) || 0,
       email,
       phone,
       status,
-      availability,
+      availability: availabilityData, // Use the parsed data
     };
 
     if (req.file) {
-      updateData.profileImage = req.file.path;
+      updateData.profileImage = `/uploads/${req.file.filename}`;
     }
 
     const doctor = await Doctor.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
-    });
+    }).populate("clinicId", "name email");
 
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
     res.json({ message: "Doctor updated successfully", doctor });
   } catch (error) {
+    console.error("Error updating doctor:", error);
     res
       .status(500)
       .json({ message: "Error updating doctor", error: error.message });

@@ -57,9 +57,11 @@ const DoctorProfile = () => {
               {/* Doctor Image */}
               <div className="flex-shrink-0">
                 <div className="relative">
-                  {doctor.picture ? (
+                  {doctor.profileImage ? (
                     <img
-                      src={doctor.picture}
+                      src={`${import.meta.env.VITE_API_URL}${
+                        doctor.profileImage
+                      }`}
                       alt={doctor.name}
                       className="rounded-2xl w-48 h-48 object-cover shadow-lg"
                     />

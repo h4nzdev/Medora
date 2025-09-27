@@ -261,7 +261,7 @@ const AddMedicalRecordModal = ({
             >
               {isLoading ? (
                 <>
-                  Adding Medicalrecords
+                  Adding...
                   <Loader2 className="animate-spin"/>
                 </>
               ) : (

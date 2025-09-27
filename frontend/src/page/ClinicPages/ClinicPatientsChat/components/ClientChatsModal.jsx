@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { X, Sparkles, MessageCircle } from "lucide-react";
+import { X, Sparkles, MessageCircle, Loader2 } from "lucide-react";
 import { useContext } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
 import jsPDF from "jspdf";
@@ -208,17 +208,18 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
                     : "bg-gradient-to-r from-cyan-500 to-sky-500"
                 } text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 hover:from-cyan-600 hover:to-sky-600`}
               >
-                <Sparkles
-                  className={`w-5 h-5 ${
-                    summarizing ? "animate-spin" : "group-hover:rotate-12"
-                  } transition-transform duration-300`}
-                />
-                {summarizing ? "Summarizing..." : "Summarize Chat History"}
-                <Sparkles
-                  className={`w-5 h-5 ${
-                    summarizing ? "animate-spin" : "group-hover:-rotate-12"
-                  } transition-transform duration-300`}
-                />
+                {summarizing ? (
+                  <>
+                    Summarizing...
+                    <Loader2 className="animate-spin" />
+                  </>
+                ) : (
+                  <>
+                    <Sparkles />
+                    Summarize
+                    <Sparkles />
+                  </>
+                )}
               </button>
             </div>
           </div>

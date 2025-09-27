@@ -34,13 +34,6 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     status: "scheduled",
     bookingType: "walk-in",
   });
-
-  useEffect(() => {
-    if (records.length > 0) {
-      setIsFirstTime(false);
-    }
-  }, [records]);
-
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const appointmentTypes = [
@@ -52,6 +45,27 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     { value: "vaccination", label: "Vaccination" },
     { value: "screening", label: "Screening" },
   ];
+
+  const fetchDoctors = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/doctor/clinic/${user.clinicId?._id}`
+      );
+      setDoctors(res.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  useEffect(() => {
+    if (records.length > 0) {
+      setIsFirstTime(false);
+    }
+  }, [records]);
 
   const nextTab = () => setCurrentTab((prev) => prev + 1);
   const prevTab = () => setCurrentTab((prev) => prev - 1);
@@ -119,21 +133,6 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     return null;
   }
 
-  const fetchDoctors = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/doctor/clinic/${user.clinicId?._id}`
-      );
-      setDoctors(res.data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchDoctors();
-  }, []);
-
   const tabContent = () => {
     const totalSteps = 3;
     switch (currentTab) {
@@ -155,21 +154,26 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
           />
         );
       case 3:
-        return isFirstTime ? (
-          <DetailsTab
-            formData={formData}
-            setFormData={setFormData}
-            doctors={doctors}
-            appointmentTypes={appointmentTypes}
-            prevTab={prevTab}
-          />
-        ) : (
-          <BookingTab
-            formData={formData}
-            setFormData={setFormData}
-            nextTab={nextTab}
-            prevTab={prevTab}
-          />
+        return (
+          <>
+            {isFirstTime && (
+              <DetailsTab
+                formData={formData}
+                setFormData={setFormData}
+                doctors={doctors}
+                appointmentTypes={appointmentTypes}
+                prevTab={prevTab}
+              />
+            )}
+            {!isFirstTime && (
+              <BookingTab
+                formData={formData}
+                setFormData={setFormData}
+                nextTab={nextTab}
+                prevTab={prevTab}
+              />
+            )}
+          </>
         );
       case 4:
         return (
