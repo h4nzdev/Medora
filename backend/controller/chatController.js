@@ -7,6 +7,7 @@ export const saveChat = async (req, res) => {
     const { patientId, clinicId, role, message } = req.body;
     const newChat = new Chat({ patientId, clinicId, role, message });
     await newChat.save();
+    req.io.emit("message_sent");
     res.status(201).json({ success: true, chat: newChat });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -57,6 +58,7 @@ export const deleteChatsByPatient = async (req, res) => {
 
     // Delete all chats belonging to this patientId
     const result = await Chat.deleteMany({ patientId });
+    req.io.emit("message_sent");
 
     res.json({
       success: true,

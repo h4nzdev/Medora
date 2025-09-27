@@ -2,9 +2,12 @@
 import { useState, useEffect, useContext } from "react";
 import { User, MessageCircle, Search, ChevronDown, Filter } from "lucide-react";
 import axios from "axios";
+import io from "socket.io-client";
 import { AuthContext } from "../../../context/AuthContext";
 import ClientChatsModal from "./components/ClientChatsModal.jsx";
 import ClinicPatientsChatTableBody from "./components/ClinicPatientsChatTableBody.jsx";
+
+const socket = io(import.meta.env.VITE_API_URL);
 
 export default function ClinicPatientsChat() {
   const [chatHistory, setChatHistory] = useState([]);
@@ -74,8 +77,10 @@ export default function ClinicPatientsChat() {
   useEffect(() => {
     if (user && user._id) {
       fetchMessages();
-      const interval = setInterval(fetchMessages, 5000);
-      return () => clearInterval(interval);
+      socket.on("message_sent", fetchMessages);
+      return () => {
+        socket.off("message_sent");
+      };
     }
   }, [user]);
 
