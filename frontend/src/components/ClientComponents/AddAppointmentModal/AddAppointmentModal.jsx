@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useContext, useState, useEffect } from "react";
 import { X, Calendar, CreditCard, Loader2 } from "lucide-react";
@@ -18,7 +18,7 @@ import DetailsTab from "./Tabs/DetailsTab";
 import BookingTab from "./Tabs/BookingTab";
 
 const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
-  const { doctors } = useContext(DoctorContext);
+  const [doctors, setDoctors] = useState([]);
   const { user } = useContext(AuthContext);
   const { fetchAppointments } = useContext(AppointmentContext);
   const { records } = useMedicalRecords();
@@ -58,7 +58,12 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
 
   const handleAddAppointment = (e) => {
     e.preventDefault();
-    if (!formData.doctorId || !formData.date || !formData.time || !formData.type) {
+    if (
+      !formData.doctorId ||
+      !formData.date ||
+      !formData.time ||
+      !formData.type
+    ) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -68,7 +73,7 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
   const handlePaymentSubmit = async (paymentData) => {
     setIsLoading(true);
     try {
-      const datePart = formData.date.toISOString().split('T')[0];
+      const datePart = formData.date.toISOString().split("T")[0];
       const appointmentDateTime = `${datePart}T${formData.time}:00.000Z`;
 
       const finalData = {
@@ -80,7 +85,7 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
         paymentDetails: paymentData.bankDetails,
       };
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/appointment/add-appointment`,
@@ -88,7 +93,9 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
       );
 
       if (paymentData.paymentMethod === "cash") {
-        toast.success("Appointment booked successfully! Please pay in cash upon arrival.");
+        toast.success(
+          "Appointment booked successfully! Please pay in cash upon arrival."
+        );
       } else {
         toast.success("Appointment booked successfully! Payment processed.");
       }
@@ -112,25 +119,72 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     return null;
   }
 
+  const fetchDoctors = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/doctor/clinic/${user.clinicId?._id}`
+      );
+      setDoctors(res.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
   const tabContent = () => {
     const totalSteps = 3;
     switch (currentTab) {
       case 1:
-        return <DateTab formData={formData} setFormData={setFormData} nextTab={nextTab} />;
+        return (
+          <DateTab
+            formData={formData}
+            setFormData={setFormData}
+            nextTab={nextTab}
+          />
+        );
       case 2:
-        return <TimeTab formData={formData} setFormData={setFormData} nextTab={nextTab} prevTab={prevTab} />;
+        return (
+          <TimeTab
+            formData={formData}
+            setFormData={setFormData}
+            nextTab={nextTab}
+            prevTab={prevTab}
+          />
+        );
       case 3:
         return isFirstTime ? (
-          <DetailsTab formData={formData} setFormData={setFormData} doctors={doctors} appointmentTypes={appointmentTypes} prevTab={prevTab} />
+          <DetailsTab
+            formData={formData}
+            setFormData={setFormData}
+            doctors={doctors}
+            appointmentTypes={appointmentTypes}
+            prevTab={prevTab}
+          />
         ) : (
-          <BookingTab formData={formData} setFormData={setFormData} nextTab={nextTab} prevTab={prevTab} />
+          <BookingTab
+            formData={formData}
+            setFormData={setFormData}
+            nextTab={nextTab}
+            prevTab={prevTab}
+          />
         );
       case 4:
-        return <DetailsTab formData={formData} setFormData={setFormData} doctors={doctors} appointmentTypes={appointmentTypes} prevTab={prevTab} />;
+        return (
+          <DetailsTab
+            formData={formData}
+            setFormData={setFormData}
+            doctors={doctors}
+            appointmentTypes={appointmentTypes}
+            prevTab={prevTab}
+          />
+        );
       default:
         return null;
     }
-  }
+  };
 
   const totalSteps = 3;
 
@@ -161,39 +215,44 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
         </div>
 
         <form onSubmit={handleAddAppointment} className="p-6 space-y-6">
-            {tabContent()}
+          {tabContent()}
 
-            {currentTab === totalSteps && (
-                 <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className="px-6 py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all duration-200 font-medium"
-                        >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={!formData.doctorId || !formData.date || !formData.time || isLoading}
-                        className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
-                        >
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Processing...
-                            </>
-                        ) : (
-                            <>
-                                <CreditCard className="w-4 h-4" />
-                                Proceed to Payment
-                            </>
-                        )}
-                    </button>
-                </div>
-            )}
+          {currentTab === totalSteps && (
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all duration-200 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={
+                  !formData.doctorId ||
+                  !formData.date ||
+                  !formData.time ||
+                  isLoading
+                }
+                className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl hover:from-cyan-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4" />
+                    Proceed to Payment
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </form>
       </div>
-      
+
       <ClientPaymentModal
         isOpen={isPaymentModalOpen}
         onClose={handlePaymentModalClose}

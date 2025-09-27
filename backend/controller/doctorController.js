@@ -124,3 +124,28 @@ export const deleteDoctor = async (req, res) => {
       .json({ message: "Error deleting doctor", error: error.message });
   }
 };
+
+// ➤ Get doctors by clinicId
+export const getDoctorsByClinic = async (req, res) => {
+  try {
+    const { clinicId } = req.params;
+
+    const doctors = await Doctor.find({ clinicId }).populate(
+      "clinicId",
+      "name email"
+    );
+
+    if (!doctors || doctors.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No doctors found for this clinic" });
+    }
+
+    res.json(doctors);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching doctors by clinicId",
+      error: error.message,
+    });
+  }
+};

@@ -42,21 +42,21 @@ const ClientRoutes = () => {
             </ClientLayout>
           }
         />
-        <Route 
-            path="/client/doctors" 
-            element={
-                <ClientLayout>
-                    <DoctorsList />
-                </ClientLayout>
-            }
+        <Route
+          path="/client/doctors"
+          element={
+            <ClientLayout>
+              <DoctorsList />
+            </ClientLayout>
+          }
         />
-        <Route 
-            path="/client/doctor/:id" 
-            element={
-                <ClientLayout>
-                    <DoctorProfile />
-                </ClientLayout>
-            }
+        <Route
+          path="/client/doctor/:id"
+          element={
+            <ClientLayout>
+              <DoctorProfile />
+            </ClientLayout>
+          }
         />
         <Route
           path="/client/calendar"

@@ -33,7 +33,7 @@ export const chatWithGemini = async (req, res) => {
       return res.status(400).json({ error: "Message is required." });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Combine system prompt + user question
     const result = await model.generateContent([systemPrompt, message]);
@@ -59,7 +59,7 @@ export const summarizeChatHistory = async (req, res) => {
       return res.status(400).json({ error: "Messages array is required." });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Create a summary prompt
     const summaryPrompt = `

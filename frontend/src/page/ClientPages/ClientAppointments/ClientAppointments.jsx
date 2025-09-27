@@ -58,7 +58,7 @@ export default function ClientAppointments() {
         `The clinic has reached its appointment limit for the ${plan} plan.`
       );
     } else {
-      navigate('/doctors');
+      navigate('/client/doctors');
     }
   };
 
