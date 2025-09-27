@@ -474,23 +474,23 @@ export default function ClinicRegister() {
                     }`}
                     onClick={() => handlePlanSelect("free")}
                   >
-                    <div className="text-center">
+                    <div className="text-start">
                       <h4 className="font-semibold text-slate-800 mb-2">
                         Free
                       </h4>
                       <div className="text-2xl font-bold text-slate-800 mb-2">
-                        $0<span className="text-sm font-normal">/month</span>
+                        ₱0<span className="text-sm font-normal">/month</span>
                       </div>
                       <ul className="text-sm text-slate-600 space-y-1">
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                          Up to 25 patients
+                          Up to 10 patients
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Basic scheduling
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Email support
                         </li>
@@ -513,27 +513,27 @@ export default function ClinicRegister() {
                         </span>
                       </div>
                     )}
-                    <div className="text-center">
+                    <div className="text-start">
                       <h4 className="font-semibold text-slate-800 mb-2">
                         Basic
                       </h4>
                       <div className="text-2xl font-bold text-slate-800 mb-2">
-                        $29<span className="text-sm font-normal">/month</span>
+                        ₱199<span className="text-sm font-normal">/month</span>
                       </div>
                       <ul className="text-sm text-slate-600 space-y-1">
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
-                          Up to 100 patients
+                          Up to 20 patients
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justifystartr">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Advanced scheduling
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Priority support
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Basic analytics
                         </li>
@@ -556,29 +556,29 @@ export default function ClinicRegister() {
                         </span>
                       </div>
                     )}
-                    <div className="text-center">
+                    <div className="text-left">
                       <h4 className="font-semibold text-slate-800 mb-2">Pro</h4>
                       <div className="text-2xl font-bold text-slate-800 mb-2">
-                        $79<span className="text-sm font-normal">/month</span>
+                        ₱299<span className="text-sm font-normal">/month</span>
                       </div>
                       <ul className="text-sm text-slate-600 space-y-1">
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Unlimited patients
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Full features
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           24/7 support
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Advanced analytics
                         </li>
-                        <li className="flex items-center justify-center">
+                        <li className="flex items-center justify-start">
                           <Check className="w-4 h-4 text-emerald-500 mr-1" />
                           Custom integrations
                         </li>

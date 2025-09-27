@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 const appointmentData = [
   { name: 'Jan', appointments: 120 },
@@ -15,6 +15,15 @@ const statusData = [
   { name: 'Canceled', value: 50 },
 ];
 
+const patientData = [
+  { name: 'Jan', newPatients: 45, totalPatients: 320 },
+  { name: 'Feb', newPatients: 52, totalPatients: 372 },
+  { name: 'Mar', newPatients: 38, totalPatients: 410 },
+  { name: 'Apr', newPatients: 65, totalPatients: 475 },
+  { name: 'May', newPatients: 41, totalPatients: 516 },
+  { name: 'Jun', newPatients: 58, totalPatients: 574 },
+];
+
 const COLORS = ['#0088FE', '#FFBB28', '#FF8042'];
 
 export default function DashboardCharts() {
@@ -22,7 +31,7 @@ export default function DashboardCharts() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
         <h2 className="text-2xl font-semibold text-slate-800 mb-8">Appointment Trends</h2>
-        <BarChart width={600} height={300} data={appointmentData}>
+        <BarChart width={500} height={300} data={appointmentData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
@@ -31,6 +40,7 @@ export default function DashboardCharts() {
           <Bar dataKey="appointments" fill="#8884d8" />
         </BarChart>
       </div>
+      
       <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
         <h2 className="text-2xl font-semibold text-slate-800 mb-8">Appointment Status</h2>
         <PieChart width={400} height={300}>
@@ -50,6 +60,31 @@ export default function DashboardCharts() {
           <Tooltip />
           <Legend />
         </PieChart>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8 lg:col-span-2">
+        <h2 className="text-2xl font-semibold text-slate-800 mb-8">Patient Statistics</h2>
+        <LineChart width={1000} height={300} data={patientData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line 
+            type="monotone" 
+            dataKey="newPatients" 
+            stroke="#82ca9d" 
+            strokeWidth={3}
+            name="New Patients"
+          />
+          <Line 
+            type="monotone" 
+            dataKey="totalPatients" 
+            stroke="#8884d8" 
+            strokeWidth={3}
+            name="Total Patients"
+          />
+        </LineChart>
       </div>
     </div>
   );
