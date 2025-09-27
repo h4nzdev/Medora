@@ -1,4 +1,7 @@
+
 import express from "express";
+import { createServer } from "http"; // Import http
+import { Server } from "socket.io"; // Import socket.io
 import { configDB } from "./config/db.js";
 import clinicRoutes from "./routes/clinicRoutes.js";
 import doctorRouter from "./routes/doctorRoutes.js";
@@ -16,12 +19,33 @@ import { fileURLToPath } from "url";
 dotenv.config();
 configDB();
 const app = express();
+const httpServer = createServer(app); // Create HTTP server
+const io = new Server(httpServer, { // Attach socket.io to the server
+  cors: {
+    origin: "*", // Adjust for your frontend URL in production
+  },
+});
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
 app.use(cors());
+
+// --- Socket.io connection ---
+io.on("connection", (socket) => {
+  console.log("A user connected");
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
+
+// Pass `io` to your routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 
 // Serve static files from the 'public' directory
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
@@ -35,6 +59,6 @@ app.use("/auth/patient", patientAuthRouter);
 app.use("/medical-records", medicalRecordsRouter);
 app.use("/", chatRoutes);
 
-app.listen(process.env.PORT || 3000, () => {
+httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on PORT : 3000`);
 });

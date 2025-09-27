@@ -59,6 +59,7 @@ export const addAppointment = async (req, res) => {
     });
 
     await newAppointment.save();
+    req.io.emit("appointment_updated");
 
     res.status(201).json({
       message: "Appointment created successfully",
@@ -121,6 +122,7 @@ export const updateAppointment = async (req, res) => {
     if (!updatedAppointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
+    req.io.emit("appointment_updated");
 
     res.status(200).json({
       message: "Appointment updated successfully",
@@ -143,6 +145,7 @@ export const deleteAppointment = async (req, res) => {
     if (!deletedAppointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
+    req.io.emit("appointment_updated");
 
     res.status(200).json({ message: "Appointment deleted successfully" });
   } catch (error) {
@@ -179,6 +182,7 @@ export const respondToAppointment = async (req, res) => {
     if (!updatedAppointment) {
       return res.status(404).json({ message: "Appointment not found" });
     }
+    req.io.emit("appointment_updated");
 
     res.status(200).json({
       message: `Appointment ${newStatus}`,
