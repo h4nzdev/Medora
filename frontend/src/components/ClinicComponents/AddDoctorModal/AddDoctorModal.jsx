@@ -15,6 +15,7 @@ const AddDoctorModal = ({
   const { user } = useContext(AuthContext);
   const { fetchDoctors } = useContext(DoctorContext);
   const [isLoading, setIsLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     gender: "",
@@ -33,7 +34,6 @@ const AddDoctorModal = ({
     ],
   });
 
-  // Update form data when doctorData changes (for editing)
   useEffect(() => {
     if (editMode && doctorData) {
       setFormData({
@@ -53,8 +53,8 @@ const AddDoctorModal = ({
           },
         ],
       });
+      setProfileImage(null);
     } else {
-      // Reset form when adding new doctor
       setFormData({
         name: "",
         gender: "",
@@ -72,30 +72,57 @@ const AddDoctorModal = ({
           },
         ],
       });
+      setProfileImage(null);
     }
   }, [editMode, doctorData]);
+
+  const handleFileChange = (e) => {
+    setProfileImage(e.target.files[0]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
+
+    const data = new FormData();
+    data.append("clinicId", user._id);
+    
+    // Append all other form data fields
+    for (const key in formData) {
+        if (key === "availability") {
+            data.append(key, JSON.stringify(formData[key]));
+        } else {
+            data.append(key, formData[key]);
+        }
+    }
+
+    if (profileImage) {
+      data.append("profileImage", profileImage);
+    }
+
     try {
       if (editMode && doctorData) {
-        // Update existing doctor
         await axios.put(
           `${import.meta.env.VITE_API_URL}/doctor/${doctorData._id}`,
+          data,
           {
-            ...formData,
-            clinicId: user._id,
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           }
         );
         toast.success("Doctor updated successfully!");
       } else {
-        // Add new doctor
-        await axios.post(`${import.meta.env.VITE_API_URL}/doctor/add-doctor`, {
-          ...formData,
-          clinicId: user._id,
-        });
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/doctor/add-doctor`,
+          data,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
         toast.success("Doctor added successfully!");
       }
       fetchDoctors();
@@ -307,7 +334,24 @@ const AddDoctorModal = ({
               </div>
             </div>
 
-            {/* Availability section stays as is */}
+            {/* Profile Image */}
+            <div>
+              <label
+                htmlFor="profileImage"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Profile Image
+              </label>
+              <input
+                type="file"
+                id="profileImage"
+                name="profileImage"
+                onChange={handleFileChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Availability section */}
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-800">

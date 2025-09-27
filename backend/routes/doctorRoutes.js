@@ -7,11 +7,12 @@ import {
   deleteDoctor,
   getDoctorsByClinic,
 } from "../controller/doctorController.js";
+import upload from "../middleware/multerConfig.js";
 
 const doctorRouter = express.Router();
 
 // ➤ Add a doctor
-doctorRouter.post("/add-doctor", addDoctor);
+doctorRouter.post("/add-doctor", upload.single("profileImage"), addDoctor);
 
 // ➤ Get all doctors
 doctorRouter.get("/", getDoctors);
@@ -23,7 +24,7 @@ doctorRouter.get("/clinic/:clinicId", getDoctorsByClinic);
 doctorRouter.get("/:id", getDoctorById);
 
 // ➤ Update doctor by ID
-doctorRouter.put("/:id", updateDoctor);
+doctorRouter.put("/:id", upload.single("profileImage"), updateDoctor);
 
 // ➤ Delete doctor by ID
 doctorRouter.delete("/:id", deleteDoctor);

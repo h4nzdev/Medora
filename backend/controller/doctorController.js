@@ -12,10 +12,14 @@ export const addDoctor = async (req, res) => {
       experience,
       email,
       phone,
-      profileImage,
       status,
       availability,
     } = req.body;
+
+    let profileImage;
+    if (req.file) {
+      profileImage = req.file.path;
+    }
 
     // create new doctor
     const doctor = new Doctor({
@@ -80,27 +84,29 @@ export const updateDoctor = async (req, res) => {
       experience,
       email,
       phone,
-      profileImage,
       status,
       availability,
     } = req.body;
 
-    const doctor = await Doctor.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        gender,
-        qualification,
-        specialty,
-        experience,
-        email,
-        phone,
-        profileImage,
-        status,
-        availability,
-      },
-      { new: true }
-    );
+    const updateData = {
+      name,
+      gender,
+      qualification,
+      specialty,
+      experience,
+      email,
+      phone,
+      status,
+      availability,
+    };
+
+    if (req.file) {
+      updateData.profileImage = req.file.path;
+    }
+
+    const doctor = await Doctor.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
 
     if (!doctor) return res.status(404).json({ message: "Doctor not found" });
 
