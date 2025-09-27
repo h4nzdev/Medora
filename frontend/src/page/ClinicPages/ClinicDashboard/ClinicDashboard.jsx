@@ -21,6 +21,7 @@ import { PatientsContext } from "../../../context/PatientsContext";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { getStatusBadge, getStatusIcon } from "../../../utils/appointmentStats";
 import { useDate, useTime } from "../../../utils/date";
+import DashboardCharts from "./DashboardCharts";
 
 export default function ClinicDashboard() {
   const { appointments } = useContext(AppointmentContext);
@@ -28,6 +29,7 @@ export default function ClinicDashboard() {
   const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
   const [showAll, setShowAll] = useState(false);
+  const [view, setView] = useState("default");
 
   const clinicAppointments = appointments?.filter(
     (appointment) => appointment.clinicId?._id === user._id
@@ -90,8 +92,8 @@ export default function ClinicDashboard() {
     <div className="w-full">
       <div className="mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-4">
+        <div className="mb-8 flex justify-between items-center">
+          <div className="flex items-center space-x-3">
             <div className="bg-cyan-500 p-3 rounded-2xl shadow-lg">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
@@ -104,235 +106,271 @@ export default function ClinicDashboard() {
               </p>
             </div>
           </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Appointments Card */}
-          <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  Today's Appointments
-                </p>
-                <p className="text-4xl font-semibold text-cyan-600">
-                  {stats.appointments}
-                  {appointmentLimit !== "Unlimited" && (
-                    <span className="text-lg font-medium text-slate-500">
-                      / {appointmentLimit}
-                    </span>
-                  )}
-                </p>
-                <p className="text-sm text-emerald-600 mt-1 flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +12% from yesterday
-                </p>
-              </div>
-              <div className="bg-cyan-500 p-4 rounded-2xl shadow-md">
-                <Calendar className="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Patients Card */}
-          <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  Total Patients
-                </p>
-                <p className="text-4xl font-semibold text-sky-600">
-                  {stats.patients}
-                </p>
-                <p className="text-sm text-emerald-600 mt-1 flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +5 this week
-                </p>
-              </div>
-              <div className="bg-sky-500 p-4 rounded-2xl shadow-md">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          {/* Doctors Card */}
-          <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  Active Doctors
-                </p>
-                <p className="text-4xl font-semibold text-blue-600">
-                  {stats.doctors}
-                </p>
-                <p className="text-sm text-slate-500 mt-1">
-                  All available today
-                </p>
-              </div>
-              <div className="bg-blue-500 p-4 rounded-2xl shadow-md">
-                <UserCheck className="w-8 h-8 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  Monthly Revenue
-                </p>
-                <p className="text-4xl font-semibold text-emerald-600">
-                  ${stats.revenue.toLocaleString()}
-                </p>
-                <p className="text-sm text-emerald-600 mt-1 flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-1" />
-                  +8% from last month
-                </p>
-              </div>
-              <div className="bg-emerald-500 p-4 rounded-2xl shadow-md">
-                <DollarSign className="w-8 h-8 text-white" />
-              </div>
-            </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setView("default")}
+              className={`px-4 py-2 rounded-lg ${
+                view === "default"
+                  ? "bg-cyan-600 text-white"
+                  : "bg-gray-200 text-gray-800"
+              }`}
+            >
+              Default
+            </button>
+            <button
+              onClick={() => setView("charts")}
+              className={`px-4 py-2 rounded-lg ${
+                view === "charts"
+                  ? "bg-cyan-600 text-white"
+                  : "bg-gray-200 text-gray-800"
+              }`}
+            >
+              Charts
+            </button>
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Appointments */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-              <h2 className="text-2xl font-semibold text-slate-800 mb-8">
-                Recent Appointments
-              </h2>
-              <div className="space-y-4">
-                {visibleAppointments?.length > 0 ? (
-                  visibleAppointments?.map((appointment) => (
-                    <div
-                      key={appointment?.id}
-                      className="group relative overflow-hidden bg-slate-50 border border-slate-200 rounded-xl p-6 hover:shadow-md hover:border-cyan-300 transition-all duration-300 hover:-translate-y-0.5"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3">
-                            <h3 className="font-semibold text-slate-800 text-lg">
-                              {appointment.patientId?.name}
-                            </h3>
-                            <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full capitalize">
-                              {appointment?.type}
-                            </span>
+        {view === "default" ? (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Appointments Card */}
+              <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
+                      Today's Appointments
+                    </p>
+                    <p className="text-4xl font-semibold text-cyan-600">
+                      {stats.appointments}
+                      {appointmentLimit !== "Unlimited" && (
+                        <span className="text-lg font-medium text-slate-500">
+                          / {appointmentLimit}
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-sm text-emerald-600 mt-1 flex items-center">
+                      <TrendingUp className="w-4 h-4 mr-1" />
+                      +12% from yesterday
+                    </p>
+                  </div>
+                  <div className="bg-cyan-500 p-4 rounded-2xl shadow-md">
+                    <Calendar className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Patients Card */}
+              <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
+                      Total Patients
+                    </p>
+                    <p className="text-4xl font-semibold text-sky-600">
+                      {stats.patients}
+                    </p>
+                    <p className="text-sm text-emerald-600 mt-1 flex items-center">
+                      <TrendingUp className="w-4 h-4 mr-1" />
+                      +5 this week
+                    </p>
+                  </div>
+                  <div className="bg-sky-500 p-4 rounded-2xl shadow-md">
+                    <Users className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Doctors Card */}
+              <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
+                      Active Doctors
+                    </p>
+                    <p className="text-4xl font-semibold text-blue-600">
+                      {stats.doctors}
+                    </p>
+                    <p className="text-sm text-slate-500 mt-1">
+                      All available today
+                    </p>
+                  </div>
+                  <div className="bg-blue-500 p-4 rounded-2xl shadow-md">
+                    <UserCheck className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
+                      Monthly Revenue
+                    </p>
+                    <p className="text-4xl font-semibold text-emerald-600">
+                      ${stats.revenue.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-emerald-600 mt-1 flex items-center">
+                      <TrendingUp className="w-4 h-4 mr-1" />
+                      +8% from last month
+                    </p>
+                  </div>
+                  <div className="bg-emerald-500 p-4 rounded-2xl shadow-md">
+                    <DollarSign className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Recent Appointments */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+                  <h2 className="text-2xl font-semibold text-slate-800 mb-8">
+                    Recent Appointments
+                  </h2>
+                  <div className="space-y-4">
+                    {visibleAppointments?.length > 0 ? (
+                      visibleAppointments?.map((appointment) => (
+                        <div
+                          key={appointment?.id}
+                          className="group relative overflow-hidden bg-slate-50 border border-slate-200 rounded-xl p-6 hover:shadow-md hover:border-cyan-300 transition-all duration-300 hover:-translate-y-0.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3">
+                                <h3 className="font-semibold text-slate-800 text-lg">
+                                  {appointment.patientId?.name}
+                                </h3>
+                                <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full capitalize">
+                                  {appointment?.type}
+                                </span>
+                              </div>
+                              <p className="text-slate-600">
+                                {appointment.doctorId?.name}
+                              </p>
+                              <p className="text-slate-500 text-sm mt-1">
+                                {useDate(appointment?.date)} at{" "}
+                                {useTime(appointment?.date)}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <span
+                                className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusBadge(
+                                  appointment?.status
+                                )} shadow-sm`}
+                              >
+                                {getStatusIcon(appointment?.status)}
+                                <span className="ml-2 capitalize">
+                                  {appointment?.status}
+                                </span>
+                              </span>
+                            </div>
                           </div>
-                          <p className="text-slate-600">
-                            {appointment.doctorId?.name}
-                          </p>
-                          <p className="text-slate-500 text-sm mt-1">
-                            {useDate(appointment?.date)} at{" "}
-                            {useTime(appointment?.date)}
-                          </p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <span
-                            className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusBadge(
-                              appointment?.status
-                            )} shadow-sm`}
-                          >
-                            {getStatusIcon(appointment?.status)}
-                            <span className="ml-2 capitalize">
-                              {appointment?.status}
-                            </span>
-                          </span>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-slate-500">
+                        No appointments found.
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-8 text-center">
+                    <button
+                      onClick={() => setShowAll(!showAll)}
+                      className="bg-cyan-600 hover:bg-cyan-700 text-white font-medium px-8 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+                    >
+                      {showAll ? "Show Less" : "View All Appointments"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sidebar with Quick Actions and Notifications */}
+              <div className="lg:col-span-1 space-y-8">
+                {/* Quick Actions */}
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+                  <h2 className="text-2xl font-semibold text-slate-800 mb-8">
+                    Quick Actions
+                  </h2>
+                  <div className="space-y-4">
+                    {/* Add Doctor */}
+                    <button className="group w-full flex items-center space-x-4 p-6 bg-cyan-50 hover:bg-cyan-100 rounded-xl transition-all duration-300 border border-cyan-200 hover:shadow-md hover:-translate-y-0.5">
+                      <div className="bg-cyan-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                        <Plus className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-semibold text-slate-800 text-lg">
+                          Add Doctor
+                        </h3>
+                        <p className="text-slate-600">
+                          Add new doctor to clinic
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* Manage Appointments */}
+                    <button className="group w-full flex items-center space-x-4 p-6 bg-sky-50 hover:bg-sky-100 rounded-xl transition-all duration-300 border border-sky-200 hover:shadow-md hover:-translate-y-0.5">
+                      <div className="bg-sky-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                        <Eye className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-semibold text-slate-800 text-lg">
+                          Manage Appointments
+                        </h3>
+                        <p className="text-slate-600">
+                          View and manage bookings
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* View Patient Chats */}
+                    <button className="group w-full flex items-center space-x-4 p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 border border-blue-200 hover:shadow-md hover:-translate-y-0.5">
+                      <div className="bg-blue-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                        <MessageSquare className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="font-semibold text-slate-800 text-lg">
+                          View Patient Chats
+                        </h3>
+                        <p className="text-slate-600">
+                          AI chat history access
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+                  <h2 className="text-2xl font-semibold text-slate-800 mb-6">
+                    Recent Activity
+                  </h2>
+                  <div className="space-y-4">
+                    {recentActivities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="flex items-center space-x-3 p-3 hover:bg-slate-50 rounded-lg transition-colors"
+                      >
+                        <Activity className="w-4 h-4 text-slate-400" />
+                        <div className="flex-1">
+                          <p className="text-sm text-slate-700">
+                            {activity.action}
+                          </p>
+                          <p className="text-xs text-slate-500">
+                            {activity.time}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-slate-500">
-                    No appointments found.
+                    ))}
                   </div>
-                )}
-              </div>
-              <div className="mt-8 text-center">
-                <button
-                  onClick={() => setShowAll(!showAll)}
-                  className="bg-cyan-600 hover:bg-cyan-700 text-white font-medium px-8 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
-                >
-                  {showAll ? "Show Less" : "View All Appointments"}
-                </button>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Sidebar with Quick Actions and Notifications */}
-          <div className="lg:col-span-1 space-y-8">
-            {/* Quick Actions */}
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-              <h2 className="text-2xl font-semibold text-slate-800 mb-8">
-                Quick Actions
-              </h2>
-              <div className="space-y-4">
-                {/* Add Doctor */}
-                <button className="group w-full flex items-center space-x-4 p-6 bg-cyan-50 hover:bg-cyan-100 rounded-xl transition-all duration-300 border border-cyan-200 hover:shadow-md hover:-translate-y-0.5">
-                  <div className="bg-cyan-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <Plus className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-slate-800 text-lg">
-                      Add Doctor
-                    </h3>
-                    <p className="text-slate-600">Add new doctor to clinic</p>
-                  </div>
-                </button>
-
-                {/* Manage Appointments */}
-                <button className="group w-full flex items-center space-x-4 p-6 bg-sky-50 hover:bg-sky-100 rounded-xl transition-all duration-300 border border-sky-200 hover:shadow-md hover:-translate-y-0.5">
-                  <div className="bg-sky-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <Eye className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-slate-800 text-lg">
-                      Manage Appointments
-                    </h3>
-                    <p className="text-slate-600">View and manage bookings</p>
-                  </div>
-                </button>
-
-                {/* View Patient Chats */}
-                <button className="group w-full flex items-center space-x-4 p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 border border-blue-200 hover:shadow-md hover:-translate-y-0.5">
-                  <div className="bg-blue-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                    <MessageSquare className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-slate-800 text-lg">
-                      View Patient Chats
-                    </h3>
-                    <p className="text-slate-600">AI chat history access</p>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-              <h2 className="text-2xl font-semibold text-slate-800 mb-6">
-                Recent Activity
-              </h2>
-              <div className="space-y-4">
-                {recentActivities.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-center space-x-3 p-3 hover:bg-slate-50 rounded-lg transition-colors"
-                  >
-                    <Activity className="w-4 h-4 text-slate-400" />
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-700">
-                        {activity.action}
-                      </p>
-                      <p className="text-xs text-slate-500">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          <DashboardCharts />
+        )}
       </div>
     </div>
   );
