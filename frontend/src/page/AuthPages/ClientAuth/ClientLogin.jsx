@@ -9,7 +9,6 @@ import {
   EyeOff,
   AlertTriangle,
   ArrowLeft,
-  Calendar,
   ChevronDown,
   Loader2,
 } from "lucide-react";
@@ -70,6 +69,7 @@ const ClientLogin = () => {
   }, [location.search, clinics]);
 
   const handleLogin = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     if (!selectedClinic) {
       setError("Please select a clinic to log in.");
@@ -103,6 +103,8 @@ const ClientLogin = () => {
         setError("Login failed. Please check your connection and try again.");
       }
       console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

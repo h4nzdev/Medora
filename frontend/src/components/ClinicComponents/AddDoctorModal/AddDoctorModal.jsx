@@ -87,14 +87,14 @@ const AddDoctorModal = ({
 
     const data = new FormData();
     data.append("clinicId", user._id);
-    
+
     // Append all other form data fields
     for (const key in formData) {
-        if (key === "availability") {
-            data.append(key, JSON.stringify(formData[key]));
-        } else {
-            data.append(key, formData[key]);
-        }
+      if (key === "availability") {
+        data.append(key, JSON.stringify(formData[key]));
+      } else {
+        data.append(key, formData[key]);
+      }
     }
 
     if (profileImage) {
