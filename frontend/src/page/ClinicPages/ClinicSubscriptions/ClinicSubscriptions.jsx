@@ -45,6 +45,7 @@ export default function ClinicSubscriptions() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentSetup, setIsPaymentSetup] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePlanSelect = (plan) => {
     if (plan.toLowerCase() === currentPlan.toLowerCase()) {
@@ -66,6 +67,7 @@ export default function ClinicSubscriptions() {
   };
 
   const updateSubscription = async (plan) => {
+    setIsLoading(true);
     try {
       const res = await axios.put(
         `${import.meta.env.VITE_API_URL}/clinic/${user._id}/subscription`,
@@ -78,6 +80,8 @@ export default function ClinicSubscriptions() {
     } catch (error) {
       console.error("Error updating subscription:", error);
       toast.error("Failed to update subscription.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,6 +91,7 @@ export default function ClinicSubscriptions() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handlePaymentSubmit}
+        isLoading={isLoading}
       />
       <div className="mx-auto">
         {/* Header */}

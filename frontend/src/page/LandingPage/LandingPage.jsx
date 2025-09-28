@@ -415,19 +415,38 @@ const LandingPage = () => {
                   <div className="h-58 bg-gradient-to-br from-cyan-50 to-cyan-100 flex items-center justify-center relative overflow-hidden">
                     <div className="text-center">
                       {clinic.clinicPicture ? (
-                        <img
-                          src={`${import.meta.env.VITE_API_URL}${
-                            clinic.clinicPicture
-                          }`}
-                          alt={clinic.clinicName}
-                          onError={(e) => {
-                            console.error(
-                              "Image failed to load:",
-                              e.target.src
-                            );
-                            e.target.style.display = "none";
-                          }}
-                        />
+                        <div className="relative">
+                          <img
+                            src={`${import.meta.env.VITE_API_URL}${
+                              clinic.clinicPicture
+                            }`}
+                            alt={clinic.clinicName}
+                            onError={(e) => {
+                              console.error("Image failed to load:", {
+                                fullUrl: e.target.src,
+                                baseUrl: import.meta.env.VITE_API_URL,
+                                picturePath: clinic.clinicPicture,
+                                clinicId: clinic._id,
+                              });
+                              e.target.style.display = "none";
+                            }}
+                            onLoad={() =>
+                              console.log(
+                                "Image loaded successfully for clinic:",
+                                clinic.clinicName
+                              )
+                            }
+                          />
+                          {/* Fallback placeholder that shows when image fails */}
+                          <div
+                            className="absolute inset-0 hidden"
+                            style={{ display: "none" }}
+                          >
+                            <div className="w-full h-full bg-cyan-200 rounded-lg flex items-center justify-center">
+                              <Stethoscope className="w-10 h-10 text-cyan-600" />
+                            </div>
+                          </div>
+                        </div>
                       ) : (
                         <>
                           <div className="w-20 h-20 bg-cyan-200 rounded-full flex items-center justify-center mx-auto mb-4">

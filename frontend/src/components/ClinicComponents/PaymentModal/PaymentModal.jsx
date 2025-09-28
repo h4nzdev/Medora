@@ -9,6 +9,7 @@ import {
   Wallet,
   ArrowLeft,
   Check,
+  Loader2,
 } from "lucide-react";
 
 const banks = ["PayMaya", "Metrobank", "BDO", "GCash"];
@@ -28,7 +29,7 @@ const bankColors = {
   GCash: "from-slate-600 to-slate-700",
 };
 
-export default function PaymentModal({ isOpen, onClose, onSubmit }) {
+export default function PaymentModal({ isOpen, onClose, onSubmit, isLoading }) {
   const [step, setStep] = useState(1);
   const [selectedBank, setSelectedBank] = useState(null);
   const [bankDetails, setBankDetails] = useState({
@@ -253,9 +254,17 @@ export default function PaymentModal({ isOpen, onClose, onSubmit }) {
                   </button>
                   <button
                     type="submit"
+                    disabled={isLoading}
                     className="flex-1 px-6 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
                   >
-                    Complete Payment
+                    {isLoading ? (
+                      <>
+                        Completing
+                        <Loader2 className="animate-spin" />
+                      </>
+                    ) : (
+                      "Complete Payment"
+                    )}
                   </button>
                 </div>
               </form>

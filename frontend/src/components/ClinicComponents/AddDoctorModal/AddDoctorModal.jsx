@@ -497,8 +497,8 @@ const AddDoctorModal = ({
               >
                 {isLoading ? (
                   <>
+                    Adding
                     <Loader2 className="animate-spin" />
-                    "Adding Doctor..."
                   </>
                 ) : (
                   <>{editMode ? "Update Doctor" : "Add Doctor"}</>
