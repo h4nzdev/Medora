@@ -13,6 +13,7 @@ import PendingAppointments from "../page/ClinicPages/ClinicPendingAppointments/C
 import ClinicDoctorProfile from "../page/ClinicPages/DoctorProfile/ClinicDoctorProfile";
 import ClinicPatientProfile from "../page/ClinicPages/PatientProfile/ClinicPatientProfile";
 import ClinicCalendar from "../page/ClinicPages/ClinicCalendar";
+import InvoicesPage from "../page/ClinicPages/InvoicesPage"; // Import the new page
 
 const ClinicRoutes = () => {
   return (
@@ -79,6 +80,15 @@ const ClinicRoutes = () => {
           element={
             <ClinicLayout>
               <ClinicMedicalRecords />
+            </ClinicLayout>
+          }
+        />
+        {/* Add the new Invoices route here */}
+        <Route
+          path="/clinic/invoices"
+          element={
+            <ClinicLayout>
+              <InvoicesPage />
             </ClinicLayout>
           }
         />
