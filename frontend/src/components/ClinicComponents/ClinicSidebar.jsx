@@ -46,18 +46,25 @@ export default function ClinicSidebar() {
       active: false,
       link: "/clinic/medical-records",
     },
-
-    {
-      icon: CreditCard,
-      label: "Subscription",
-      active: false,
-      link: "/clinic/subscriptions",
-    },
     {
       icon: Settings,
       label: "Settings",
       active: false,
       link: "/clinic/settings",
+    },
+    {
+      icon: Users,
+      label: "Payments",
+      subItems: [
+        {
+          label: "Subscription",
+          link: "/clinic/subscriptions",
+        },
+        {
+          label: "Invoices",
+          link: "/clinic/invoices",
+        },
+      ],
     },
     {
       icon: Calendar,

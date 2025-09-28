@@ -78,13 +78,13 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
               >
                 <td className="py-4 px-4">
                   <p className="font-semibold text-slate-800">
-                    {appointment.patientId.name}
+                    {appointment.patientId?.name}
                   </p>
                   <p className="text-sm text-slate-500">ID: #0001</p>
                 </td>
                 <td className="px-4">
                   <p className="font-medium text-slate-700">
-                    {appointment.doctorId.name}
+                    {appointment.doctorId?.name}
                   </p>
                 </td>
                 <td className="px-4">

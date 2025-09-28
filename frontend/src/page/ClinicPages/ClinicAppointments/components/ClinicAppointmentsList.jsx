@@ -14,10 +14,10 @@ const ClinicAppointmentsList = ({ appointments }) => {
             <div className="flex items-start space-x-4">
               <div className="flex-1">
                 <p className="font-semibold text-slate-800 text-lg">
-                  {appointment.patientId.name}
+                  {appointment.patientId?.name}
                 </p>
                 <p className="text-sm text-slate-600">
-                  with Dr. {appointment.doctorId.name}
+                  with Dr. {appointment.doctorId?.name}
                 </p>
                 <div className="mt-2 text-sm text-slate-500">
                   <p>{useDate(appointment.date)}</p>
