@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import InvoiceList from "../../components/Invoice/InvoiceList";
 import InvoiceForm from "../../components/Invoice/InvoiceForm";
 import InvoiceDetails from "../../components/Invoice/InvoiceDetails";
 import DeleteInvoiceModal from "../../components/Invoice/DeleteInvoiceModal";
 import { deleteInvoice } from "../../services/invoiceService";
-import { useSelector } from "react-redux";
+import { ClinicContext } from "../../context/ClinicContext";
 
 const InvoicesPage = () => {
-  const { clinic } = useSelector((state) => state.clinic);
-  const clinicId = clinic?._id;
+  const { clinics } = useContext(ClinicContext);
+  const clinicId = clinics?.[0]?._id; // Assuming you want to use the first clinic
 
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [viewingInvoice, setViewingInvoice] = useState(null);
