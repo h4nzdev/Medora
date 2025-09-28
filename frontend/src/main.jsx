@@ -5,6 +5,7 @@ import { DoctorProvider } from "./context/DoctorContext.jsx";
 import { PatientsProvider } from "./context/PatientsContext.jsx";
 import { AppointmentProvider } from "./context/AppointmentContext.jsx";
 import { ClinicProvider } from "./context/ClinicContext.jsx";
+import { TourProvider } from "./context/TourContext.jsx"; // Import TourProvider
 import App from "./App.jsx";
 
 // ✅ Correct import for PWA
@@ -16,7 +17,10 @@ createRoot(document.getElementById("root")).render(
       <PatientsProvider>
         <AppointmentProvider>
           <ClinicProvider>
-            <App />
+            {/* ✅ Wrap App with TourProvider */}
+            <TourProvider>
+              <App />
+            </TourProvider>
           </ClinicProvider>
         </AppointmentProvider>
       </PatientsProvider>

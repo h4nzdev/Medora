@@ -7,12 +7,13 @@ import {
   MoreHorizontal,
   AlertTriangle,
 } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react"; // Import useEffect
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
-import { ClinicContext } from "../../../context/ClinicContext"; // new
+import { ClinicContext } from "../../../context/ClinicContext";
+import { useTour } from "../../../context/TourContext"; // Import useTour
 import {
   getStatusIcon,
   getStatusBadge1,
@@ -24,8 +25,36 @@ import { useNavigate } from "react-router-dom";
 export default function ClientAppointments() {
   const { appointments } = useContext(AppointmentContext);
   const { user } = useContext(AuthContext);
-  const { clinics } = useContext(ClinicContext); // new
+  const { clinics } = useContext(ClinicContext);
+  const { startTour, driverObj } = useTour(); // Use the tour context
   const navigate = useNavigate();
+
+  // Start the tour when the component mounts
+  useEffect(() => {
+    const hasCompletedTour = localStorage.getItem("hasCompletedBookingTour");
+    if (!hasCompletedTour) {
+      startTour();
+    }
+  }, []);
+
+
+
+  const handleNewAppointmentClick = () => {
+    if (LimitReached) {
+      toast.error(
+        `The clinic has reached its appointment limit for the ${plan} plan.`
+      );
+    } else {
+      // Check if the tour is active before navigating
+      const activeStep = driverObj.getActiveStep();
+      if (activeStep && activeStep.element === '#new-appointment-button') {
+        driverObj.moveNext(); // This will trigger the onNextClick in the tour steps
+      } else {
+        navigate('/client/doctors');
+      }
+    }
+  };
+
 
   // Plan limits
   const planLimits = {
@@ -49,18 +78,7 @@ export default function ClientAppointments() {
     (app) => app.clinicId?._id === user.clinicId._id
   ).length;
 
-  // Check if limit is reached
   const LimitReached = clinicAppointmentCount >= maxAppointments;
-
-  const handleNewAppointmentClick = () => {
-    if (LimitReached) {
-      toast.error(
-        `The clinic has reached its appointment limit for the ${plan} plan.`
-      );
-    } else {
-      navigate('/client/doctors');
-    }
-  };
 
   // Stats (unchanged)
   const stats = [
@@ -120,21 +138,22 @@ export default function ClientAppointments() {
                 <p className="text-slate-600 mt-3 text-lg sm:text-xl leading-relaxed">
                   View and manage your upcoming appointments.
                 </p>
+
                 {LimitReached && (
                   <p className="md:text-lg text-red-600 font-semibold mb-2 flex items-center mt-4 border border-red-500 bg-red-200 rounded p-2 max-w-xl justify-center
                   text-sm">
-                    <AlertTriangle className="mr-2"/> The clinic has reached its appointment
+                    <AlertTriangle className="mr-2" /> The clinic has reached its appointment
                     limit for the {clinic?.subscriptionPlan} plan.
                   </p>
                 )}
               </div>
               <button
+                id="new-appointment-button" // Added ID for the tour
                 onClick={handleNewAppointmentClick}
-                className={`group flex items-center justify-center px-6 md:px-8 py-4 text-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto text-base md:text-lg font-semibold ${
-                  LimitReached
-                    ? "bg-slate-600/50 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 to-sky-500"
-                }`}
+                className={`group flex items-center justify-center px-6 md:px-8 py-4 text-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto text-base md:text-lg font-semibold ${LimitReached
+                  ? "bg-slate-600/50 cursor-not-allowed"
+                  : "bg-gradient-to-r from-cyan-500 to-sky-500"
+                  }`}
               >
                 <CalendarPlus className="w-5 h-5 md:w-6 md:h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
                 New Appointment

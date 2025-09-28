@@ -138,32 +138,38 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     switch (currentTab) {
       case 1:
         return (
-          <DateTab
-            formData={formData}
-            setFormData={setFormData}
-            nextTab={nextTab}
-          />
+          <div id="booking-date-tab">
+            <DateTab
+              formData={formData}
+              setFormData={setFormData}
+              nextTab={nextTab}
+            />
+          </div>
         );
       case 2:
         return (
-          <TimeTab
-            formData={formData}
-            setFormData={setFormData}
-            nextTab={nextTab}
-            prevTab={prevTab}
-          />
+          <div id="booking-time-tab">
+            <TimeTab
+              formData={formData}
+              setFormData={setFormData}
+              nextTab={nextTab}
+              prevTab={prevTab}
+            />
+          </div>
         );
       case 3:
         return (
           <>
             {isFirstTime && (
-              <DetailsTab
-                formData={formData}
-                setFormData={setFormData}
-                doctors={doctors}
-                appointmentTypes={appointmentTypes}
-                prevTab={prevTab}
-              />
+              <div id="booking-details-tab">
+                <DetailsTab
+                  formData={formData}
+                  setFormData={setFormData}
+                  doctors={doctors}
+                  appointmentTypes={appointmentTypes}
+                  prevTab={prevTab}
+                />
+              </div>
             )}
             {!isFirstTime && (
               <BookingTab
@@ -177,13 +183,15 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
         );
       case 4:
         return (
-          <DetailsTab
-            formData={formData}
-            setFormData={setFormData}
-            doctors={doctors}
-            appointmentTypes={appointmentTypes}
-            prevTab={prevTab}
-          />
+          <div id="booking-details-tab">
+            <DetailsTab
+              formData={formData}
+              setFormData={setFormData}
+              doctors={doctors}
+              appointmentTypes={appointmentTypes}
+              prevTab={prevTab}
+            />
+          </div>
         );
       default:
         return null;
@@ -222,7 +230,7 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
           {tabContent()}
 
           {currentTab === totalSteps && (
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <div id="confirm-booking-button" className="flex justify-end gap-3 pt-4 border-t border-slate-100">
               <button
                 type="button"
                 onClick={onClose}

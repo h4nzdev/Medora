@@ -1,14 +1,15 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react"; // Import useEffect
 import { Link } from "react-router-dom";
 import { ArrowRight, User, Stethoscope, Star, Calendar } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
-import { useEffect } from "react";
 import { AuthContext } from "../../../context/AuthContext";
+import { useTour } from "../../../context/TourContext"; // Import useTour
 
 const DoctorsList = () => {
   const { user } = useContext(AuthContext);
   const [doctors, setDoctors] = useState([]);
+  const { driverObj } = useTour(); // Use the tour context
 
   const fetchDoctors = async () => {
     try {
@@ -23,7 +24,18 @@ const DoctorsList = () => {
 
   useEffect(() => {
     fetchDoctors();
-  }, []);
+
+    const hasCompletedTour = localStorage.getItem("hasCompletedBookingTour");
+    if (!hasCompletedTour && driverObj) {
+        // Use a timeout to ensure the elements are rendered
+        setTimeout(() => {
+            const activeStep = driverObj.getActiveStep();
+            if (activeStep && activeStep.element === '#new-appointment-button') {
+                driverObj.moveNext();
+            }
+        }, 500);
+    }
+  }, [driverObj]);
 
   console.log(doctors);
 
@@ -112,7 +124,7 @@ const DoctorsList = () => {
           {doctors.map((doctor) => (
             <div
               key={doctor._id}
-              className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+              className="doctor-card bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
             >
               <div className="flex flex-col h-full">
                 {/* Doctor Header */}
