@@ -17,6 +17,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { toast } from "react-toastify";
+import logo from "../../assets/medoralogo.png";
 
 export default function ClinicSidebar() {
   const { user } = useContext(AuthContext);
@@ -119,9 +120,7 @@ export default function ClinicSidebar() {
     <div className="hidden md:block fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex flex-col overflow-hidden">
       {/* Sidebar Header - Fixed at top */}
       <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
-        <div className="bg-cyan-600 p-2 rounded-lg">
-          <Stethoscope className="w-6 h-6 text-white" />
-        </div>
+        <img src={logo} alt="medoralogo" className="w-12 h-12" />
         <div>
           <h1 className="text-lg font-bold text-slate-800">
             Medora{" "}

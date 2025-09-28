@@ -11,6 +11,7 @@ import useMedicalRecords from "../../../hooks/medicalRecords";
 import { useState } from "react";
 import MedicalRecordsModal from "../../../components/ClientComponents/MedicalRecordsModal/MedicalRecordsModal";
 import jsPDF from "jspdf";
+import { formatDate, useTime } from "../../../utils/date";
 
 const ClientMedicalRecords = () => {
   const { records } = useMedicalRecords();
@@ -179,7 +180,7 @@ const ClientMedicalRecords = () => {
                       {record.doctorId?.name}
                     </p>
                     <p className="text-cyan-600 font-semibold text-sm tracking-wide uppercase mt-1">
-                      {record.createdAt.slice(1, 10)}
+                      {formatDate(record.createdAt)}
                     </p>
                     <div className="my-4 h-px bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200"></div>
                     <p className="text-slate-700 mb-4 font-medium leading-relaxed">
@@ -259,12 +260,10 @@ const ClientMedicalRecords = () => {
                       </td>
                       <td className="px-6">
                         <p className="font-semibold text-slate-700 text-base">
-                          {new Date(
-                            record.appointmentId?.date
-                          ).toLocaleDateString()}
+                          {formatDate(record.createdAt)}
                         </p>
                         <p className="text-base text-slate-500 font-medium">
-                          {record.createdAt.slice(1, 10)}
+                          {useTime(record.createdAt)}
                         </p>
                       </td>
                       <td className="px-6">

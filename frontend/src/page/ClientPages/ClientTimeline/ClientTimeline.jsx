@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Calendar, Clock, User, CalendarDays } from "lucide-react";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
-import { useDate, useTime } from "../../../utils/date.jsx";
+import { formatDate, useDate, useTime } from "../../../utils/date.jsx";
 import { getStatusBadge } from "../../../utils/clientAppointment.jsx";
 
 const ClientTimeline = () => {
@@ -155,7 +155,7 @@ const ClientTimeline = () => {
                                 Date
                               </p>
                               <p className="font-bold text-slate-700 text-sm sm:text-base">
-                                {useDate(appointment.date)}
+                                {formatDate(appointment.date)}
                               </p>
                             </div>
                             <div className="bg-slate-50/80 rounded-lg sm:rounded-xl p-3">

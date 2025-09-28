@@ -17,7 +17,7 @@ import { getStatusBadge } from "../../../utils/clientAppointment";
 import { Link } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-import { useDate, useTime } from "../../../utils/date";
+import { formatDate, useDate, useTime } from "../../../utils/date";
 
 export default function ClientDashboard() {
   const { user } = useContext(AuthContext);
@@ -300,7 +300,7 @@ export default function ClientDashboard() {
                         </td>
                         <td className="px-4">
                           <p className="font-medium text-slate-700">
-                            {useDate(appointment.date)}
+                            {formatDate(appointment.date)}
                           </p>
                           {useTime(appointment.date)}
                         </td>
@@ -400,7 +400,7 @@ export default function ClientDashboard() {
                         {app.doctorId.name}
                       </p>
                       <p className="text-sm text-slate-600">
-                        {useDate(app.date)}
+                        {formatDate(app.date)}
                       </p>
                     </div>
                   </div>

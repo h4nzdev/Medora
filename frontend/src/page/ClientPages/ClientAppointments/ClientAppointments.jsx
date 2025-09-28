@@ -18,7 +18,7 @@ import {
   getStatusBadge1,
 } from "../../../utils/appointmentStats.jsx";
 import { getStatusBadge } from "../../../utils/clientAppointment.jsx";
-import { useDate, useTime } from "../../../utils/date.jsx";
+import { formatDate, useDate, useTime } from "../../../utils/date.jsx";
 import { useNavigate } from "react-router-dom";
 
 export default function ClientAppointments() {
@@ -214,7 +214,7 @@ export default function ClientAppointments() {
                           Date
                         </p>
                         <p className="font-bold text-slate-700">
-                          {appointment.date?.slice(0, 10)}
+                          {formatDate(appointment.date)}
                         </p>
                       </div>
                       <div className="bg-slate-50/80 rounded-xl p-3">
@@ -310,7 +310,7 @@ export default function ClientAppointments() {
                         </td>
                         <td className="px-6">
                           <p className="font-semibold text-slate-700 text-base">
-                            {useDate(appointment.date)}
+                            {formatDate(appointment.date)}
                           </p>
                           <p className="text-base text-slate-500 font-medium">
                             {useTime(appointment.date)}

@@ -8,7 +8,7 @@ import Patient from '../model/patientsModel.js';
 // @access  Public
 export const getReviewsForDoctor = async (req, res) => {
   try {
-    const reviews = await Review.find({ doctor: req.params.doctorId }).populate('patient', 'name profilePicture');
+    const reviews = await Review.find({ doctor: req.params.doctorId }).populate('patient', 'name patientPicture');
     res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching reviews', error });

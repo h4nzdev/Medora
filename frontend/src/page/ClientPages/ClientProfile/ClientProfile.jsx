@@ -10,7 +10,7 @@ import {
   Edit,
 } from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
-import { useDate } from "../../../utils/date";
+import { formatDate, useDate } from "../../../utils/date";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -273,7 +273,7 @@ const ClientProfile = () => {
                   Registered Date
                 </p>
                 <p className="text-xl font-bold text-slate-800 mt-1">
-                  {useDate(user.createdAt)}
+                  {formatDate(user.createdAt)}
                 </p>
                 <p className="text-base font-medium text-slate-600 tracking-wide uppercase mt-3">
                   Patient ID
@@ -448,7 +448,7 @@ const ClientProfile = () => {
                           <div className="flex items-center gap-2">
                             <Calendar className="w-5 h-5 text-slate-500" />
                             <span className="text-base font-semibold text-slate-700">
-                              {useDate(record.date)}
+                              {formatDate(record.date)}
                             </span>
                           </div>
                           <span
@@ -525,7 +525,7 @@ const ClientProfile = () => {
                             <div className="flex items-center gap-2">
                               <Calendar className="w-5 h-5 text-slate-500" />
                               <span className="text-base font-medium text-slate-700">
-                                {useDate(record.date)}
+                                {formatDate(record.date)}
                               </span>
                             </div>
                           </td>

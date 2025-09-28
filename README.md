@@ -1,6 +1,6 @@
-# WellBot: AI-Powered Healthcare Management System
+`# <Medora>: AI-Powered Healthcare Management System
 
-WellBot (formerly MedConnect) is a comprehensive web application that revolutionizes healthcare management by combining traditional patient-clinic interactions with cutting-edge AI technology. The platform provides seamless appointment scheduling, medical record management, and an intelligent AI symptom checker powered by Google's Gemini AI.
+Medora (formerly MedConnect) is a comprehensive web application that revolutionizes healthcare management by combining traditional patient-clinic interactions with cutting-edge AI technology. The platform provides seamless appointment scheduling, medical record management, and an intelligent AI symptom checker powered by Google's Gemini AI.
 
 ## 🤖 Key Features
 
@@ -189,3 +189,4 @@ This project is licensed under the ISC License.
 ---
 
 **Note:** This application is for educational and demonstration purposes. Always consult with healthcare professionals for medical advice and diagnosis.
+`

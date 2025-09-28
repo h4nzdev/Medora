@@ -7,7 +7,7 @@ import {
   Ban,
   Loader2,
   Video,
-  Building
+  Building,
 } from "lucide-react";
 import React, { useContext, useState } from "react";
 import axios from "axios";
@@ -28,13 +28,11 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
 
   const handleRespond = async (appointmentId, action) => {
     // Set loading state for this specific appointment
-    setLoadingStates(prev => ({ ...prev, [appointmentId]: true }));
+    setLoadingStates((prev) => ({ ...prev, [appointmentId]: true }));
 
     try {
       // Find the appointment details for email
-      const appointment = appointments.find(
-        (apt) => apt._id === appointmentId
-      );
+      const appointment = appointments.find((apt) => apt._id === appointmentId);
 
       // Update appointment status first
       const res = await axios.patch(
@@ -97,7 +95,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
       console.error("Error responding:", error);
     } finally {
       // Clear loading state for this appointment
-      setLoadingStates(prev => ({ ...prev, [appointmentId]: false }));
+      setLoadingStates((prev) => ({ ...prev, [appointmentId]: false }));
     }
   };
 
@@ -167,10 +165,18 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
               </span>
             </td>
             <td className="px-4">
-              <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-md text-sm capitalize ${
-                appointment.bookingType === "online" ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-              }`}>
-                {appointment.bookingType === "online" ? <Video className="w-4 h-4" /> : <Building className="w-4 h-4" />}
+              <span
+                className={`inline-flex items-center gap-2 px-2 py-1 rounded-md text-sm capitalize ${
+                  appointment.bookingType === "online"
+                    ? "bg-blue-100 text-blue-800"
+                    : "bg-green-100 text-green-800"
+                }`}
+              >
+                {appointment.bookingType === "online" ? (
+                  <Video className="w-4 h-4" />
+                ) : (
+                  <Building className="w-4 h-4" />
+                )}
                 {appointment.bookingType}
               </span>
             </td>
@@ -203,40 +209,35 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
             </td>
             <td className="px-4 text-right">
               <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    loadingStates[appointment._id]
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : "hover:bg-slate-100 text-green-500 hover:text-green-600"
-                  }`}
-                  aria-label="Accept"
-                  disabled={loadingStates[appointment._id]}
-                  onClick={() => confirmAction(appointment._id, "approve")}
-                >
-                  {loadingStates[appointment._id] ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <CheckCircle className="h-5 w-5" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className={`p-2 rounded-md transition-all duration-200 ${
-                    loadingStates[appointment._id]
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : "hover:bg-slate-100 text-red-500 hover:text-red-600"
-                  }`}
-                  aria-label="Reject"
-                  disabled={loadingStates[appointment._id]}
-                  onClick={() => confirmAction(appointment._id, "reject")}
-                >
-                  {loadingStates[appointment._id] ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <XCircle className="h-5 w-5" />
-                  )}
-                </button>
+                {loadingStates[appointment._id] ? (
+                  // Single loader when processing
+                  <div className="flex items-center gap-2 px-3 py-2 bg-slate-100 rounded-md">
+                    <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+                    <span className="text-sm text-slate-600">
+                      Processing...
+                    </span>
+                  </div>
+                ) : (
+                  // Action buttons when not loading
+                  <>
+                    <button
+                      type="button"
+                      className="p-2 rounded-md transition-all duration-200 hover:bg-slate-100 text-green-500 hover:text-green-600"
+                      aria-label="Accept"
+                      onClick={() => confirmAction(appointment._id, "approve")}
+                    >
+                      <CheckCircle className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      className="p-2 rounded-md transition-all duration-200 hover:bg-slate-100 text-red-500 hover:text-red-600"
+                      aria-label="Reject"
+                      onClick={() => confirmAction(appointment._id, "reject")}
+                    >
+                      <XCircle className="h-5 w-5" />
+                    </button>
+                  </>
+                )}
               </div>
             </td>
           </tr>
