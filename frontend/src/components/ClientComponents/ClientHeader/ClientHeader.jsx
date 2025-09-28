@@ -17,11 +17,13 @@ const ClientHeader = () => {
             </a>
           </div>
 
-          {/* Spacer */}
-          <div className="flex-grow"></div>
+          {/* Mobile Medical Records Button - Only visible on mobile */}
+
+          {/* Spacer for desktop */}
+          <div className="hidden sm:block flex-grow"></div>
 
           {/* Profile Dropdown */}
-          <div className="ml-4">
+          <div className="ml-4 flex items-center">
             <ProfileDropdown />
           </div>
         </div>
