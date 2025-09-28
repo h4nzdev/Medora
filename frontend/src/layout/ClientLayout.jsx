@@ -5,12 +5,18 @@ import ClientMobileNav from "../components/ClientComponents/ClientMobileNav";
 import ClientHeader from "../components/ClientComponents/ClientHeader/ClientHeader";
 import { AuthContext } from "../context/AuthContext";
 import { containerVariants, floatingVariants, itemVariants, logoVariants, ringVariants } from "../animations/splashscreen";
+import TourModal from "../components/ClientComponents/TourModal/TourModal";
 
 const ClientLayout = ({ children }) => {
   const { user } = useContext(AuthContext);
   const [showSplash, setShowSplash] = useState(true);
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
 
   useEffect(() => {
+    const hasCompletedTour = localStorage.getItem("hasCompletedClientTour");
+    if (!hasCompletedTour) {
+      setIsTourModalOpen(true);
+    }
     const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer);
   }, []);
@@ -173,6 +179,13 @@ const ClientLayout = ({ children }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
+    <TourModal 
+        isOpen={isTourModalOpen} 
+        onClose={() => {
+          setIsTourModalOpen(false);
+          localStorage.setItem("hasCompletedClientTour", "true");
+        }}
+      />
       {/* Sidebar for desktop */}
       <div className="hidden md:block md:w-64 md:flex-shrink-0">
         <ClientSidebar />
