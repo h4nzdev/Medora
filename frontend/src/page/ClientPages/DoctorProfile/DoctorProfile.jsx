@@ -1,7 +1,11 @@
-import { useContext, useState } from "react";
+
+import { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import axios from "axios";
 import { DoctorContext } from "../../../context/DoctorContext";
+import { AuthContext } from "../../../context/AuthContext";
 import AddAppointmentModal from "../../../components/ClientComponents/AddAppointmentModal/AddAppointmentModal";
+import AddReviewModal from "../../../components/ClientComponents/AddReviewModal/AddReviewModal";
 import {
   Stethoscope,
   GraduationCap,
@@ -20,9 +24,41 @@ import {
 const DoctorProfile = () => {
   const { id } = useParams();
   const { doctors } = useContext(DoctorContext);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { user } = useContext(AuthContext);
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [isEligibleForReview, setIsEligibleForReview] = useState(false);
 
   const doctor = doctors.find((doc) => doc._id === id);
+
+  const fetchReviews = async () => {
+    if (doctor) {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/reviews/doctor/${doctor._id}`);
+        setReviews(res.data);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchReviews();
+  }, [doctor]);
+
+  useEffect(() => {
+    // Mock eligibility check - In a real app, you would check for a completed appointment
+    if (user && doctor) {
+      // For demonstration, we'll just assume the user is eligible.
+      // Replace this with actual logic, e.g., an API call to check appointment status.
+      setIsEligibleForReview(true);
+    }
+  }, [user, doctor]);
+
+  const handleReviewSubmitted = () => {
+    fetchReviews(); // Re-fetch reviews to show the new one
+  };
 
   if (!doctor) {
     return (
@@ -45,9 +81,15 @@ const DoctorProfile = () => {
   return (
     <>
       <AddAppointmentModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAppointmentModalOpen}
+        onClose={() => setIsAppointmentModalOpen(false)}
         doctorId={id}
+      />
+      <AddReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        doctorId={id}
+        onReviewSubmitted={handleReviewSubmitted}
       />
       <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
         <div className="mx-auto py-6">
@@ -59,9 +101,7 @@ const DoctorProfile = () => {
                 <div className="relative">
                   {doctor.profileImage ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}${
-                        doctor.profileImage
-                      }`}
+                      src={`${import.meta.env.VITE_API_URL}${doctor.profileImage}`}
                       alt={doctor.name}
                       className="rounded-2xl w-48 h-48 object-cover shadow-lg"
                     />
@@ -267,6 +307,58 @@ const DoctorProfile = () => {
             </div>
           </div>
 
+          {/* Patient Reviews Section */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8 mb-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Patient Reviews
+              </h2>
+              {isEligibleForReview && (
+                <button
+                  onClick={() => setIsReviewModalOpen(true)}
+                  className="group flex items-center justify-center px-6 py-3 text-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 bg-gradient-to-r from-cyan-500 to-sky-500 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <CalendarPlus className="w-5 h-5 mr-2" />
+                  Add Review
+                </button>
+              )}
+            </div>
+            
+            <div className="space-y-6">
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div key={review._id} className="p-4 bg-slate-50/80 rounded-xl">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+                        <User className="w-6 h-6 text-slate-500" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-bold text-slate-800">{review.patient.name}</h4>
+                          <div className="flex items-center gap-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-current' : 'text-slate-300'}`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-slate-600 mt-2">{review.comment}</p>
+                        <p className="text-xs text-slate-400 mt-2">{new Date(review.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-slate-500">
+                  <Star className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                  <p>No reviews yet for this doctor.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Book Appointment Button - At Bottom */}
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 md:p-8">
             <div className="text-center">
@@ -277,7 +369,7 @@ const DoctorProfile = () => {
                 Book a consultation with Dr. {doctor.name} today
               </p>
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsAppointmentModalOpen(true)}
                 className="group flex items-center justify-center px-8 py-4 text-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-r from-cyan-500 to-sky-500 font-semibold text-lg mx-auto"
               >
                 <CalendarPlus className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
