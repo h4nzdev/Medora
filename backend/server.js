@@ -12,6 +12,7 @@ import patientAuthRouter from "./routes/patientAuthRoute.js";
 import medicalRecordsRouter from "./routes/medicalRecordsRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import reviewRoutes from './routes/reviewRoutes.js';
+import invoiceRouter from './routes/invoiceRoutes.js';
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
@@ -60,6 +61,7 @@ app.use("/auth/patient", patientAuthRouter);
 app.use("/medical-records", medicalRecordsRouter);
 app.use("/", chatRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/invoices', invoiceRouter);
 
 httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on PORT : 3000`);
