@@ -24,7 +24,7 @@ const ClientMobileNav = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 shadow-2xl z-50 before:absolute before:inset-x-0 before:-top-px before:h-px before:bg-gradient-to-r before:from-transparent before:via-slate-200 before:to-transparent">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 shadow-2xl z-40 before:absolute before:inset-x-0 before:-top-px before:h-px before:bg-gradient-to-r before:from-transparent before:via-slate-200 before:to-transparent">
       <div className="flex justify-between items-center h-20 px-3 sm:px-4 max-w-md mx-auto relative">
         {/* Left menu items */}
         <div className="flex flex-1 justify-around">

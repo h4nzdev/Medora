@@ -4,24 +4,42 @@ import ClientSidebar from "../components/ClientComponents/ClientSidebar";
 import ClientMobileNav from "../components/ClientComponents/ClientMobileNav";
 import ClientHeader from "../components/ClientComponents/ClientHeader/ClientHeader";
 import { AuthContext } from "../context/AuthContext";
-import { containerVariants, floatingVariants, itemVariants, logoVariants, ringVariants } from "../animations/splashscreen";
+import {
+  containerVariants,
+  floatingVariants,
+  itemVariants,
+  logoVariants,
+  ringVariants,
+} from "../animations/splashscreen";
 import TourModal from "../components/ClientComponents/TourModal/TourModal";
 
 const ClientLayout = ({ children }) => {
   const { user } = useContext(AuthContext);
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(false);
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
 
   useEffect(() => {
     const hasCompletedTour = localStorage.getItem("hasCompletedClientTour");
+
     if (!hasCompletedTour) {
+      // Show tour modal first
       setIsTourModalOpen(true);
+    } else {
+      // User already did tour → show splash screen immediately
+      setShowSplash(true);
+      const timer = setTimeout(() => setShowSplash(false), 3000);
+      return () => clearTimeout(timer);
     }
-    const timer = setTimeout(() => setShowSplash(false), 3000);
-    return () => clearTimeout(timer);
   }, []);
 
-  // Get current time for greeting
+  const handleTourClose = () => {
+    localStorage.setItem("hasCompletedClientTour", "true");
+    setIsTourModalOpen(false);
+    // Show splash screen after tour
+    setShowSplash(true);
+    setTimeout(() => setShowSplash(false), 3000); // no return needed
+  };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good Morning";
@@ -179,13 +197,6 @@ const ClientLayout = ({ children }) => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-    <TourModal 
-        isOpen={isTourModalOpen} 
-        onClose={() => {
-          setIsTourModalOpen(false);
-          localStorage.setItem("hasCompletedClientTour", "true");
-        }}
-      />
       {/* Sidebar for desktop */}
       <div className="hidden md:block md:w-64 md:flex-shrink-0">
         <ClientSidebar />
@@ -194,7 +205,7 @@ const ClientLayout = ({ children }) => {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <ClientHeader />
-
+        <TourModal isOpen={isTourModalOpen} onClose={handleTourClose} />
         {/* Main Content */}
         <main className="flex-1 p-4 sm:p-6 w-full pb-20 md:pb-6">
           {children}

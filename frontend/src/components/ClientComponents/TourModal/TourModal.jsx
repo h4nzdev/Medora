@@ -6,7 +6,7 @@ const TourModal = ({ isOpen, onClose }) => {
 
   const tourSteps = [
     {
-      title: "Welcome to HealthConnect!",
+      title: "Welcome to Medora!",
       content: "Your personal healthcare companion is here to make managing your health simple and stress-free. Let's take a quick tour to get you started on your wellness journey.",
       icon: <Heart className="w-8 h-8 text-rose-500" />,
       color: "from-rose-50 to-pink-50"
