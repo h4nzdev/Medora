@@ -31,7 +31,7 @@ export default function ClientAppointments() {
 
   useEffect(() => {
     const hasCompletedTour = localStorage.getItem("hasCompletedClientTour");
-    if (!hasCompletedTour) {
+    if (hasCompletedTour) {
       setIsTourModalOpen(true);
     }
   }, []);
