@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useContext } from "react";
+import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
 import InvoiceList from "../../components/Invoice/InvoiceList";
 import InvoiceForm from "../../components/Invoice/InvoiceForm";
 import InvoiceDetails from "../../components/Invoice/InvoiceDetails";
 import DeleteInvoiceModal from "../../components/Invoice/DeleteInvoiceModal";
 import { deleteInvoice } from "../../services/invoiceService";
 import { ClinicContext } from "../../context/ClinicContext";
+import { PlusCircle } from "lucide-react"; // Icon for the button
 
 const InvoicesPage = () => {
   const { clinics } = useContext(ClinicContext);
-  const clinicId = clinics?.[0]?._id; // Assuming you want to use the first clinic
+  const clinicId = clinics?.[0]?._id;
 
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [viewingInvoice, setViewingInvoice] = useState(null);
   const [deletingInvoiceId, setDeletingInvoiceId] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
-
-  // This key is used to force a re-render of the InvoiceList
   const [listKey, setListKey] = useState(Date.now());
 
   const handleCreate = () => {
@@ -40,7 +40,7 @@ const InvoicesPage = () => {
     try {
       await deleteInvoice(deletingInvoiceId);
       setDeletingInvoiceId(null);
-      handleSave(); // Refresh the list
+      handleSave();
     } catch (error) {
       console.error("Failed to delete invoice", error);
     }
@@ -49,24 +49,44 @@ const InvoicesPage = () => {
   const handleSave = () => {
     setIsFormVisible(false);
     setEditingInvoice(null);
-    setListKey(Date.now()); // Update the key to trigger re-fetch in InvoiceList
+    setListKey(Date.now());
   };
 
   return (
-    <div className="invoices-page">
-      <h2>Invoice Management</h2>
-      <button onClick={handleCreate}>+ Create New Invoice</button>
+    <div className="p-8 bg-white rounded-2xl shadow-lg min-h-full">
+      <div className="flex items-center justify-between mb-8 border-b pb-4 border-slate-200">
+        <h2 className="text-3xl font-bold text-slate-800">
+          Invoice Management
+        </h2>
+        <button 
+          onClick={handleCreate}
+          className="flex items-center space-x-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold px-5 py-3 rounded-lg shadow-md hover:shadow-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:-translate-y-0.5"
+        >
+          <PlusCircle className="w-5 h-5" />
+          <span>Create New Invoice</span>
+        </button>
+      </div>
 
-      {isFormVisible && (
-        <InvoiceForm 
-          clinicId={clinicId} 
-          editingInvoice={editingInvoice} 
-          onSave={handleSave} 
-        />
-      )}
+      <AnimatePresence>
+        {isFormVisible && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="overflow-hidden mb-8"
+          >
+            <InvoiceForm 
+              clinicId={clinicId} 
+              editingInvoice={editingInvoice} 
+              onSave={handleSave} 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <InvoiceList 
-        key={listKey} // Use the key here
+        key={listKey}
         clinicId={clinicId} 
         onEdit={handleEdit} 
         onDelete={handleDelete} 
