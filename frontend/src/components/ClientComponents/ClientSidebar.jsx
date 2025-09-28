@@ -9,9 +9,11 @@ import {
   User,
   Settings,
   Clock,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
@@ -20,19 +22,40 @@ import logo from "../../assets/medoralogo.png";
 
 export default function ClientSidebar() {
   const { user, initials } = useContext(AuthContext);
+  const [openDropdowns, setOpenDropdowns] = useState({});
+
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", link: "/client/dashboard" },
     { icon: Clock, label: "Timeline", link: "/client/timeline" },
-    { icon: Calendar, label: "Appointments", link: "/client/appointments" },
+    {
+      icon: Calendar,
+      label: "Appointments",
+      type: "dropdown",
+      items: [
+        { label: "My Appointments", link: "/client/appointments" },
+        { label: "Find Doctors", link: "/client/doctors" },
+      ],
+    },
     { icon: MessageSquare, label: "AI Chat", link: "/client/chats" },
     {
       icon: FileText,
-      label: "Medical Records",
-      link: "/client/medical-records",
+      label: "Health Records",
+      type: "dropdown",
+      items: [
+        { label: "Medical Records", link: "/client/medical-records" },
+        { label: "Reminders", link: "/client/reminders" },
+      ],
     },
-    { icon: User, label: "Profile", link: "/client/profile" },
-    { icon: Bell, label: "Reminders", link: "/client/reminders" },
-    { icon: Settings, label: "Settings", link: "/client/settings" },
+    {
+      icon: User,
+      label: "Account",
+      type: "dropdown",
+      items: [
+        { label: "Profile", link: "/client/profile" },
+        { label: "Settings", link: "/client/settings" },
+      ],
+    },
+    { icon: Bell, label: "Notifications", link: "/client/notifications" },
   ];
 
   const path = useLocation();
@@ -59,6 +82,27 @@ export default function ClientSidebar() {
     });
   };
 
+  const toggleDropdown = (index) => {
+    setOpenDropdowns((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
+  const isItemActive = (item) => {
+    if (item.link) {
+      return path.pathname === item.link;
+    }
+    if (item.items) {
+      return item.items.some((subItem) => path.pathname === subItem.link);
+    }
+    return false;
+  };
+
+  const isSubItemActive = (link) => {
+    return path.pathname === link;
+  };
+
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex flex-col">
       <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
@@ -71,18 +115,59 @@ export default function ClientSidebar() {
 
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {menuItems.map((item, index) => (
-          <Link to={item.link} key={index} className="block">
-            <button
-              className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
-                path.pathname === item.link
-                  ? "bg-cyan-600 text-white shadow-md transform scale-105"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
-            </button>
-          </Link>
+          <div key={index}>
+            {item.type === "dropdown" ? (
+              <div>
+                <button
+                  onClick={() => toggleDropdown(index)}
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
+                    isItemActive(item)
+                      ? "bg-cyan-600 text-white shadow-md transform scale-105"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium flex-1">{item.label}</span>
+                  {openDropdowns[index] ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </button>
+
+                {openDropdowns[index] && (
+                  <div className="ml-6 mt-1 space-y-1">
+                    {item.items.map((subItem, subIndex) => (
+                      <Link to={subItem.link} key={subIndex} className="block">
+                        <button
+                          className={`w-full flex items-center space-x-3 p-2 pl-6 rounded-lg transition-all duration-200 text-left text-sm ${
+                            isSubItemActive(subItem.link)
+                              ? "bg-cyan-100 text-cyan-700 border-l-2 border-cyan-600"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+                          }`}
+                        >
+                          <span className="font-medium">{subItem.label}</span>
+                        </button>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link to={item.link} className="block">
+                <button
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
+                    isItemActive(item)
+                      ? "bg-cyan-600 text-white shadow-md transform scale-105"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                  }`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              </Link>
+            )}
+          </div>
         ))}
       </nav>
 
