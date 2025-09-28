@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
-import { useTour } from "../../../context/TourContext"; // Import useTour
 import AddAppointmentModal from "../../../components/ClientComponents/AddAppointmentModal/AddAppointmentModal";
 import AddReviewModal from "../../../components/ClientComponents/AddReviewModal/AddReviewModal";
 import {
@@ -27,7 +26,6 @@ const DoctorProfile = () => {
   const { id } = useParams();
   const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
-  const { driverObj } = useTour(); // Use the tour context
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
@@ -58,20 +56,6 @@ const DoctorProfile = () => {
       setIsEligibleForReview(true);
     }
   }, [user, doctor]);
-
-  useEffect(() => {
-    const hasCompletedTour = localStorage.getItem("hasCompletedBookingTour");
-    if (!hasCompletedTour && driverObj) {
-        setTimeout(() => {
-            const activeStep = driverObj.getActiveStep();
-            // Assuming the previous step was on the doctor list page
-            if (activeStep && activeStep.element === '.doctor-card') {
-                driverObj.moveNext();
-            }
-        }, 500);
-    }
-  }, [driverObj, doctor]);
-
 
   const handleReviewSubmitted = () => {
     fetchReviews(); // Re-fetch reviews to show the new one
@@ -479,14 +463,7 @@ const DoctorProfile = () => {
                 Book a consultation with Dr. {doctor.name} today
               </p>
               <button
-                id="book-appointment-profile-button" // Added ID for the tour
-                onClick={() => {
-                    const hasCompletedTour = localStorage.getItem("hasCompletedBookingTour");
-                    if (!hasCompletedTour) {
-                        driverObj.moveNext();
-                    }
-                    setIsAppointmentModalOpen(true);
-                }}
+                onClick={() => setIsAppointmentModalOpen(true)}
                 className="group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-r from-cyan-500 to-sky-500 font-semibold text-base md:text-lg mx-auto"
               >
                 <CalendarPlus className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 group-hover:scale-110 transition-transform duration-300" />
