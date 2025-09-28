@@ -7,12 +7,12 @@ import {
   MoreHorizontal,
   AlertTriangle,
 } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
-import { ClinicContext } from "../../../context/ClinicContext"; // new
+import { ClinicContext } from "../../../context/ClinicContext";
 import {
   getStatusIcon,
   getStatusBadge1,
@@ -20,12 +20,21 @@ import {
 import { getStatusBadge } from "../../../utils/clientAppointment.jsx";
 import { formatDate, useDate, useTime } from "../../../utils/date.jsx";
 import { useNavigate } from "react-router-dom";
+import TourModal from "../../../components/ClientComponents/TourModal/TourModal.jsx";
 
 export default function ClientAppointments() {
   const { appointments } = useContext(AppointmentContext);
   const { user } = useContext(AuthContext);
-  const { clinics } = useContext(ClinicContext); // new
+  const { clinics } = useContext(ClinicContext);
   const navigate = useNavigate();
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+
+  useEffect(() => {
+    const hasCompletedTour = localStorage.getItem("hasCompletedClientTour");
+    if (!hasCompletedTour) {
+      setIsTourModalOpen(true);
+    }
+  }, []);
 
   // Plan limits
   const planLimits = {
@@ -109,6 +118,13 @@ export default function ClientAppointments() {
 
   return (
     <>
+      <TourModal 
+        isOpen={isTourModalOpen} 
+        onClose={() => {
+          setIsTourModalOpen(false);
+          localStorage.setItem("hasCompletedClientTour", "true");
+        }}
+      />
       <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
         <div className="mx-auto">
           <header className="mb-8 md:mb-10">
