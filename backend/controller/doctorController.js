@@ -16,12 +16,21 @@ export const addDoctor = async (req, res) => {
       availability,
     } = req.body;
 
-    let profileImage;
-    if (req.file) {
-      profileImage = req.file.path;
+    // Parse availability if it's a string (from FormData)
+    let availabilityData = availability;
+    if (typeof availability === "string") {
+      try {
+        availabilityData = JSON.parse(availability);
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid availability format" });
+      }
     }
 
-    // create new doctor
+    let profileImage = "";
+    if (req.file) {
+      profileImage = `/uploads/${req.file.filename}`;
+    }
+
     const doctor = new Doctor({
       clinicId,
       name,
@@ -32,13 +41,14 @@ export const addDoctor = async (req, res) => {
       email,
       phone,
       profileImage,
-      status: status || "Active", // default if not provided
-      availability,
+      status: status || "Active",
+      availability: availabilityData, // <-- now it's an array
     });
 
     await doctor.save();
     res.status(201).json({ message: "Doctor added successfully", doctor });
   } catch (error) {
+    console.error(error);
     res
       .status(500)
       .json({ message: "Error adding doctor", error: error.message });
