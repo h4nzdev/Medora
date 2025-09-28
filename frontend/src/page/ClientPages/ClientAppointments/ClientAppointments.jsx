@@ -37,24 +37,19 @@ export default function ClientAppointments() {
     }
   }, []);
 
-
-
   const handleNewAppointmentClick = () => {
     if (LimitReached) {
       toast.error(
         `The clinic has reached its appointment limit for the ${plan} plan.`
       );
     } else {
-      // Check if the tour is active before navigating
-      const activeStep = driverObj.getActiveStep();
-      if (activeStep && activeStep.element === '#new-appointment-button') {
-        driverObj.moveNext(); // This will trigger the onNextClick in the tour steps
-      } else {
-        navigate('/client/doctors');
+      // Destroy tour if it's active
+      if (driverObj && driverObj.isActive && driverObj.isActive()) {
+        driverObj.destroy();
       }
+      navigate("/client/doctors");
     }
   };
-
 
   // Plan limits
   const planLimits = {
@@ -140,20 +135,24 @@ export default function ClientAppointments() {
                 </p>
 
                 {LimitReached && (
-                  <p className="md:text-lg text-red-600 font-semibold mb-2 flex items-center mt-4 border border-red-500 bg-red-200 rounded p-2 max-w-xl justify-center
-                  text-sm">
-                    <AlertTriangle className="mr-2" /> The clinic has reached its appointment
-                    limit for the {clinic?.subscriptionPlan} plan.
+                  <p
+                    className="md:text-lg text-red-600 font-semibold mb-2 flex items-center mt-4 border border-red-500 bg-red-200 rounded p-2 max-w-xl justify-center
+                  text-sm"
+                  >
+                    <AlertTriangle className="mr-2" /> The clinic has reached
+                    its appointment limit for the {clinic?.subscriptionPlan}{" "}
+                    plan.
                   </p>
                 )}
               </div>
               <button
                 id="new-appointment-button" // Added ID for the tour
                 onClick={handleNewAppointmentClick}
-                className={`group flex items-center justify-center px-6 md:px-8 py-4 text-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto text-base md:text-lg font-semibold ${LimitReached
-                  ? "bg-slate-600/50 cursor-not-allowed"
-                  : "bg-gradient-to-r from-cyan-500 to-sky-500"
-                  }`}
+                className={`group flex items-center justify-center px-6 md:px-8 py-4 text-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto text-base md:text-lg font-semibold ${
+                  LimitReached
+                    ? "bg-slate-600/50 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-500 to-sky-500"
+                }`}
               >
                 <CalendarPlus className="w-5 h-5 md:w-6 md:h-6 mr-3 group-hover:scale-110 transition-transform duration-300" />
                 New Appointment
