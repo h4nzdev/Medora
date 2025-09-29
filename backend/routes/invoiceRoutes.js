@@ -5,6 +5,7 @@ import {
   getInvoicesByClinic,
   updateInvoice,
   deleteInvoice,
+  getInvoicesByPatient,
 } from "../controller/invoiceController.js";
 
 const invoiceRouter = express.Router();
@@ -17,6 +18,9 @@ invoiceRouter.get("/:id", getInvoiceById);
 
 // Get all invoices for a specific clinic
 invoiceRouter.get("/clinic/:clinicId", getInvoicesByClinic);
+
+//Get all invoices for specific patient
+invoiceRouter.get("/patient/:patientId");
 
 // Update an invoice
 invoiceRouter.put("/:id", updateInvoice);
