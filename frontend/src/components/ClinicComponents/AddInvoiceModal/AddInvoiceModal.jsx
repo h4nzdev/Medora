@@ -1,8 +1,10 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { X } from "lucide-react";
+import axios from "axios";
+import { AuthContext } from "../../../context/AuthContext";
+import { DoctorContext } from "../../../context/DoctorContext";
 
-const AddInvoiceModal = ({ isOpen, onClose, patients, doctors, onAddInvoice }) => {
+const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
   const [formData, setFormData] = useState({
     patientId: "",
     doctorId: "",
@@ -15,6 +17,36 @@ const AddInvoiceModal = ({ isOpen, onClose, patients, doctors, onAddInvoice }) =
     description: "",
     date: new Date().toISOString().split("T")[0],
   });
+
+  const [patients, setPatients] = useState([]);
+  const [clinicDoctors, setClinicDoctors] = useState([]);
+  const { user } = useContext(AuthContext);
+  const { doctors } = useContext(DoctorContext);
+
+  useEffect(() => {
+    if (isOpen && user?._id) {
+      const fetchPatients = async () => {
+        try {
+          const res = await axios.get(
+            `${import.meta.env.VITE_API_URL}/patient/clinic/${user._id}`
+          );
+          setPatients(res.data);
+        } catch (error) {
+          console.error("Error fetching patients:", error);
+        }
+      };
+
+      const filterAndSetDoctors = () => {
+        const filtered = doctors?.filter(
+          (doctor) => doctor.clinicId?._id === user._id
+        );
+        setClinicDoctors(filtered || []);
+      };
+
+      fetchPatients();
+      filterAndSetDoctors();
+    }
+  }, [isOpen, user, doctors]);
 
   if (!isOpen) {
     return null;
@@ -93,7 +125,7 @@ const AddInvoiceModal = ({ isOpen, onClose, patients, doctors, onAddInvoice }) =
                 className="w-full p-2 border border-slate-300 rounded-md"
               >
                 <option value="">Select Doctor</option>
-                {doctors.map((doctor) => (
+                {clinicDoctors.map((doctor) => (
                   <option key={doctor._id} value={doctor._id}>
                     {doctor.name}
                   </option>

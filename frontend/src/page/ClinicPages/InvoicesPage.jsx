@@ -15,14 +15,11 @@ import {
   Trash2,
   Send,
 } from "lucide-react";
-import axios from "axios";
 
 import AddInvoiceModal from "../../../components/ClinicComponents/AddInvoiceModal/AddInvoiceModal";
 import { getInvoicesByClinic, createInvoice } from "../../../services/invoiceService";
 import { ClinicContext } from "../../../context/ClinicContext";
 import { AuthContext } from "../../../context/AuthContext";
-import { DoctorContext } from "../../../context/DoctorContext";
-
 
 // Utility functions
 const useDate = (dateString) => {
@@ -216,15 +213,9 @@ const InvoiceTableBody = ({ invoices }) => {
 // Main Invoice Component
 export default function ClinicInvoices() {
   const [invoices, setInvoices] = useState([]);
-  const [patients, setPatients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { clinic } = useContext(ClinicContext);
-  const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
-
-  const clinicDoctors = doctors?.filter(
-    (doctor) => doctor.clinicId?._id === user._id
-  );
 
   const fetchInvoices = async () => {
     if (clinic?._id) {
@@ -237,21 +228,9 @@ export default function ClinicInvoices() {
     }
   };
 
-  const fetchPatients = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/patient/clinic/${user._id}`
-      );
-      setPatients(res.data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   useEffect(() => {
     if (user?._id) {
-      fetchInvoices();
-      fetchPatients();
+        fetchInvoices();
     }
   }, [clinic, user]);
 
@@ -262,18 +241,18 @@ export default function ClinicInvoices() {
       clinicId: clinic._id,
       totalAmount,
       // This needs to be a valid appointment ID from your database
-      appointmentId: "60c72b2f5f1b2c001f7b8e1a",
+      appointmentId: "60c72b2f5f1b2c001f7b8e1a", 
     };
 
     try {
       await createInvoice(newInvoice);
-      fetchInvoices();
+      fetchInvoices(); 
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error creating invoice:", error);
     }
   };
-
+  
 
   return (
     <div className="w-full min-h-screen bg-slate-50">
@@ -294,8 +273,7 @@ export default function ClinicInvoices() {
           </div>
         </div>
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8"
-          >
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
               {/* Search and Filters can be added here */}
             </div>
@@ -339,8 +317,6 @@ export default function ClinicInvoices() {
       <AddInvoiceModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        patients={patients}
-        doctors={clinicDoctors}
         onAddInvoice={handleAddInvoice}
       />
     </div>
