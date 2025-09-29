@@ -18,7 +18,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { toast } from "react-toastify";
-import logo from "../../assets/medoralogo.png";
+import logo from "../../assets/medoralogo2.png";
 
 export default function ClinicSidebar() {
   const { user } = useContext(AuthContext);

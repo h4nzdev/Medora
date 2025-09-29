@@ -54,7 +54,9 @@ export default function ClinicLogin() {
         email: "",
         password: "",
       });
-      toast.success("Logged in successfully");
+      toast.success("Logged in successfully", {
+        delay: 3000,
+      });
     } catch (error) {
       if (
         error.response &&

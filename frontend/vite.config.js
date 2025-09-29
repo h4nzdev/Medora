@@ -30,22 +30,22 @@ export default defineConfig({
         icons: [
           // Regular icons (should be properly sized with transparent background)
           {
-            src: "icon-192.png",
+            src: "/medoralogo.png",
             sizes: "192x192",
             type: "image/png",
           },
           {
-            src: "icon-512.png",
+            src: "/medoralogo.png",
             sizes: "512x512",
             type: "image/png",
           },
           {
-            src: "icon-144.png",
+            src: "medoralogo.png",
             sizes: "144x144",
             type: "image/png",
           },
           {
-            src: "icon-256.png",
+            src: "medoralogo.png",
             sizes: "256x256",
             type: "image/png",
           },
