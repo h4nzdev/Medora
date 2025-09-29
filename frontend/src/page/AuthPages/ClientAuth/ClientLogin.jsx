@@ -99,6 +99,9 @@ const ClientLogin = () => {
     } catch (error) {
       if (error.response?.data?.message) {
         setError(error.response.data.message);
+        toast.warn(error.response.data.message, {
+          toastId: "login-error",
+        });
       } else {
         setError("Login failed. Please check your connection and try again.");
       }
@@ -365,7 +368,7 @@ const ClientLogin = () => {
               }`}
             >
               {isLoading ? (
-                <span className="flex items-center">
+                <span className="flex items-center justify-center">
                   Signing in...
                   <Loader2 className="animate-spin" />
                 </span>

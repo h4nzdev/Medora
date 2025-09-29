@@ -62,6 +62,9 @@ export default function ClinicLogin() {
         error.response.data.message
       ) {
         setError(error.response.data.message);
+        toast.warn(error.response.data.message, {
+          toastId: "login-error",
+        });
       } else {
         setError("Login failed. Please check your connection and try again.");
       }
@@ -263,7 +266,7 @@ export default function ClinicLogin() {
               className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25"
             >
               {isLoading ? (
-                <span className="flex items-center">
+                <span className="flex items-center justify-center">
                   Signing in...
                   <Loader2 className="animate-spin" />
                 </span>

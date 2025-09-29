@@ -13,7 +13,7 @@ import PendingAppointments from "../page/ClinicPages/ClinicPendingAppointments/C
 import ClinicDoctorProfile from "../page/ClinicPages/DoctorProfile/ClinicDoctorProfile";
 import ClinicPatientProfile from "../page/ClinicPages/PatientProfile/ClinicPatientProfile";
 import ClinicCalendar from "../page/ClinicPages/ClinicCalendar";
-import InvoicesPage from "../page/ClinicPages/InvoicesPage"; // Import the new page
+import InvoicesPage from "../page/ClinicPages/ClinicInvoicePage/InvoicesPage"; // Import the new page
 
 const ClinicRoutes = () => {
   return (

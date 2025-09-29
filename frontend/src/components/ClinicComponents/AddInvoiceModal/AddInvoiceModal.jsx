@@ -5,7 +5,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 
-const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
+const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice, isLoading }) => {
   const [formData, setFormData] = useState({
     patientId: "",
     doctorId: "",
@@ -111,6 +111,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                 name="patientId"
                 value={formData.patientId}
                 onChange={handleInputChange}
+                required
                 className="w-full p-2 border border-slate-300 rounded-md"
               >
                 <option value="">Select Patient</option>
@@ -131,6 +132,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                 name="doctorId"
                 value={formData.doctorId}
                 onChange={handleInputChange}
+                required
                 className="w-full p-2 border border-slate-300 rounded-md"
               >
                 <option value="">Select Doctor</option>
@@ -152,6 +154,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                 name="date"
                 value={formData.date}
                 onChange={handleInputChange}
+                required
                 className="w-full p-2 border border-slate-300 rounded-md"
               />
             </div>
@@ -166,6 +169,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                 name="dueDate"
                 value={formData.dueDate}
                 onChange={handleInputChange}
+                required
                 className="w-full p-2 border border-slate-300 rounded-md"
               />
             </div>
@@ -179,6 +183,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
               name="appointmentId"
               value={formData.appointmentId}
               onChange={handleInputChange}
+              required
               className="w-full p-2 border border-slate-300 rounded-md"
             >
               <option value="">Select Appointment</option>
@@ -203,6 +208,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                   placeholder="Service Name"
                   value={service.name}
                   onChange={(e) => handleServiceChange(index, e)}
+                  required
                   className="w-1/2 p-2 border border-slate-300 rounded-md"
                 />
                 <input
@@ -211,6 +217,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                   placeholder="Price"
                   value={service.price}
                   onChange={(e) => handleServiceChange(index, e)}
+                  required
                   className="w-1/4 p-2 border border-slate-300 rounded-md"
                 />
                 <button
@@ -226,7 +233,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
             <button
               type="button"
               onClick={addService}
-              className="text-emerald-600 hover:text-emerald-800"
+              className="text-cyan-600 hover:text-cyan-800"
             >
               + Add Service
             </button>
@@ -242,9 +249,10 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
+              disabled={isLoading}
+              className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700"
             >
-              Create Invoice
+              {isLoading ? "Creating..." : "Create Invoice"}
             </button>
           </div>
         </form>

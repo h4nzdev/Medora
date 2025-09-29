@@ -10,6 +10,7 @@ import {
   Stethoscope,
   ChevronDown,
   Calendar1,
+  ChevronRight,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
@@ -22,6 +23,7 @@ import logo from "../../assets/medoralogo.png";
 export default function ClinicSidebar() {
   const { user } = useContext(AuthContext);
   const [openDropdown, setOpenDropdown] = useState(null);
+
   const menuItems = [
     {
       icon: LayoutDashboard,
@@ -33,29 +35,26 @@ export default function ClinicSidebar() {
       label: "Calendar",
       link: "/clinic/calendar",
     },
-
     {
       icon: UserCheck,
       label: "Doctors",
-      active: false,
       link: "/clinic/doctors",
     },
     {
       icon: FileText,
       label: "Medical Records",
-      active: false,
       link: "/clinic/medical-records",
     },
     {
       icon: Settings,
       label: "Settings",
-      active: false,
       link: "/clinic/settings",
     },
     {
-      icon: Users,
+      icon: CreditCard,
       label: "Payments",
-      subItems: [
+      type: "dropdown",
+      items: [
         {
           label: "Subscription",
           link: "/clinic/subscriptions",
@@ -69,7 +68,8 @@ export default function ClinicSidebar() {
     {
       icon: Calendar,
       label: "Appointments",
-      subItems: [
+      type: "dropdown",
+      items: [
         {
           label: "All Appointments",
           link: "/clinic/appointments",
@@ -83,7 +83,8 @@ export default function ClinicSidebar() {
     {
       icon: Users,
       label: "Patients",
-      subItems: [
+      type: "dropdown",
+      items: [
         {
           label: "All Patients",
           link: "/clinic/patients",
@@ -95,6 +96,7 @@ export default function ClinicSidebar() {
       ],
     },
   ];
+
   const path = useLocation();
   const navigate = useNavigate();
   const { setUser, setRole } = useContext(AuthContext);
@@ -119,12 +121,26 @@ export default function ClinicSidebar() {
     });
   };
 
-  const handleDropdown = (label) => {
-    setOpenDropdown(openDropdown === label ? null : label);
+  const toggleDropdown = (index) => {
+    setOpenDropdown(openDropdown === index ? null : index);
+  };
+
+  const isItemActive = (item) => {
+    if (item.link) {
+      return path.pathname === item.link;
+    }
+    if (item.items) {
+      return item.items.some((subItem) => path.pathname === subItem.link);
+    }
+    return false;
+  };
+
+  const isSubItemActive = (link) => {
+    return path.pathname === link;
   };
 
   return (
-    <div className="hidden md:block fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex flex-col overflow-hidden">
+    <div className="hidden md:block fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex flex-col">
       {/* Sidebar Header - Fixed at top */}
       <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
         <img src={logo} alt="medoralogo" className="w-12 h-12" />
@@ -141,40 +157,37 @@ export default function ClinicSidebar() {
       </div>
 
       {/* Navigation Menu - Scrollable if content overflows */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {menuItems.map((item, index) => (
           <div key={index}>
-            {item.subItems ? (
+            {item.type === "dropdown" ? (
               <div>
                 <button
-                  onClick={() => handleDropdown(item.label)}
-                  className={`w-full flex items-center justify-between space-x-3 p-3 rounded-lg transition-all duration-200 ${
-                    item.subItems.some((sub) =>
-                      path.pathname.includes(sub.link)
-                    )
-                      ? "bg-cyan-600 text-white shadow-md ml-2"
-                      : "text-slate-600 hover:bg-slate-100"
+                  onClick={() => toggleDropdown(index)}
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
+                    isItemActive(item)
+                      ? "bg-cyan-600 text-white shadow-md transform scale-105"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
                   }`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </div>
-                  <ChevronDown
-                    className={`w-5 h-5 transition-transform duration-300 ${
-                      openDropdown === item.label ? "rotate-180" : ""
-                    }`}
-                  />
+                  <item.icon className="w-5 h-5" />
+                  <span className="font-medium flex-1">{item.label}</span>
+                  {openDropdown === index ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
                 </button>
-                {openDropdown === item.label && (
-                  <div className="pl-8 pt-2 space-y-1">
-                    {item.subItems.map((subItem, subIndex) => (
-                      <Link key={subIndex} to={subItem.link}>
+
+                {openDropdown === index && (
+                  <div className="ml-6 mt-1 space-y-1">
+                    {item.items.map((subItem, subIndex) => (
+                      <Link to={subItem.link} key={subIndex} className="block">
                         <button
-                          className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
-                            path.pathname === subItem.link
-                              ? "bg-cyan-500 text-white"
-                              : "text-slate-500 hover:bg-slate-100"
+                          className={`w-full flex items-center space-x-3 p-2 pl-6 rounded-lg transition-all duration-200 text-left text-sm ${
+                            isSubItemActive(subItem.link)
+                              ? "bg-cyan-100 text-cyan-700 border-l-2 border-cyan-600"
+                              : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
                           }`}
                         >
                           <span className="font-medium">{subItem.label}</span>
@@ -185,16 +198,13 @@ export default function ClinicSidebar() {
                 )}
               </div>
             ) : (
-              <Link to={item.link}>
+              <Link to={item.link} className="block">
                 <button
-                  className={`
-              w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200
-              ${
-                path.pathname === item.link
-                  ? "bg-cyan-600 text-white shadow-md ml-2"
-                  : "text-slate-600 hover:bg-slate-100"
-              }
-            `}
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
+                    isItemActive(item)
+                      ? "bg-cyan-600 text-white shadow-md transform scale-105"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+                  }`}
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>

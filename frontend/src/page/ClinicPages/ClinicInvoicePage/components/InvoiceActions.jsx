@@ -1,0 +1,73 @@
+import { ChevronDown, Download, Eye, MoreHorizontal, Send, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+
+const InvoiceActions = ({
+  invoiceId,
+  status,
+  onView,
+  onEdit,
+  onDelete,
+  onSend,
+}) => {
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setDropdownOpen(!isDropdownOpen)}
+        className="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100"
+      >
+        <MoreHorizontal className="w-5 h-5" />
+      </button>
+
+      {isDropdownOpen && (
+        <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20">
+          <button
+            onClick={() => {
+              onView(invoiceId);
+              setDropdownOpen(false);
+            }}
+            className="flex items-center w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <Eye className="w-4 h-4 mr-2" />
+            View Invoice
+          </button>
+          <button
+            onClick={() => {
+              console.log(`Download invoice ${invoiceId}`);
+              setDropdownOpen(false);
+            }}
+            className="flex items-center w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download PDF
+          </button>
+          {(status === "unpaid" || status === "overdue") && (
+            <button
+              onClick={() => {
+                onSend(invoiceId);
+                setDropdownOpen(false);
+              }}
+              className="flex items-center w-full px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Send Reminder
+            </button>
+          )}
+          <button
+            onClick={() => {
+              onDelete(invoiceId);
+              setDropdownOpen(false);
+            }}
+            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default InvoiceActions;
