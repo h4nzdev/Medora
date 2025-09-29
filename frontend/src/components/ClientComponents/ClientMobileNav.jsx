@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
   FileText,
   X,
+  Receipt
 } from "lucide-react";
 
 const ClientMobileNav = () => {
@@ -30,6 +31,7 @@ const ClientMobileNav = () => {
   const moreMenuItems = [
     { icon: FileText, link: "/client/medical-records", label: "Medical Records" },
     { icon: Bell, link: "/client/reminders", label: "Reminders" },
+    { icon: Receipt, link: "/client/invoices", label: "Invoices" },
   ];
 
   const isMoreMenuActive = moreMenuItems.some(item => path.pathname === item.link);
@@ -224,7 +226,7 @@ const ClientMobileNav = () => {
                   >
                     <item.icon
                       className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${
-                        path.pathname === item.link ? "drop-shadow-sm" : ""
+                        path.pathname === item.link ? "drop-shadow-sm" : ""}
                       }`}
                     />
                     {path.pathname === item.link && (

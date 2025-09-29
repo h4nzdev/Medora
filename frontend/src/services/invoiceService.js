@@ -35,6 +35,17 @@ export const getInvoicesByClinic = async (clinicId) => {
   }
 };
 
+// Get all invoices for a specific patient
+export const getInvoicesByPatient = async (patientId) => {
+  try {
+    const response = await axios.get(`${API_URL}/patient/${patientId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching invoices for patient ${patientId}:`, error);
+    throw error;
+  }
+};
+
 // Update an existing invoice
 export const updateInvoice = async (id, updateData) => {
   try {

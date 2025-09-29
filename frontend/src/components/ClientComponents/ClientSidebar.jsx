@@ -11,6 +11,7 @@ import {
   Clock,
   ChevronDown,
   ChevronRight,
+  Receipt
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
@@ -44,6 +45,7 @@ export default function ClientSidebar() {
       items: [
         { label: "Medical Records", link: "/client/medical-records" },
         { label: "Reminders", link: "/client/reminders" },
+        { label: "Invoices", link: "/client/invoices" },
       ],
     },
     {

@@ -12,6 +12,7 @@ import ClientCalendar from "../page/ClientPages/ClientCalendar/ClientCalendar";
 import ClientTimeline from "../page/ClientPages/ClientTimeline/ClientTimeline";
 import DoctorsList from "../page/ClientPages/DoctorsList/DoctorsList";
 import DoctorProfile from "../page/ClientPages/DoctorProfile/DoctorProfile";
+import ClientInvoices from "../page/ClientPages/ClientInvoices/ClientInvoices";
 
 const ClientRoutes = () => {
   return (
@@ -39,6 +40,14 @@ const ClientRoutes = () => {
           element={
             <ClientLayout>
               <ClientAppointments />
+            </ClientLayout>
+          }
+        />
+        <Route
+          path="/client/invoices"
+          element={
+            <ClientLayout>
+              <ClientInvoices />
             </ClientLayout>
           }
         />
