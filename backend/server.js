@@ -1,4 +1,3 @@
-
 import express from "express";
 import { createServer } from "http"; // Import http
 import { Server } from "socket.io"; // Import socket.io
@@ -11,8 +10,9 @@ import clinicAuthRoutes from "./routes/clinicAuthRoute.js";
 import patientAuthRouter from "./routes/patientAuthRoute.js";
 import medicalRecordsRouter from "./routes/medicalRecordsRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
-import reviewRoutes from './routes/reviewRoutes.js';
-import invoiceRouter from './routes/invoiceRoutes.js';
+import reviewRoutes from "./routes/reviewRoutes.js";
+import notificationRouter from "./routes/notificationRoutes.js";
+import invoiceRouter from "./routes/invoiceRoutes.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
@@ -22,7 +22,8 @@ dotenv.config();
 configDB();
 const app = express();
 const httpServer = createServer(app); // Create HTTP server
-const io = new Server(httpServer, { // Attach socket.io to the server
+const io = new Server(httpServer, {
+  // Attach socket.io to the server
   cors: {
     origin: "*", // Adjust for your frontend URL in production
   },
@@ -48,7 +49,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Serve static files from the 'public' directory
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
@@ -60,8 +60,9 @@ app.use("/auth/clinic", clinicAuthRoutes);
 app.use("/auth/patient", patientAuthRouter);
 app.use("/medical-records", medicalRecordsRouter);
 app.use("/", chatRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/invoices', invoiceRouter);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/invoices", invoiceRouter);
+app.use("/api/notification", notificationRouter);
 
 httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on PORT : 3000`);
