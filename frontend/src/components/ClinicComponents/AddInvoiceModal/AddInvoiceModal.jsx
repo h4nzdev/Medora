@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
 import { DoctorContext } from "../../../context/DoctorContext";
+import { AppointmentContext } from "../../../context/AppointmentContext";
 
 const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,11 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
   const [clinicDoctors, setClinicDoctors] = useState([]);
   const { user } = useContext(AuthContext);
   const { doctors } = useContext(DoctorContext);
+  const { appointments } = useContext(AppointmentContext);
+
+  const invoiceAppointment = appointments.filter(
+    (app) => app.clinicId?._id === user?._id
+  );
 
   useEffect(() => {
     if (isOpen && user?._id) {
@@ -83,11 +89,14 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 w-full max-w-2xl">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Create New Invoice</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-800">
+          <button
+            onClick={onClose}
+            className="text-slate-500 hover:text-slate-800"
+          >
             <X size={24} />
           </button>
         </div>
@@ -162,6 +171,27 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+              Appointment
+            </label>
+            <select
+              name="appointmentId"
+              value={formData.appointmentId}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-slate-300 rounded-md"
+            >
+              <option value="">Select Appointment</option>
+              {invoiceAppointment.map((appt) => (
+                <option key={appt._id} value={appt._id}>
+                  {new Date(appt.date).toLocaleDateString()} {appt.time} –
+                  {appt.patientId?.name} with {appt.doctorId?.name} (
+                  {appt.type || "N/A"})
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Services */}
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-2">Services</h3>
@@ -192,6 +222,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
                 </button>
               </div>
             ))}
+
             <button
               type="button"
               onClick={addService}
@@ -200,7 +231,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice }) => {
               + Add Service
             </button>
           </div>
-          
+
           <div className="mt-6 flex justify-end">
             <button
               type="button"

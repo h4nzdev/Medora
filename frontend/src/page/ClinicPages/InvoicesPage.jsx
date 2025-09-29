@@ -16,9 +16,12 @@ import {
   Send,
 } from "lucide-react";
 
-import AddInvoiceModal from "../../../components/ClinicComponents/AddInvoiceModal/AddInvoiceModal";
-import { getInvoicesByClinic, createInvoice } from "../../../services/invoiceService";
-import { AuthContext } from "../../../context/AuthContext";
+import AddInvoiceModal from "../../components/ClinicComponents/AddInvoiceModal/AddInvoiceModal";
+import {
+  getInvoicesByClinic,
+  createInvoice,
+} from "../../services/invoiceService";
+import { AuthContext } from "../../context/AuthContext";
 
 // Utility functions
 const useDate = (dateString) => {
@@ -151,7 +154,7 @@ const InvoiceTableBody = ({ invoices }) => {
               <p className="font-semibold text-slate-800">
                 {invoice.invoiceNumber}
               </p>
-              <p className="text-sm text-slate-500">{useDate(invoice.date)}</p>
+              <p className="text-sm text-slate-500">{invoice._id.slice(0,10)}</p>
             </td>
             <td className="px-4">
               <p className="font-medium text-slate-700">
@@ -171,7 +174,7 @@ const InvoiceTableBody = ({ invoices }) => {
                 ${invoice.totalAmount.toFixed(2)}
               </p>
               <p className="text-sm text-slate-500">
-                Paid: ${invoice.paidAmount.toFixed(2)}
+                Paid: ${invoice.paidAmount}
               </p>
             </td>
             <td className="px-4">
@@ -190,7 +193,9 @@ const InvoiceTableBody = ({ invoices }) => {
               </span>
             </td>
             <td className="px-4 text-sm">
-              <p className="text-slate-700">{invoice.services.map(s => s.name).join(", ")}</p>
+              <p className="text-slate-700">
+                {invoice.services.map((s) => s.name).join(", ")}
+              </p>
             </td>
             <td className="px-4 text-right">
               <InvoiceActions
@@ -228,29 +233,29 @@ export default function ClinicInvoices() {
 
   useEffect(() => {
     if (user?._id) {
-        fetchInvoices();
+      fetchInvoices();
     }
   }, [user]);
 
   const handleAddInvoice = async (invoiceData) => {
-    const totalAmount = invoiceData.services.reduce((sum, service) => sum + parseFloat(service.price), 0);
+    const totalAmount = invoiceData.services.reduce(
+      (sum, service) => sum + parseFloat(service.price),
+      0
+    );
     const newInvoice = {
       ...invoiceData,
       clinicId: user._id,
       totalAmount,
-      // This needs to be a valid appointment ID from your database
-      appointmentId: "60c72b2f5f1b2c001f7b8e1a", 
     };
 
     try {
       await createInvoice(newInvoice);
-      fetchInvoices(); 
+      fetchInvoices();
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error creating invoice:", error);
     }
   };
-  
 
   return (
     <div className="w-full min-h-screen bg-slate-50">

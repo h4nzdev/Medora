@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/invoices"; // Your backend's URL
+const API_URL = `${import.meta.env.VITE_API_URL}/api/invoices`; // Your backend's URL
 
 // Create a new invoice
 export const createInvoice = async (invoiceData) => {
