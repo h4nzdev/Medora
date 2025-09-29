@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  User,
-  Plus,
-  Search,
-  Filter,
-  Edit,
-  Trash2,
-  Eye,
-  ChevronDown,
-  MoreHorizontal,
-} from "lucide-react";
+import { User, Plus, Search, Filter, ChevronDown } from "lucide-react";
 import ClinicDoctorsTableBody from "./components/ClinicDoctorsTableBody";
 import ClinicDoctorsStats from "./components/ClinicDoctorsStats";
 

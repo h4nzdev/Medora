@@ -16,10 +16,13 @@ import {
   Send,
 } from "lucide-react";
 
-import AddInvoiceModal from "../../../components/ClinicComponents/AddInvoiceModal/AddInvoiceModal";
-import { getInvoicesByClinic, createInvoice } from "../../../services/invoiceService";
-import { ClinicContext } from "../../../context/ClinicContext";
-import { AuthContext } from "../../../context/AuthContext";
+import AddInvoiceModal from "../../components/ClinicComponents/AddInvoiceModal/AddInvoiceModal";
+import {
+  createInvoice,
+  getInvoicesByClinic,
+} from "../../services/invoiceService";
+import { ClinicContext } from "../../context/ClinicContext";
+import { AuthContext } from "../../context/AuthContext";
 
 // Utility functions
 const useDate = (dateString) => {
@@ -191,7 +194,9 @@ const InvoiceTableBody = ({ invoices }) => {
               </span>
             </td>
             <td className="px-4 text-sm">
-              <p className="text-slate-700">{invoice.services.map(s => s.name).join(", ")}</p>
+              <p className="text-slate-700">
+                {invoice.services.map((s) => s.name).join(", ")}
+              </p>
             </td>
             <td className="px-4 text-right">
               <InvoiceActions
@@ -230,29 +235,31 @@ export default function ClinicInvoices() {
 
   useEffect(() => {
     if (user?._id) {
-        fetchInvoices();
+      fetchInvoices();
     }
   }, [clinic, user]);
 
   const handleAddInvoice = async (invoiceData) => {
-    const totalAmount = invoiceData.services.reduce((sum, service) => sum + parseFloat(service.price), 0);
+    const totalAmount = invoiceData.services.reduce(
+      (sum, service) => sum + parseFloat(service.price),
+      0
+    );
     const newInvoice = {
       ...invoiceData,
-      clinicId: clinic._id,
+      clinicId: clinic?._id,
       totalAmount,
       // This needs to be a valid appointment ID from your database
-      appointmentId: "60c72b2f5f1b2c001f7b8e1a", 
+      appointmentId: "60c72b2f5f1b2c001f7b8e1a",
     };
 
     try {
       await createInvoice(newInvoice);
-      fetchInvoices(); 
+      fetchInvoices();
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error creating invoice:", error);
     }
   };
-  
 
   return (
     <div className="w-full min-h-screen bg-slate-50">
