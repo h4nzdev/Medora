@@ -20,7 +20,7 @@ invoiceRouter.get("/:id", getInvoiceById);
 invoiceRouter.get("/clinic/:clinicId", getInvoicesByClinic);
 
 //Get all invoices for specific patient
-invoiceRouter.get("/patient/:patientId");
+invoiceRouter.get("/patient/:patientId", getInvoicesByPatient);
 
 // Update an invoice
 invoiceRouter.put("/:id", updateInvoice);

@@ -1,5 +1,5 @@
 import React from "react";
-import { useDate } from "../../../utils/date";
+import { useDate } from "../../../../utils/date";
 import { CheckCircle, Clock, AlertCircle, DollarSign } from "lucide-react";
 
 const ClientInvoicesList = ({ invoices }) => {
@@ -62,7 +62,8 @@ const ClientInvoicesList = ({ invoices }) => {
                   )}`}
                 >
                   {getStatusIcon(invoice.status)}
-                  {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                  {invoice.status.charAt(0).toUpperCase() +
+                    invoice.status.slice(1)}
                 </span>
               </div>
             </div>
