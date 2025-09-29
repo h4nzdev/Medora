@@ -602,10 +602,10 @@ const LandingPage = () => {
                 Get in touch with our support team
               </p>
               <a
-                href="mailto:support@medora.com"
+                href="mailto:medora603@gmail.com"
                 className="text-cyan-600 font-semibold hover:text-cyan-700 transition-colors duration-200"
               >
-                support@medora.com
+                medora603@gmail.com
               </a>
             </div>
 
@@ -620,10 +620,10 @@ const LandingPage = () => {
                 Speak directly with our team
               </p>
               <a
-                href="tel:+1-800-MEDORA-1"
+                href="tel:09566...message on facebook"
                 className="text-cyan-600 font-semibold hover:text-cyan-700 transition-colors duration-200"
               >
-                +1 (800) MEDORA-1
+                099278***00
               </a>
             </div>
 
@@ -636,9 +636,9 @@ const LandingPage = () => {
               </h4>
               <p className="text-slate-600 mb-4">Our headquarters location</p>
               <p className="text-cyan-600 font-semibold">
-                123 Healthcare Ave
+                Salinas Drive
                 <br />
-                Medical District, CA 90210
+                IT Park, Lahug Cebu City
               </p>
             </div>
           </div>
