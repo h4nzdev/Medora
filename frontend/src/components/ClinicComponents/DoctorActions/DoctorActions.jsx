@@ -3,7 +3,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { DoctorContext } from "../../../context/DoctorContext";
 
 const DoctorActions = ({ id, doctor, onEdit }) => {

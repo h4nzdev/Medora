@@ -26,6 +26,7 @@
     "react-toastify": "^11.0.5",
     "recharts": "^3.2.1",
     "socket.io-client": "^4.8.1",
+    "sonner": "^2.0.7",
     "sweetalert2": "^11.23.0",
     "tailwindcss": "^4.1.13",
     "toastify": "^2.0.1",

@@ -17,7 +17,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import logo from "../../assets/medoralogo2.png";
 
 export default function ClinicSidebar() {

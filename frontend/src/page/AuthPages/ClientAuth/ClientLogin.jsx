@@ -16,7 +16,7 @@ import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
 import logo from "../../../assets/medoralogo.png";
 import clinic from "../../../assets/clinic.jpg";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const ClientLogin = () => {
   const { setRole, setUser } = useContext(AuthContext);
@@ -93,9 +93,9 @@ const ClientLogin = () => {
       }
 
       setFormData({ email: "", password: "" });
-      toast.success("Logged in successfully", {
-        delay: 3000,
-      });
+      setTimeout(() => {
+        toast.success("Logged in successfully");
+      }, 3000);
     } catch (error) {
       if (error.response?.data?.message) {
         setError(error.response.data.message);

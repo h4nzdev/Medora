@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { AuthContext } from "./AuthContext";
 import sound from "../assets/reminder2.mp3";
 import ringtone from "../assets/ringtone.mp3";

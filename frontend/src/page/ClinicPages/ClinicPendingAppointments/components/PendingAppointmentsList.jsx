@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { AppointmentContext } from "../../../../context/AppointmentContext";
 import { AuthContext } from "../../../../context/AuthContext";

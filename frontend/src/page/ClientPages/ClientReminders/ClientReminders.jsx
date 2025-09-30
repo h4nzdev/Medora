@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Plus, BellRing, Clock, CheckCircle, AlertCircle } from "lucide-react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import { useReminder } from "../../../context/ReminderContext";
 import AddReminderModal from "../../../components/ClientComponents/AddReminderModal/AddReminderModal";
 import ReminderDropdown from "../../../components/ClientComponents/ReminderDropdown/ReminderDropdown";

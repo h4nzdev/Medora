@@ -2,8 +2,7 @@
 
 import { useContext, useState, useEffect } from "react";
 import { X, Calendar, CreditCard, Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
 import axios from "axios";

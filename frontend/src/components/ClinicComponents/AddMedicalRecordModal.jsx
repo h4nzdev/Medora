@@ -10,7 +10,7 @@ import {
   ClipboardList,
   Loader2,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const AddMedicalRecordModal = ({
   isOpen,

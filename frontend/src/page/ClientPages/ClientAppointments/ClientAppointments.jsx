@@ -8,8 +8,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useContext, useState } from "react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
 import { ClinicContext } from "../../../context/ClinicContext";

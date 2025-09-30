@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ReminderProvider } from "./context/ReminderContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import InstallPWA from "./components/InstallPWA";
+import { Toaster } from "sonner";
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
         </ReminderProvider>
       </NotificationProvider>
       <ToastContainer />
+      <Toaster richColors position="top-right" />
       <InstallPWA />
     </>
   );

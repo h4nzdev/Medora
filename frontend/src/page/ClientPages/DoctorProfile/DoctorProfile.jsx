@@ -1,6 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "sonner"; // Changed from sonner to sonner
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
 import AddAppointmentModal from "../../../components/ClientComponents/AddAppointmentModal/AddAppointmentModal";
@@ -21,6 +22,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { formatDate } from "../../../utils/date";
+import { getInvoicesByPatient } from "../../../services/invoiceService";
 
 const DoctorProfile = () => {
   const { id } = useParams();
@@ -30,8 +32,13 @@ const DoctorProfile = () => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [isEligibleForReview, setIsEligibleForReview] = useState(false);
+  const [invoices, setInvoices] = useState([]);
 
-  const doctor = doctors.find((doc) => doc._id === id);
+  const doctor = doctors?.find((doc) => doc._id === id);
+  const totalAmount = invoices.reduce(
+    (sum, invoice) => sum + (invoice.totalAmount || 0),
+    0
+  );
 
   const fetchReviews = async () => {
     if (doctor) {
@@ -61,11 +68,37 @@ const DoctorProfile = () => {
     fetchReviews(); // Re-fetch reviews to show the new one
   };
 
+  const handleBook = () => {
+    if (totalAmount !== 0)
+      return toast.warning(
+        `You still have an unpaid balance of ₱${totalAmount}. Please settle it before booking a new appointment.`
+      );
+
+    return setIsAppointmentModalOpen(true);
+  };
+
   const getRatingColor = (rating) => {
     if (rating >= 4) return "text-emerald-500";
     if (rating >= 3) return "text-yellow-500";
     return "text-orange-500";
   };
+
+  const fetchInvoices = async () => {
+    if (user?._id) {
+      try {
+        const data = await getInvoicesByPatient(user._id);
+        setInvoices(data || []);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
+
+  console.log(totalAmount);
 
   if (!doctor) {
     return (
@@ -463,8 +496,12 @@ const DoctorProfile = () => {
                 Book a consultation with Dr. {doctor.name} today
               </p>
               <button
-                onClick={() => setIsAppointmentModalOpen(true)}
-                className="group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-r from-cyan-500 to-sky-500 font-semibold text-base md:text-lg mx-auto"
+                onClick={handleBook}
+                className={`group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
+                  totalAmount !== 0
+                    ? "bg-gray-800/50 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-500 to-sky-500 cursor-pointer"
+                } font-semibold text-base md:text-lg mx-auto`}
               >
                 <CalendarPlus className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 group-hover:scale-110 transition-transform duration-300" />
                 Book an Appointment

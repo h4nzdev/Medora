@@ -12,7 +12,7 @@ import {
 import { AuthContext } from "../../../context/AuthContext";
 import { formatDate, useDate } from "../../../utils/date";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const ClientProfile = () => {
   const { user, initials, setUser } = useContext(AuthContext);

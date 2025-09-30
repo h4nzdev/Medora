@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
 import { DoctorContext } from "../../../context/DoctorContext";
@@ -252,7 +252,14 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice, isLoading }) => {
               disabled={isLoading}
               className="px-4 py-2 bg-cyan-600 text-white rounded-md hover:bg-cyan-700"
             >
-              {isLoading ? "Creating..." : "Create Invoice"}
+              {isLoading ? (
+                <>
+                  Creating
+                  <Loader2 className="animate-spin" />
+                </>
+              ) : (
+                "Create Invoice"
+              )}
             </button>
           </div>
         </form>

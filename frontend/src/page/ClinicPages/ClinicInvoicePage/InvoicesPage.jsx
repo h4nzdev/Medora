@@ -22,7 +22,7 @@ import {
   createInvoice,
 } from "../../../services/invoiceService";
 import { AuthContext } from "../../../context/AuthContext";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import InvoiceTableBody from "./components/InvoiceTableBody";
 import { createNotification } from "../../../services/notificationService";
 

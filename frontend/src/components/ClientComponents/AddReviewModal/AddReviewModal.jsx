@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
 import { Star, X, MessageSquare, Award, Loader2 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const AddReviewModal = ({ isOpen, onClose, doctorId, onReviewSubmitted }) => {
   const { user } = useContext(AuthContext);

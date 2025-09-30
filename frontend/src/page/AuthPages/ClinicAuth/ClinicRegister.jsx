@@ -1,10 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Shield, Star, Check, ArrowLeft, Loader2, UploadCloud } from "lucide-react";
+import {
+  Shield,
+  Star,
+  Check,
+  ArrowLeft,
+  Loader2,
+  UploadCloud,
+} from "lucide-react";
 import axios from "axios";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import PaymentModal from "../../../components/ClinicComponents/PaymentModal/PaymentModal";
 import logo from "../../../assets/medoralogo.png";
 import { useNavigate } from "react-router-dom";
@@ -120,12 +126,12 @@ export default function ClinicRegister() {
     setIsLoading(true);
 
     const finalFormData = new FormData();
-    Object.keys(formData).forEach(key => {
-        finalFormData.append(key, formData[key]);
+    Object.keys(formData).forEach((key) => {
+      finalFormData.append(key, formData[key]);
     });
-    finalFormData.append('verificationCode', verificationInput);
+    finalFormData.append("verificationCode", verificationInput);
     if (clinicPicture) {
-        finalFormData.append('clinicPicture', clinicPicture);
+      finalFormData.append("clinicPicture", clinicPicture);
     }
 
     try {
@@ -134,7 +140,7 @@ export default function ClinicRegister() {
         finalFormData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -172,7 +178,7 @@ export default function ClinicRegister() {
         style={{ backgroundImage: `url(${clinic})` }}
       >
         {/* ... (branding elements remain the same) ... */}
-         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.08),transparent_60%)]" />
 
         {/* Floating Elements */}
@@ -252,7 +258,7 @@ export default function ClinicRegister() {
             </button>
           </div>
 
-           {/* Mobile Logo - Only shown on smaller screens */}
+          {/* Mobile Logo - Only shown on smaller screens */}
           <div className="lg:hidden text-center mb-10">
             <div className="flex items-center justify-center mb-6">
               <img src={logo} className="w-16 h-16" alt="Medora Logo" />
@@ -347,7 +353,7 @@ export default function ClinicRegister() {
               </div>
 
               {/* Email & Phone */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700">
                     Email Address
@@ -379,7 +385,6 @@ export default function ClinicRegister() {
                 </div>
               </div>
 
-
               {/* Address */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700">
@@ -395,39 +400,46 @@ export default function ClinicRegister() {
                 />
               </div>
 
-                {/* Clinic Picture Upload */}
-                <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Clinic Profile Picture
+              {/* Clinic Picture Upload */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                  Clinic Profile Picture
+                </label>
+                <div className="flex items-center gap-6">
+                  <div className="w-24 h-24 rounded-full bg-slate-100 border border-slate-300 flex-shrink-0 flex items-center justify-center">
+                    {picturePreview ? (
+                      <img
+                        src={picturePreview}
+                        alt="Clinic Preview"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <UploadCloud className="w-8 h-8 text-slate-400" />
+                    )}
+                  </div>
+                  <div className="flex-grow">
+                    <input
+                      type="file"
+                      name="clinicPicture"
+                      id="clinicPicture"
+                      onChange={handlePictureChange}
+                      accept="image/png, image/jpeg, image/jpg"
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="clinicPicture"
+                      className="cursor-pointer bg-white border border-slate-300 rounded-xl px-4 py-2 text-sm text-slate-700 font-semibold hover:bg-slate-50 transition-colors"
+                    >
+                      Choose File
                     </label>
-                    <div className="flex items-center gap-6">
-                        <div className="w-24 h-24 rounded-full bg-slate-100 border border-slate-300 flex-shrink-0 flex items-center justify-center">
-                        {picturePreview ? (
-                            <img src={picturePreview} alt="Clinic Preview" className="w-full h-full object-cover rounded-full"/>
-                        ) : (
-                            <UploadCloud className="w-8 h-8 text-slate-400" />
-                        )}
-                        </div>
-                        <div className="flex-grow">
-                            <input
-                                type="file"
-                                name="clinicPicture"
-                                id="clinicPicture"
-                                onChange={handlePictureChange}
-                                accept="image/png, image/jpeg, image/jpg"
-                                className="hidden"
-                            />
-                            <label 
-                                htmlFor="clinicPicture"
-                                className="cursor-pointer bg-white border border-slate-300 rounded-xl px-4 py-2 text-sm text-slate-700 font-semibold hover:bg-slate-50 transition-colors"
-                            >
-                                Choose File
-                            </label>
-                            {clinicPicture && <p className="text-xs text-slate-500 mt-2">{clinicPicture.name}</p>}
-                        </div>
-                    </div>
+                    {clinicPicture && (
+                      <p className="text-xs text-slate-500 mt-2">
+                        {clinicPicture.name}
+                      </p>
+                    )}
+                  </div>
                 </div>
-
+              </div>
 
               {/* Password & Confirm Password */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -458,7 +470,6 @@ export default function ClinicRegister() {
                   />
                 </div>
               </div>
-
 
               {/* Plan Selection */}
               <div className="mt-8 pt-6 border-t border-slate-200">
@@ -588,9 +599,8 @@ export default function ClinicRegister() {
                 </div>
               </div>
 
-
               {/* Agree to Terms */}
-               <div className="flex items-center mt-6">
+              <div className="flex items-center mt-6">
                 <input
                   type="checkbox"
                   name="agreeToTerms"
@@ -609,7 +619,6 @@ export default function ClinicRegister() {
                   </a>
                 </span>
               </div>
-
 
               {/* Error Display */}
               {error && (
@@ -633,7 +642,7 @@ export default function ClinicRegister() {
               )}
 
               {/* Submit Button */}
-                <button
+              <button
                 type="submit"
                 disabled={
                   isLoading ||
@@ -683,7 +692,7 @@ export default function ClinicRegister() {
             </p>
           </div>
 
-           {/* Trust Indicators */}
+          {/* Trust Indicators */}
           <div className="mt-6 space-y-3">
             <div className="flex items-center space-x-2 text-sm text-slate-600">
               <Shield className="w-4 h-4 text-emerald-500" />

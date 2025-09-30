@@ -17,7 +17,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import logo from "../../../assets/medoralogo.png";
 import { useNavigate } from "react-router-dom";
 import clinic from "../../../assets/clinic.jpg";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function ClinicLogin() {
   const { setRole, setUser } = useContext(AuthContext);
@@ -54,9 +54,9 @@ export default function ClinicLogin() {
         email: "",
         password: "",
       });
-      toast.success("Logged in successfully", {
-        delay: 3000,
-      });
+      setTimeout(() => {
+        toast.success("Logged in successfully");
+      }, 3000);
     } catch (error) {
       if (
         error.response &&

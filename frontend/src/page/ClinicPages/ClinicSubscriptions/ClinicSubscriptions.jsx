@@ -5,7 +5,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { CreditCard, CheckCircle, XCircle } from "lucide-react";
 import PaymentModal from "../../../components/ClinicComponents/PaymentModal/PaymentModal";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const plans = [
   {

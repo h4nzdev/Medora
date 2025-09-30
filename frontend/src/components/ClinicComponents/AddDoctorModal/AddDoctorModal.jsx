@@ -3,8 +3,7 @@ import { Loader2, X } from "lucide-react";
 import axios from "axios";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 
 const AddDoctorModal = ({
   isOpen,
