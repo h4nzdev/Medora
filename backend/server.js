@@ -25,7 +25,7 @@ const httpServer = createServer(app); // Create HTTP server
 const io = new Server(httpServer, {
   cors: {
     origin: ["https://medora-dun.vercel.app", "http://localhost:5173"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // <-- added PATCH
     credentials: true,
   },
 });
@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: ["https://medora-dun.vercel.app", "http://localhost:5173"], // allow production + local dev
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // <-- added PATCH
     credentials: true,
   })
 );
