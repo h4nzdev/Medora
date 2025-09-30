@@ -5,7 +5,7 @@ Medora (formerly MedConnect) is a comprehensive web application that revolutioni
 ## 🤖 Key Features
 
 ### For Patients:
-- **AI Symptom Checker:** Get instant, AI-powered health advice using Google's Gemini AI
+- **AI Symptom Checker:** Get instant, AI-powered health adviceu using Google's Gemini AI
 - **Appointment Management:** Schedule, track, and manage appointments with clinics
 - **Medical Records:** Access and manage your complete medical history in one secure place
 - **Smart Reminders:** Set and receive personalized reminders for appointments and medications

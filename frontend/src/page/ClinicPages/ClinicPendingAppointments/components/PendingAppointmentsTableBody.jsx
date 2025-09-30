@@ -20,6 +20,7 @@ import {
   sendRejectionEmail,
 } from "../../../../utils/emailService";
 import { useDate, useTime } from "../../../../utils/date";
+import { createNotification } from "../../../../services/notificationService";
 
 const PendingAppointmentsTableBody = ({ appointments }) => {
   const { fetchAppointments } = useContext(AppointmentContext);
@@ -39,6 +40,21 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
         `${import.meta.env.VITE_API_URL}/appointment/respond/${appointmentId}`,
         { action }
       );
+
+      // Create a notification
+      if (appointment && appointment.patientId) {
+        try {
+          await createNotification({
+            recipientId: appointment.patientId._id,
+            recipientType: "Client",
+            message: `Your appointment has been ${action}d.`,
+            type: "appointment",
+          });
+        } catch (notificationError) {
+          console.error("Failed to create notification:", notificationError);
+          toast.error("Failed to create notification."); // Optional: inform the user
+        }
+      }
 
       // Send email notification after successful status update
       if (appointment && appointment.patientId) {
@@ -102,7 +118,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
   const confirmAction = (appointmentId, action) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      text: "You won\'t be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
