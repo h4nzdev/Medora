@@ -1,25 +1,52 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
-import { BellRing, CheckCircle, XCircle } from "lucide-react";
+import {
+  BellRing,
+  CheckCircle,
+  XCircle,
+  Bell,
+  Search,
+  Calendar,
+  FileText,
+  AlertCircle,
+  Info,
+  Trash2,
+  Filter,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../../context/AuthContext";
-import { getUserNotifications, markNotificationAsRead } from "../../../services/notificationService";
-
+import {
+  getUserNotifications,
+  markNotificationAsRead,
+} from "../../../services/notificationService";
+import { formatDate, useTime } from "../../../utils/date";
 const ClientNotifications = () => {
   const { user } = useContext(AuthContext);
   const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (user && user._id && user.role) {
       fetchNotifications();
+
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 5000);
+
+      return () => clearInterval(interval);
     }
   }, [user]);
 
   const fetchNotifications = async () => {
     try {
-      const fetchedNotifications = await getUserNotifications(user._id, "Client");
+      const fetchedNotifications = await getUserNotifications(
+        user._id,
+        "Client"
+      );
       setNotifications(fetchedNotifications);
     } catch (error) {
       toast.error("Failed to fetch notifications.");
@@ -29,7 +56,6 @@ const ClientNotifications = () => {
   const handleMarkAsRead = async (id) => {
     try {
       await markNotificationAsRead(id);
-      // Update the state to reflect the change
       setNotifications((prev) =>
         prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
       );
@@ -39,66 +65,254 @@ const ClientNotifications = () => {
     }
   };
 
+  const filteredNotifications = notifications
+    .filter((notification) => {
+      if (filterType === "all") return true;
+      if (filterType === "unread") return !notification.isRead;
+      return notification.type === filterType;
+    })
+    .filter((notification) => {
+      const searchTermLower = searchTerm.toLowerCase();
+      const message = notification.message?.toLowerCase() || "";
+      return message.includes(searchTermLower);
+    });
+
+  const getNotificationIcon = (type) => {
+    const iconMap = {
+      appointment: <Calendar className="w-5 h-5" />,
+      payment: <FileText className="w-5 h-5" />,
+      system: <Info className="w-5 h-5" />,
+    };
+    return iconMap[type] || <Bell className="w-5 h-5" />;
+  };
+
+  const getNotificationColor = (type) => {
+    const colorMap = {
+      appointment: "bg-cyan-100 text-cyan-700",
+      payment: "bg-emerald-100 text-emerald-700",
+      system: "bg-slate-100 text-slate-700",
+    };
+    return colorMap[type] || "bg-slate-100 text-slate-700";
+  };
+
+  const filterOptions = [
+    { label: "All Notifications", value: "all", icon: Bell },
+    { label: "Unread Only", value: "unread", icon: AlertCircle },
+    { label: "Appointments", value: "appointment", icon: Calendar },
+    { label: "Payments", value: "payment", icon: FileText },
+    { label: "System", value: "system", icon: Info },
+  ];
+
   return (
-    <div className="w-full min-h-screen bg-slate-50 pb-6">
+    <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
       <div className="mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
-            My Notifications
-          </h1>
-          <p className="text-slate-600 mt-2 font-medium tracking-wide">
-            Stay updated with your appointments and messages.
-          </p>
+        <header className="mb-8 md:mb-10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="flex-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight">
+                Notifications
+              </h1>
+              <p className="text-slate-600 mt-3 text-lg sm:text-xl leading-relaxed">
+                Stay updated with your appointments, payments, and alerts.
+              </p>
+            </div>
+          </div>
         </header>
 
-        {notifications.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BellRing className="w-12 h-12 text-slate-400" />
-            </div>
-            <p className="text-slate-600 font-medium text-lg">
-              No notifications yet.
-            </p>
-          </div>
-        ) : (
-          <section className="space-y-4">
-            {notifications.map((notification) => (
-              <div
-                key={notification._id}
-                className={`bg-white/70 rounded-xl p-6 shadow flex items-center justify-between hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 ${
-                  notification.isRead ? "opacity-60" : ""
-                }`}>
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center ${{
-                      appointment: "bg-blue-100 text-blue-600",
-                      payment: "bg-green-100 text-green-600",
-                      system: "bg-slate-100 text-slate-600",
-                    }[notification.type]}`}>
-                    {notification.type === "appointment" && <BellRing className="w-6 h-6" />}
-                    {notification.type === "payment" && <CheckCircle className="w-6 h-6" />}
-                    {notification.type === "system" && <XCircle className="w-6 h-6" />}
-                  </div>
-                  <div>
-                    <p className="text-lg font-bold text-slate-800">
-                      {notification.message}
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {new Date(notification.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                {!notification.isRead && (
-                  <button
-                    onClick={() => handleMarkAsRead(notification._id)}
-                    className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all font-medium">
-                    Mark as Read
-                  </button>
-                )}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Desktop Sidebar Filter */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 sticky top-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Filter className="w-5 h-5 text-slate-600" />
+                <h3 className="text-lg font-bold text-slate-800">Filters</h3>
               </div>
-            ))}
+              <div className="space-y-2">
+                {filterOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => setFilterType(option.value)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 ${
+                        filterType === option.value
+                          ? "bg-cyan-600 text-white shadow-md"
+                          : "text-slate-600 hover:bg-slate-100"
+                      }`}
+                    >
+                      <IconComponent className="w-5 h-5" />
+                      <span className="font-medium">{option.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </aside>
+
+          {/* Mobile Top Filter - Custom Dropdown */}
+          <div className="lg:hidden mb-6">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full flex items-center justify-between px-4 h-12 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm hover:border-cyan-300 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <div className="flex items-center gap-3">
+                  <Filter className="w-5 h-5 text-slate-400" />
+                  <span className="font-medium text-slate-700">
+                    {
+                      filterOptions.find((opt) => opt.value === filterType)
+                        ?.label
+                    }
+                  </span>
+                </div>
+                <svg
+                  className={`w-5 h-5 text-slate-400 transition-transform duration-300 ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {isDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsDropdownOpen(false)}
+                  ></div>
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-slate-200 shadow-xl z-20 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    {filterOptions.map((option) => {
+                      const IconComponent = option.icon;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setFilterType(option.value);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-200 ${
+                            filterType === option.value
+                              ? "bg-cyan-50 text-cyan-700 font-semibold"
+                              : "text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          <IconComponent className="w-5 h-5" />
+                          <span className="font-medium">{option.label}</span>
+                          {filterType === option.value && (
+                            <CheckCircle className="w-4 h-4 ml-auto text-cyan-600" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <section className="flex-1">
+            <div className="mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Recent Notifications
+              </h2>
+              <p className="text-slate-600 mt-2 text-lg">
+                {filteredNotifications.length} notification
+                {filteredNotifications.length !== 1 ? "s" : ""} found
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search notifications..."
+                  className="pl-10 h-12 rounded-xl border border-slate-200 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-200/50 w-full bg-white/80 backdrop-blur-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {filteredNotifications.length > 0 ? (
+                filteredNotifications.map((notification) => (
+                  <div
+                    key={notification._id}
+                    className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group ${
+                      !notification.isRead ? "border-l-4 border-l-cyan-500" : ""
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div
+                        className={`p-3 rounded-xl ${getNotificationColor(
+                          notification.type
+                        )} flex-shrink-0 shadow-sm`}
+                      >
+                        {getNotificationIcon(notification.type)}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <h3 className="font-bold text-slate-800 text-lg group-hover:text-cyan-600 transition-colors duration-300">
+                            {notification.message}
+                          </h3>
+                          {!notification.isRead && (
+                            <span className="flex-shrink-0 w-2 h-2 bg-cyan-500 rounded-full mt-2"></span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                          <p className="text-sm text-slate-500 font-medium">
+                            {formatDate(notification.createdAt)},{" "}
+                            {useTime(notification.createdAt)}
+                          </p>
+
+                          <div className="flex items-center gap-2">
+                            {!notification.isRead && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleMarkAsRead(notification._id)
+                                }
+                                className="px-4 py-2 bg-cyan-50 text-cyan-700 rounded-lg text-sm font-medium hover:bg-cyan-100 transition-colors duration-200"
+                              >
+                                Mark as Read
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-12 text-center">
+                  <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6 w-fit mx-auto mb-6">
+                    <Bell className="w-16 h-16 text-slate-400 mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-700 mb-2">
+                    No notifications found
+                  </h3>
+                  <p className="text-slate-500 text-lg">
+                    You're all caught up! New notifications will appear here.
+                  </p>
+                </div>
+              )}
+            </div>
           </section>
-        )}
+        </div>
       </div>
     </div>
   );
