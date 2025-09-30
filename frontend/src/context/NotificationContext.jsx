@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { getUserNotifications, markNotificationAsRead } from "../services/notificationService";
+import {
+  getUserNotifications,
+  markNotificationAsRead,
+} from "../services/notificationService";
 import { AuthContext } from "./AuthContext";
+import ringtone from "../assets/notification.mp3";
 
 const NotificationContext = createContext();
 
@@ -11,12 +15,16 @@ export const NotificationProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
   const [notifications, setNotifications] = useState([]);
   const [prevNotifications, setPrevNotifications] = useState([]);
+  const [showSplashNotif, setShowSplashNotif] = useState(true);
 
   useEffect(() => {
     if (user && user._id && user.role) {
       const fetchNotifications = async () => {
         try {
-          const fetchedNotifications = await getUserNotifications(user._id, "Client");
+          const fetchedNotifications = await getUserNotifications(
+            user._id,
+            "Client"
+          );
           setNotifications(fetchedNotifications);
         } catch (error) {
           console.error("Failed to fetch notifications.", error);
@@ -32,24 +40,40 @@ export const NotificationProvider = ({ children }) => {
   }, [user]);
 
   useEffect(() => {
-    if (notifications.length > 0) {
-      const newUnread = notifications.filter(
-        (n) => !n.isRead && !prevNotifications.some((pn) => pn._id === n._id)
+    if (!showSplashNotif && notifications.length > 0) {
+      // Find brand new notifications that were not seen before
+      const newOnes = notifications.filter(
+        (n) => !prevNotifications.some((pn) => pn._id === n._id)
       );
 
-      newUnread.forEach((notification) => {
-        toast.info(notification.message, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
+      if (newOnes.length > 0) {
+        // 🔔 Play ringtone ONCE
+        const audio = new Audio(ringtone);
+        audio.currentTime = 0;
+        audio.play().catch((err) => {
+          console.error("Audio play failed:", err);
         });
-      });
 
-      setPrevNotifications(notifications);
+        // 📌 Show ONLY ONE toast for the batch
+        toast.info(
+          newOnes.length === 1
+            ? newOnes[0].message
+            : `You have ${newOnes.length} new notifications`,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            toastId: "batch-notification", // 🔑 same ID so it won't stack
+          }
+        );
+
+        // ✅ Mark that we’ve already shown these
+        setPrevNotifications((prev) => [...prev, ...newOnes]);
+      }
     }
   }, [notifications, prevNotifications]);
 
@@ -65,7 +89,9 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ notifications, markAsRead }}>
+    <NotificationContext.Provider
+      value={{ notifications, markAsRead, setShowSplashNotif }}
+    >
       {children}
     </NotificationContext.Provider>
   );

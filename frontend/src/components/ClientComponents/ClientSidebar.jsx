@@ -115,7 +115,7 @@ export default function ClientSidebar() {
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto hide-scroll">
         {menuItems.map((item, index) => (
           <div key={index}>
             {item.type === "dropdown" ? (

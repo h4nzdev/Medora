@@ -24,6 +24,7 @@ import {
 import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
 import InvoiceTableBody from "./components/InvoiceTableBody";
+import { createNotification } from "../../../services/notificationService";
 
 export default function ClinicInvoices() {
   const [invoices, setInvoices] = useState([]);
@@ -65,6 +66,21 @@ export default function ClinicInvoices() {
 
     try {
       await createInvoice(newInvoice);
+
+      if (invoiceData.patientId) {
+        try {
+          await createNotification({
+            recipientId: invoiceData.patientId,
+            recipientType: "Client",
+            message: `New invoice has been generated for you. Total amount: ₱${totalAmount}`,
+            type: "payment",
+          });
+        } catch (notificationError) {
+          console.error("Failed to create notification:", notificationError);
+          toast.error("Failed to create notification.");
+        }
+      }
+
       fetchInvoices();
       setIsModalOpen(false);
       toast.success("Successfully added Invoice!");
@@ -82,7 +98,10 @@ export default function ClinicInvoices() {
     const searchTermLower = searchTerm.toLowerCase();
     const patientName = invoice.patientName?.toLowerCase() || "";
     const invoiceNumber = invoice.invoiceNumber?.toLowerCase() || "";
-    return patientName.includes(searchTermLower) || invoiceNumber.includes(searchTermLower);
+    return (
+      patientName.includes(searchTermLower) ||
+      invoiceNumber.includes(searchTermLower)
+    );
   });
 
   const indexOfLastInvoice = currentPage * invoicesPerPage;
@@ -106,10 +125,19 @@ export default function ClinicInvoices() {
   };
 
   // Calculate stats
-  const totalAmount = invoices.reduce((sum, invoice) => sum + (invoice.totalAmount || 0), 0);
-  const paidInvoices = invoices.filter(invoice => invoice.status === 'paid').length;
-  const pendingInvoices = invoices.filter(invoice => invoice.status === 'pending').length;
-  const overdueInvoices = invoices.filter(invoice => invoice.status === 'overdue').length;
+  const totalAmount = invoices.reduce(
+    (sum, invoice) => sum + (invoice.totalAmount || 0),
+    0
+  );
+  const paidInvoices = invoices.filter(
+    (invoice) => invoice.status === "paid"
+  ).length;
+  const pendingInvoices = invoices.filter(
+    (invoice) => invoice.status === "pending"
+  ).length;
+  const overdueInvoices = invoices.filter(
+    (invoice) => invoice.status === "overdue"
+  ).length;
 
   return (
     <div className="w-full min-h-screen bg-slate-50">
@@ -171,7 +199,9 @@ export default function ClinicInvoices() {
                 <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
                   Paid Invoices
                 </p>
-                <p className="text-4xl font-semibold text-cyan-600">{paidInvoices}</p>
+                <p className="text-4xl font-semibold text-cyan-600">
+                  {paidInvoices}
+                </p>
               </div>
               <div className="bg-cyan-500 p-4 rounded-2xl shadow-md">
                 <CheckCircle className="w-8 h-8 text-white" />
@@ -258,20 +288,35 @@ export default function ClinicInvoices() {
             {/* Mobile invoice cards can be implemented similar to ClinicPatientsList */}
             <div className="space-y-4">
               {currentInvoices.map((invoice, index) => (
-                <div key={index} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                <div
+                  key={index}
+                  className="bg-slate-50 rounded-xl p-4 border border-slate-200"
+                >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-slate-800">{invoice.invoiceNumber}</h3>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
-                      invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
+                    <h3 className="font-semibold text-slate-800">
+                      {invoice.invoiceNumber}
+                    </h3>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        invoice.status === "paid"
+                          ? "bg-green-100 text-green-800"
+                          : invoice.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {invoice.status}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-600 mb-1">Patient: {invoice.patientName}</p>
-                  <p className="text-sm text-slate-600 mb-1">Amount: ${invoice.totalAmount}</p>
-                  <p className="text-sm text-slate-600">Due: {invoice.dueDate}</p>
+                  <p className="text-sm text-slate-600 mb-1">
+                    Patient: {invoice.patientName}
+                  </p>
+                  <p className="text-sm text-slate-600 mb-1">
+                    Amount: ${invoice.totalAmount}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    Due: {invoice.dueDate}
+                  </p>
                 </div>
               ))}
             </div>

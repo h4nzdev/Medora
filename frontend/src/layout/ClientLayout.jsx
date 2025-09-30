@@ -12,11 +12,14 @@ import {
   ringVariants,
 } from "../animations/splashscreen";
 import TourModal from "../components/ClientComponents/TourModal/TourModal";
+import { useNotification } from "../context/NotificationContext";
 
 const ClientLayout = ({ children }) => {
   const { user } = useContext(AuthContext);
   const [showSplash, setShowSplash] = useState(false);
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+
+  const { setShowSplashNotif } = useNotification();
 
   useEffect(() => {
     const hasCompletedTour = localStorage.getItem("hasCompletedClientTour");
@@ -27,7 +30,10 @@ const ClientLayout = ({ children }) => {
     } else {
       // User already did tour → show splash screen immediately
       setShowSplash(true);
-      const timer = setTimeout(() => setShowSplash(false), 3000);
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        setShowSplashNotif(false);
+      }, 3000);
       return () => clearTimeout(timer);
     }
   }, []);
