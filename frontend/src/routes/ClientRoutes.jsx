@@ -13,6 +13,7 @@ import ClientTimeline from "../page/ClientPages/ClientTimeline/ClientTimeline";
 import DoctorsList from "../page/ClientPages/DoctorsList/DoctorsList";
 import DoctorProfile from "../page/ClientPages/DoctorProfile/DoctorProfile";
 import ClientInvoices from "../page/ClientPages/ClientInvoices/ClientInvoices";
+import ClientNotifications from "../page/ClientPages/ClientNotifications/ClientNotifications";
 
 const ClientRoutes = () => {
   return (
@@ -112,6 +113,14 @@ const ClientRoutes = () => {
           element={
             <ClientLayout>
               <ClientSettings />
+            </ClientLayout>
+          }
+        />
+        <Route
+          path="/client/notifications"
+          element={
+            <ClientLayout>
+              <ClientNotifications />
             </ClientLayout>
           }
         />
