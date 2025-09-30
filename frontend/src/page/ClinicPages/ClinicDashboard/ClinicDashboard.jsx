@@ -14,7 +14,7 @@ import {
   Activity,
   DollarSign,
 } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
 import { PatientsContext } from "../../../context/PatientsContext";
@@ -22,6 +22,7 @@ import { DoctorContext } from "../../../context/DoctorContext";
 import { getStatusBadge, getStatusIcon } from "../../../utils/appointmentStats";
 import { useDate, useTime } from "../../../utils/date";
 import DashboardCharts from "./DashboardCharts";
+import { getInvoicesByClinic } from "../../../services/invoiceService";
 
 export default function ClinicDashboard() {
   const { appointments } = useContext(AppointmentContext);
@@ -30,6 +31,7 @@ export default function ClinicDashboard() {
   const { user } = useContext(AuthContext);
   const [showAll, setShowAll] = useState(false);
   const [view, setView] = useState("default");
+  const [invoices, setInvoices] = useState([]);
 
   const clinicAppointments = appointments?.filter(
     (appointment) => appointment.clinicId?._id === user._id
@@ -56,6 +58,27 @@ export default function ClinicDashboard() {
     return "Unlimited";
   };
 
+  const fetchInvoices = async () => {
+    if (user?._id) {
+      try {
+        const data = await getInvoicesByClinic(user._id);
+        setInvoices(data);
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (user?._id) {
+      fetchInvoices();
+    }
+  }, [user]);
+
+  const totalAmount = invoices?.reduce(
+    (sum, invoice) => sum + parseFloat(invoice.totalAmount || 0),
+    0
+  );
   const appointmentLimit = getAppointmentLimit();
 
   // Static data for demonstration
@@ -63,7 +86,7 @@ export default function ClinicDashboard() {
     appointments: clinicAppointments?.length,
     patients: clinicPatients?.length,
     doctors: clinicDoctors?.length,
-    revenue: 12450,
+    revenue: totalAmount,
   };
 
   const recentActivities = [
@@ -208,7 +231,7 @@ export default function ClinicDashboard() {
                       Monthly Revenue
                     </p>
                     <p className="text-4xl font-semibold text-emerald-600">
-                      ${stats.revenue.toLocaleString()}
+                      ${stats?.revenue}
                     </p>
                     <p className="text-sm text-emerald-600 mt-1 flex items-center">
                       <TrendingUp className="w-4 h-4 mr-1" />
@@ -334,9 +357,7 @@ export default function ClinicDashboard() {
                         <h3 className="font-semibold text-slate-800 text-lg">
                           View Patient Chats
                         </h3>
-                        <p className="text-slate-600">
-                          AI chat history access
-                        </p>
+                        <p className="text-slate-600">AI chat history access</p>
                       </div>
                     </button>
                   </div>
