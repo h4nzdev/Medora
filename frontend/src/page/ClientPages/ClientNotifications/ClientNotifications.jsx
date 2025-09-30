@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useMemo } from "react";
 import {
   BellRing,
   CheckCircle,
@@ -11,71 +11,30 @@ import {
   FileText,
   AlertCircle,
   Info,
-  Trash2,
   Filter,
 } from "lucide-react";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from "../../../context/AuthContext";
-import {
-  getUserNotifications,
-  markNotificationAsRead,
-} from "../../../services/notificationService";
+import { useNotification } from "../../../context/NotificationContext";
 import { formatDate, useTime } from "../../../utils/date";
+
 const ClientNotifications = () => {
-  const { user } = useContext(AuthContext);
-  const [notifications, setNotifications] = useState([]);
+  const { notifications, markAsRead } = useNotification();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    if (user && user._id && user.role) {
-      fetchNotifications();
-
-      const interval = setInterval(() => {
-        fetchNotifications();
-      }, 5000);
-
-      return () => clearInterval(interval);
-    }
-  }, [user]);
-
-  const fetchNotifications = async () => {
-    try {
-      const fetchedNotifications = await getUserNotifications(
-        user._id,
-        "Client"
-      );
-      setNotifications(fetchedNotifications);
-    } catch (error) {
-      toast.error("Failed to fetch notifications.");
-    }
-  };
-
-  const handleMarkAsRead = async (id) => {
-    try {
-      await markNotificationAsRead(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-      );
-      toast.success("Notification marked as read.");
-    } catch (error) {
-      toast.error("Failed to mark notification as read.");
-    }
-  };
-
-  const filteredNotifications = notifications
-    .filter((notification) => {
-      if (filterType === "all") return true;
-      if (filterType === "unread") return !notification.isRead;
-      return notification.type === filterType;
-    })
-    .filter((notification) => {
-      const searchTermLower = searchTerm.toLowerCase();
-      const message = notification.message?.toLowerCase() || "";
-      return message.includes(searchTermLower);
-    });
+  const filteredNotifications = useMemo(() => {
+    return notifications
+      .filter((notification) => {
+        if (filterType === "all") return true;
+        if (filterType === "unread") return !notification.isRead;
+        return notification.type === filterType;
+      })
+      .filter((notification) => {
+        const searchTermLower = searchTerm.toLowerCase();
+        const message = notification.message?.toLowerCase() || "";
+        return message.includes(searchTermLower);
+      });
+  }, [notifications, filterType, searchTerm]);
 
   const getNotificationIcon = (type) => {
     const iconMap = {
@@ -284,7 +243,7 @@ const ClientNotifications = () => {
                               <button
                                 type="button"
                                 onClick={() =>
-                                  handleMarkAsRead(notification._id)
+                                  markAsRead(notification._id)
                                 }
                                 className="px-4 py-2 bg-cyan-50 text-cyan-700 rounded-lg text-sm font-medium hover:bg-cyan-100 transition-colors duration-200"
                               >
