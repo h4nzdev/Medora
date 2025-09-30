@@ -23,9 +23,10 @@ configDB();
 const app = express();
 const httpServer = createServer(app); // Create HTTP server
 const io = new Server(httpServer, {
-  // Attach socket.io to the server
   cors: {
-    origin: "*", // Adjust for your frontend URL in production
+    origin: ["https://medora-dun.vercel.app", "http://localhost:5173"],
+    methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
@@ -33,7 +34,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://medora-dun.vercel.app", "http://localhost:5173"], // allow production + local dev
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // --- Socket.io connection ---
 io.on("connection", (socket) => {
