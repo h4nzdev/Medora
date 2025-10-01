@@ -91,7 +91,7 @@ export const clinicRegister = async (req, res) => {
       password: hashedPassword, // save hashed password
       phone,
       address,
-      clinicPicture: req.file ? `/public/uploads/${req.file.filename}` : '', // Save the public URL path
+      clinicPicture: req.file ? req.file.path : '', // Save the public URL path
       agreeToTerms,
       subscriptionPlan,
     });
