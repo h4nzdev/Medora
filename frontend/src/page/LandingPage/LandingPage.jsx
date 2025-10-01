@@ -417,9 +417,7 @@ const LandingPage = () => {
                       {clinic.clinicPicture ? (
                         <div className="relative">
                           <img
-                            src={`${import.meta.env.VITE_API_URL}${
-                              clinic.clinicPicture
-                            }`}
+                            src={clinic.clinicPicture}
                             alt={clinic.clinicName}
                             onError={(e) => {
                               console.error("Image failed to load:", {
