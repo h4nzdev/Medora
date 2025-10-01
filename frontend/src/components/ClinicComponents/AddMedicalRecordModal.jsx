@@ -11,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { createNotification } from "../../services/notificationService";
 
 const AddMedicalRecordModal = ({
   isOpen,
@@ -67,6 +68,21 @@ const AddMedicalRecordModal = ({
           prescriptions,
         }
       );
+
+      if (patientId) {
+        try {
+          await createNotification({
+            recipientId: patientId,
+            recipientType: "Client",
+            message: `Your medical record has been updated with diagnosis: ${diagnosis}`,
+            type: "medical_record",
+          });
+        } catch (notificationError) {
+          console.error("Failed to create notification:", notificationError);
+          toast.error("Failed to create notification.");
+        }
+      }
+
       toast.success("Medical records was added successfully");
       onClose(); // Close modal on success
     } catch (error) {
@@ -261,8 +277,7 @@ const AddMedicalRecordModal = ({
             >
               {isLoading ? (
                 <>
-                  Adding...
-                  <Loader2 className="animate-spin"/>
+                  <Loader2 className="animate-spin" />
                 </>
               ) : (
                 "Add Medical Record"

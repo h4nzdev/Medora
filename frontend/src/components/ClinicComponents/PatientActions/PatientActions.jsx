@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { Edit2, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const PatientActions = ({ id }) => {
@@ -26,20 +26,23 @@ const PatientActions = ({ id }) => {
             onClick={() => {
               setIsOpen(false);
             }}
-            className="block py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start border-b border-gray-300"
+            className="block flex items-center gap-2 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start"
           >
+            <Edit2 size={14} />
             Edit
           </button>
           <button
             onClick={() => setIsOpen(false)}
-            className="block py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start border-b border-gray-300"
+            className="block flex items-center gap-2 py-2 text-sm text-red-700 hover:bg-gray-100 w-full text-start"
           >
+            <Trash2 size={14} />
             Delete
           </button>
           <button
             onClick={() => navigate(`/clinic/patient-profile/${id}`)}
-            className="block py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start border-b border-gray-300"
+            className="block flex items-center gap-2 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start"
           >
+            <Eye size={14} />
             View
           </button>
         </div>

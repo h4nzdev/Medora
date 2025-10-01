@@ -389,9 +389,7 @@ const DoctorProfile = () => {
                       <div className="relative flex-shrink-0">
                         <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center overflow-hidden ring-2 ring-white shadow-md">
                           <img
-                            src={`${import.meta.env.VITE_API_URL}/${
-                              review.patient?.patientPicture
-                            }`}
+                            src={review?.patient?.patientPicture}
                             alt="Patient Picture"
                             className="w-full h-full object-cover rounded-full"
                             onError={(e) => {

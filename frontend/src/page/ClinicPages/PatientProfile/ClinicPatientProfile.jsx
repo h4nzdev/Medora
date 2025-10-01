@@ -85,9 +85,7 @@ const ClinicPatientProfile = () => {
               {patient.patientPicture ? (
                 <div className="relative">
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/${
-                      patient.patientPicture
-                    }`}
+                    src={patient.patientPicture}
                     alt={patient.name}
                     className="w-20 h-20 rounded-2xl object-cover border-4 border-white shadow-lg hover:shadow-xl transition-all duration-300"
                     onError={(e) => {

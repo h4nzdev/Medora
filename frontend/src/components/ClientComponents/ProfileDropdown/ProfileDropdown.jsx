@@ -54,7 +54,7 @@ const ProfileDropdown = () => {
         <img
           src={user?.patientPicture}
           alt={user?.name}
-          className="rounded-full"
+          className="rounded-full max-w-10 max-h-10"
         />
       </button>
 
