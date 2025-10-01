@@ -56,9 +56,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the 'public' directory
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-
 app.use("/clinic", clinicRoutes);
 app.use("/doctor", doctorRouter);
 app.use("/patient", patientRouter);

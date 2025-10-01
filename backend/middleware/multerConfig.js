@@ -1,36 +1,14 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
-import { fileURLToPath } from 'url';
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinaryConfig.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Set storage engine
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dest = path.join(__dirname, '..', 'public', 'uploads');
-    try {
-      fs.mkdirSync(dest, { recursive: true });
-      cb(null, dest);
-    } catch (error) {
-      cb(error);
-    }
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-// Init upload
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
-  fileFilter: function (req, file, cb) {
-    checkFileType(file, cb);
+// Set up Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "medora_uploads",
+    public_id: (req, file) => file.fieldname + "-" + Date.now(),
   },
 });
 
@@ -49,5 +27,14 @@ function checkFileType(file, cb) {
     cb("Error: Images Only!");
   }
 }
+
+// Init upload
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: function (req, file, cb) {
+    checkFileType(file, cb);
+  },
+});
 
 export default upload;

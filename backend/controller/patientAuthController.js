@@ -104,7 +104,7 @@ export const registerClient = async (req, res) => {
       email,
       address,
       password: hashedPassword,
-      patientPicture: req.file ? `uploads/${req.file.filename}` : "",
+      patientPicture: req.file ? req.file.path : "",
       emergencyContact, // 👈 added this line
     });
 

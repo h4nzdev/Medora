@@ -28,7 +28,7 @@ export const addDoctor = async (req, res) => {
 
     let profileImage = "";
     if (req.file) {
-      profileImage = `/uploads/${req.file.filename}`;
+      profileImage = req.file.path;
     }
 
     const doctor = new Doctor({
@@ -122,7 +122,7 @@ export const updateDoctor = async (req, res) => {
     };
 
     if (req.file) {
-      updateData.profileImage = `/uploads/${req.file.filename}`;
+      updateData.profileImage = req.file.path;
     }
 
     const doctor = await Doctor.findByIdAndUpdate(req.params.id, updateData, {
