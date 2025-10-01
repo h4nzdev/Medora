@@ -111,7 +111,8 @@ const DoctorProfile = () => {
             Doctor not found
           </h3>
           <p className="text-slate-500 text-base md:text-lg">
-            The requested doctor profile could not be found.
+            The requested doctor profile could not be found. try to refresh your
+            browser
           </p>
         </div>
       </div>
@@ -141,9 +142,7 @@ const DoctorProfile = () => {
                 <div className="relative">
                   {doctor.profileImage ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}${
-                        doctor.profileImage
-                      }`}
+                      src={doctor.profileImage}
                       alt={doctor.name}
                       className="rounded-xl md:rounded-2xl w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 object-cover shadow-lg"
                     />

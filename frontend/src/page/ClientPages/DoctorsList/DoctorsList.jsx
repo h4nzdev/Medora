@@ -119,12 +119,7 @@ const DoctorsList = () => {
                 <div className="flex items-start gap-4 mb-4">
                   <div className="relative flex-shrink-0">
                     <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-cyan-100 to-sky-100 flex items-center justify-center shadow-md">
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}${
-                          doctor.profileImage
-                        }`}
-                        alt={doctor.name}
-                      />
+                      <img src={doctor.profileImage} alt={doctor.name} />
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white bg-green-500"></div>
                   </div>

@@ -30,9 +30,7 @@ const ClinicDoctorsTableBody = ({ onEditDoctor }) => {
                 <div className="relative">
                   {doctor.profileImage ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}${
-                        doctor.profileImage
-                      }`}
+                      src={doctor.profileImage}
                       alt={doctor.name}
                       className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:border-blue-200"
                     />

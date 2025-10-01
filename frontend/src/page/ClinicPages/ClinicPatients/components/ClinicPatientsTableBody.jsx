@@ -18,11 +18,9 @@ const ClinicPatientsTableBody = ({ patients }) => {
             <td className="py-4 px-4">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  {patient.patientPicture ? (
+                  {patient?.patientPicture ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}/${
-                        patient.patientPicture
-                      }`}
+                      src={patient.patientPicture}
                       alt={patient.name}
                       className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:border-blue-200"
                     />

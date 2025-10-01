@@ -496,7 +496,6 @@ const AddDoctorModal = ({
               >
                 {isLoading ? (
                   <>
-                    Adding
                     <Loader2 className="animate-spin" />
                   </>
                 ) : (

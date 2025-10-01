@@ -7,7 +7,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const ProfileDropdown = () => {
-  const { setUser, setRole } = useContext(AuthContext);
+  const { setUser, setRole, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -51,7 +51,11 @@ const ProfileDropdown = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="rounded-full w-10 h-10 bg-slate-200 flex items-center justify-center hover:bg-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
       >
-        <User className="w-6 h-6 text-slate-600" />
+        <img
+          src={user?.patientPicture}
+          alt={user?.name}
+          className="rounded-full"
+        />
       </button>
 
       {isOpen && (

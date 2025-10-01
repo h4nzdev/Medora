@@ -236,12 +236,7 @@ const ClientProfile = () => {
               {/* Avatar */}
               <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-cyan-700 flex items-center justify-center shadow-lg overflow-hidden">
                 {user.patientPicture ? (
-                  <img
-                    src={`${import.meta.env.VITE_API_URL}/${
-                      user.patientPicture
-                    }`}
-                    alt="Patient Picture"
-                  />
+                  <img src={user.patientPicture} alt={user.name} />
                 ) : (
                   <span className="text-3xl sm:text-4xl font-bold text-white tracking-wide">
                     {initials}
