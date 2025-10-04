@@ -19,7 +19,7 @@ import {
   sendApprovalEmail,
   sendRejectionEmail,
 } from "../../../../utils/emailService";
-import { useDate, useTime } from "../../../../utils/date";
+import { formatDate, useDate, useTime } from "../../../../utils/date";
 import { createNotification } from "../../../../services/notificationService";
 
 const PendingAppointmentsTableBody = ({ appointments }) => {
@@ -171,7 +171,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
             </td>
             <td className="px-4">
               <p className="font-medium text-slate-700">
-                {appointment.date.slice(1, 10)}
+                {formatDate(appointment.date)}
               </p>
               <p className="text-sm text-slate-500">09:00 AM</p>
             </td>

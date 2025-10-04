@@ -254,7 +254,6 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice, isLoading }) => {
             >
               {isLoading ? (
                 <>
-                  Creating
                   <Loader2 className="animate-spin" />
                 </>
               ) : (

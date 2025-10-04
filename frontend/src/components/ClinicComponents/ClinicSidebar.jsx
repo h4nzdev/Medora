@@ -22,7 +22,7 @@ import logo from "../../assets/medoralogo2.png";
 
 export default function ClinicSidebar() {
   const { user } = useContext(AuthContext);
-  const [openDropdown, setOpenDropdown] = useState(null);
+  const [openDropdowns, setOpenDropdowns] = useState([]);
 
   const menuItems = [
     {
@@ -122,7 +122,13 @@ export default function ClinicSidebar() {
   };
 
   const toggleDropdown = (index) => {
-    setOpenDropdown(openDropdown === index ? null : index);
+    setOpenDropdowns((prev) => {
+      if (prev.includes(index)) {
+        return prev.filter((i) => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
   };
 
   const isItemActive = (item) => {
@@ -140,7 +146,7 @@ export default function ClinicSidebar() {
   };
 
   return (
-    <div className="hidden md:block fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex flex-col">
+    <div className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex-col">
       {/* Sidebar Header - Fixed at top */}
       <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
         <img src={logo} alt="medoralogo" className="w-12 h-12" />
@@ -157,7 +163,7 @@ export default function ClinicSidebar() {
       </div>
 
       {/* Navigation Menu - Scrollable if content overflows */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto hide-scroll">
         {menuItems.map((item, index) => (
           <div key={index}>
             {item.type === "dropdown" ? (
@@ -172,14 +178,14 @@ export default function ClinicSidebar() {
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium flex-1">{item.label}</span>
-                  {openDropdown === index ? (
+                  {openDropdowns.includes(index) ? (
                     <ChevronDown className="w-4 h-4" />
                   ) : (
                     <ChevronRight className="w-4 h-4" />
                   )}
                 </button>
 
-                {openDropdown === index && (
+                {openDropdowns.includes(index) && (
                   <div className="ml-6 mt-1 space-y-1">
                     {item.items.map((subItem, subIndex) => (
                       <Link to={subItem.link} key={subIndex} className="block">
@@ -216,7 +222,7 @@ export default function ClinicSidebar() {
       </nav>
 
       {/* User Profile & Logout - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 border-t bg-white absolute bottom-0">
+      <div className="flex-shrink-0 p-4 border-t bg-white">
         <div className="flex items-center space-x-3 p-3 mb-3">
           <div className="w-10 h-10 bg-cyan-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-semibold text-sm">DC</span>
