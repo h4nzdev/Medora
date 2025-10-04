@@ -297,7 +297,7 @@ export default function ClientInvoices() {
               </div>
 
               {/* Desktop Table */}
-              <div className="hidden lg:block overflow-hidden rounded-2xl border border-white/20 bg-white/80 backdrop-blur-sm shadow-lg">
+              <div className="hidden lg:block overflow-visible rounded-2xl border border-white/20 bg-white/80 backdrop-blur-sm shadow-lg">
                 <table className="w-full text-left">
                   <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50">
                     <tr>
