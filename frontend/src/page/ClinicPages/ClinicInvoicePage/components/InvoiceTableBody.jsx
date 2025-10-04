@@ -1,13 +1,20 @@
 import React from "react";
 import InvoiceActions from "./InvoiceActions";
 import { useDate } from "../../../../utils/date";
-import { AlertCircle, CheckCircle, Clock, DollarSign } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  Receipt,
+} from "lucide-react";
 
-const InvoiceTableBody = ({ invoices }) => {
+const InvoiceTableBody = ({ invoices, onView, onEdit, onDelete, onSend }) => {
   const getStatusBadge = (status) => {
     const statusMap = {
       paid: "bg-cyan-100 text-cyan-800",
       unpaid: "bg-amber-100 text-amber-800",
+      pending: "bg-yellow-100 text-yellow-800",
       partial: "bg-blue-100 text-blue-800",
       overdue: "bg-red-100 text-red-800",
     };
@@ -18,26 +25,11 @@ const InvoiceTableBody = ({ invoices }) => {
     const iconMap = {
       paid: <CheckCircle className="w-4 h-4" />,
       unpaid: <Clock className="w-4 h-4" />,
+      pending: <Clock className="w-4 h-4" />,
       partial: <DollarSign className="w-4 h-4" />,
       overdue: <AlertCircle className="w-4 h-4" />,
     };
     return iconMap[status] || <Receipt className="w-4 h-4" />;
-  };
-
-  const handleView = (invoiceId) => {
-    console.log(`Viewing invoice ${invoiceId}`);
-  };
-
-  const handleEdit = (invoiceId) => {
-    console.log(`Editing invoice ${invoiceId}`);
-  };
-
-  const handleDelete = (invoiceId) => {
-    console.log(`Deleting invoice ${invoiceId}`);
-  };
-
-  const handleSend = (invoiceId) => {
-    console.log(`Sending reminder for invoice ${invoiceId}`);
   };
 
   return (
@@ -105,12 +97,11 @@ const InvoiceTableBody = ({ invoices }) => {
             </td>
             <td className="px-4 text-right">
               <InvoiceActions
-                invoiceId={invoice._id}
-                status={invoice.status}
-                onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onSend={handleSend}
+                invoice={invoice}
+                onView={() => onView(invoice)}
+                onEdit={() => onEdit(invoice)}
+                onDelete={() => onDelete(invoice._id)}
+                onSend={() => onSend(invoice._id)}
               />
             </td>
           </tr>
