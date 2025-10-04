@@ -25,10 +25,13 @@ import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "sonner";
 import InvoiceTableBody from "./components/InvoiceTableBody";
 import { createNotification } from "../../../services/notificationService";
+import ClinicInvoiceViewModal from "./components/ClinicInvoiceViewModal";
 
 export default function ClinicInvoices() {
   const [invoices, setInvoices] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,6 +95,11 @@ export default function ClinicInvoices() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleViewInvoice = (invoice) => {
+    setSelectedInvoice(invoice);
+    setIsViewModalOpen(true);
   };
 
   const filteredInvoices = invoices.filter((invoice) => {
@@ -279,7 +287,10 @@ export default function ClinicInvoices() {
                   </th>
                 </tr>
               </thead>
-              <InvoiceTableBody invoices={currentInvoices} />
+              <InvoiceTableBody
+                invoices={currentInvoices}
+                onView={handleViewInvoice}
+              />
             </table>
           </div>
 
@@ -357,6 +368,17 @@ export default function ClinicInvoices() {
         onAddInvoice={handleAddInvoice}
         isLoading={isLoading}
       />
+
+      {selectedInvoice && (
+        <ClinicInvoiceViewModal
+          isOpen={isViewModalOpen}
+          onClose={() => {
+            setIsViewModalOpen(false);
+            setSelectedInvoice(null);
+          }}
+          invoice={selectedInvoice}
+        />
+      )}
     </div>
   );
 }
