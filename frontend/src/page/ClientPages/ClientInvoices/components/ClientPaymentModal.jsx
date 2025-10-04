@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, CreditCard, Loader2 } from "lucide-react";
-import { updateInvoice } from "../../../services/invoiceService";
 import { toast } from "sonner";
+import { updateInvoice } from "../../../../services/invoiceService";
 
 export default function ClientPaymentModal({
   isOpen,
@@ -10,20 +10,58 @@ export default function ClientPaymentModal({
   onPaymentSuccess,
 }) {
   const [loading, setLoading] = useState(false);
+  const [paidAmount, setPaidAmount] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async () => {
+    // Validate input
+    if (!paidAmount || isNaN(paidAmount) || parseFloat(paidAmount) <= 0) {
+      setError("Please enter a valid payment amount");
+      return;
+    }
+
+    const paid = parseFloat(paidAmount);
+    const total = invoice.totalAmount || 0;
+
+    if (paid !== total) {
+      setError(`Payment amount must be exactly ₱${total.toFixed(2)}`);
+      return;
+    }
+
     setLoading(true);
+    setError("");
+
     try {
-      await updateInvoice(invoice._id, { status: "paid" });
+      await updateInvoice(invoice._id, { 
+        status: "paid",
+        paidAmount: paid
+      });
       toast.success("Payment successful!");
       onPaymentSuccess();
       onClose();
+      setPaidAmount(""); // Reset form
     } catch (error) {
       toast.error("Payment failed. Please try again.");
       console.error("Payment error:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    setPaidAmount(value);
+    
+    // Clear error when user starts typing
+    if (error) {
+      setError("");
+    }
+  };
+
+  const handleClose = () => {
+    setPaidAmount("");
+    setError("");
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -47,7 +85,7 @@ export default function ClientPaymentModal({
               </div>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-200"
             >
               <X className="w-5 h-5 text-slate-500" />
@@ -65,8 +103,29 @@ export default function ClientPaymentModal({
                 ₱{invoice.totalAmount?.toFixed(2) || "0.00"}
               </p>
             </div>
+
+            <div className="space-y-2">
+              <label htmlFor="paidAmount" className="block text-sm font-medium text-slate-700">
+                Payment Amount
+              </label>
+              <input
+                type="number"
+                id="paidAmount"
+                value={paidAmount}
+                onChange={handleAmountChange}
+                placeholder="0.00"
+                step="0.01"
+                min="0"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
+                disabled={loading}
+              />
+              {error && (
+                <p className="text-red-500 text-sm mt-1">{error}</p>
+              )}
+            </div>
+
             <p className="text-sm text-center text-slate-500">
-              You are about to pay for the services rendered.
+              Enter the exact amount to complete the payment.
             </p>
           </div>
         </div>
@@ -75,14 +134,10 @@ export default function ClientPaymentModal({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !paidAmount}
             className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md disabled:bg-cyan-400 disabled:cursor-not-allowed"
           >
-            {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              "Pay Now"
-            )}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Pay Now"}
           </button>
         </div>
       </div>
