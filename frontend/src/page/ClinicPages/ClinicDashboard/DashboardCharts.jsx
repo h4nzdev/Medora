@@ -72,6 +72,7 @@ export default function DashboardCharts() {
   const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
   const [invoices, setInvoices] = useState([]);
+  const [debugInfo, setDebugInfo] = useState(""); // For debugging
 
   const clinicAppointments = appointments?.filter(
     (appointment) => appointment.clinicId?._id === user._id
@@ -101,6 +102,28 @@ export default function DashboardCharts() {
       fetchInvoices();
     }
   }, [user]);
+
+  // DEBUG: Log appointment data to see what's available
+  useEffect(() => {
+    if (clinicAppointments && clinicAppointments.length > 0) {
+      console.log("All clinic appointments:", clinicAppointments);
+      console.log("First appointment sample:", clinicAppointments[0]);
+
+      // Check status values
+      const statuses = clinicAppointments.map((apt) => apt.status);
+      console.log("All status values:", statuses);
+
+      const uniqueStatuses = [...new Set(statuses)];
+      console.log("Unique status values:", uniqueStatuses);
+
+      // Set debug info
+      setDebugInfo(
+        `Appointments: ${
+          clinicAppointments.length
+        }, Statuses: ${uniqueStatuses.join(", ")}`
+      );
+    }
+  }, [clinicAppointments]);
 
   // Process appointment data by month
   const getAppointmentsByMonth = () => {
@@ -137,27 +160,57 @@ export default function DashboardCharts() {
     }));
   };
 
-  // Process appointment status data
+  // FIXED: Process appointment status data - more flexible status handling
   const getStatusData = () => {
     const statusCounts = {
       confirmed: 0,
       pending: 0,
       canceled: 0,
+      completed: 0, // Added common status
+      scheduled: 0, // Added common status
+      other: 0, // Catch-all for unexpected statuses
     };
 
+    console.log("Processing appointments for status chart...");
+
     clinicAppointments?.forEach((appointment) => {
-      const status = appointment.status?.toLowerCase();
-      if (status === "confirmed") statusCounts.confirmed++;
-      else if (status === "pending") statusCounts.pending++;
-      else if (status === "canceled" || status === "cancelled")
+      const status = appointment.status?.toLowerCase().trim();
+      console.log(`Appointment status: "${status}"`);
+
+      if (status === "confirmed" || status === "confirm") {
+        statusCounts.confirmed++;
+      } else if (status === "pending" || status === "pend") {
+        statusCounts.pending++;
+      } else if (
+        status === "canceled" ||
+        status === "cancelled" ||
+        status === "cancel"
+      ) {
         statusCounts.canceled++;
+      } else if (status === "completed" || status === "complete") {
+        statusCounts.completed++;
+      } else if (status === "scheduled" || status === "schedule") {
+        statusCounts.scheduled++;
+      } else {
+        statusCounts.other++;
+        console.log(`Unknown status: "${status}"`);
+      }
     });
 
-    return [
+    console.log("Final status counts:", statusCounts);
+
+    // Return only statuses that have values
+    const result = [
       { name: "Confirmed", value: statusCounts.confirmed },
       { name: "Pending", value: statusCounts.pending },
       { name: "Canceled", value: statusCounts.canceled },
-    ];
+      { name: "Completed", value: statusCounts.completed },
+      { name: "Scheduled", value: statusCounts.scheduled },
+      { name: "Other", value: statusCounts.other },
+    ].filter((item) => item.value > 0); // Only include statuses with counts > 0
+
+    console.log("Pie chart data:", result);
+    return result;
   };
 
   // Process patient growth data
@@ -223,13 +276,6 @@ export default function DashboardCharts() {
 
   return (
     <div className="w-full">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-800 mb-2">
-          Analytics Dashboard
-        </h1>
-        <p className="text-slate-600">Overview of your clinic performance</p>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatCard
           icon={Calendar}
@@ -284,30 +330,48 @@ export default function DashboardCharts() {
           <h2 className="text-xl font-semibold text-slate-800 mb-6">
             Appointment Status
           </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-                outerRadius={90}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
+
+          {/* Show message if no data */}
+          {statusData.length === 0 ? (
+            <div className="h-300 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-slate-500 mb-2">
+                  No appointment status data available
+                </p>
+                <p className="text-sm text-slate-400">
+                  {totalAppointments === 0
+                    ? "No appointments found"
+                    : "Check console for status debugging info"}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
+                  outerRadius={90}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 lg:col-span-2 hover:shadow-xl transition-shadow">

@@ -23,6 +23,7 @@ import { getStatusBadge, getStatusIcon } from "../../../utils/appointmentStats";
 import { useDate, useTime } from "../../../utils/date";
 import DashboardCharts from "./DashboardCharts";
 import { getInvoicesByClinic } from "../../../services/invoiceService";
+import { Link } from "react-router-dom";
 
 export default function ClinicDashboard() {
   const { appointments } = useContext(AppointmentContext);
@@ -319,7 +320,10 @@ export default function ClinicDashboard() {
                   </h2>
                   <div className="space-y-4">
                     {/* Add Doctor */}
-                    <button className="group w-full flex items-center space-x-4 p-6 bg-cyan-50 hover:bg-cyan-100 rounded-xl transition-all duration-300 border border-cyan-200 hover:shadow-md hover:-translate-y-0.5">
+                    <Link
+                      to="/clinic/doctors"
+                      className="group w-full flex items-center space-x-4 p-6 bg-cyan-50 hover:bg-cyan-100 rounded-xl transition-all duration-300 border border-cyan-200 hover:shadow-md hover:-translate-y-0.5"
+                    >
                       <div className="bg-cyan-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
                         <Plus className="w-6 h-6 text-white" />
                       </div>
@@ -331,10 +335,13 @@ export default function ClinicDashboard() {
                           Add new doctor to clinic
                         </p>
                       </div>
-                    </button>
+                    </Link>
 
                     {/* Manage Appointments */}
-                    <button className="group w-full flex items-center space-x-4 p-6 bg-sky-50 hover:bg-sky-100 rounded-xl transition-all duration-300 border border-sky-200 hover:shadow-md hover:-translate-y-0.5">
+                    <Link
+                      to="/clinic/appointments"
+                      className="group w-full flex items-center space-x-4 p-6 bg-sky-50 hover:bg-sky-100 rounded-xl transition-all duration-300 border border-sky-200 hover:shadow-md hover:-translate-y-0.5"
+                    >
                       <div className="bg-sky-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
                         <Eye className="w-6 h-6 text-white" />
                       </div>
@@ -346,10 +353,13 @@ export default function ClinicDashboard() {
                           View and manage bookings
                         </p>
                       </div>
-                    </button>
+                    </Link>
 
                     {/* View Patient Chats */}
-                    <button className="group w-full flex items-center space-x-4 p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 border border-blue-200 hover:shadow-md hover:-translate-y-0.5">
+                    <Link
+                      to="/clinic/patients-chats"
+                      className="group w-full flex items-center space-x-4 p-6 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 border border-blue-200 hover:shadow-md hover:-translate-y-0.5"
+                    >
                       <div className="bg-blue-500 p-3 rounded-xl shadow-md group-hover:shadow-lg transition-shadow duration-300">
                         <MessageSquare className="w-6 h-6 text-white" />
                       </div>
@@ -359,7 +369,7 @@ export default function ClinicDashboard() {
                         </h3>
                         <p className="text-slate-600">AI chat history access</p>
                       </div>
-                    </button>
+                    </Link>
                   </div>
                 </div>
 
