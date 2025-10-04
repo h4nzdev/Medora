@@ -1,14 +1,14 @@
-import { ChevronDown, Download, Eye, MoreHorizontal, Send, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  Download,
+  Eye,
+  MoreHorizontal,
+  Send,
+  Trash2,
+} from "lucide-react";
 import React, { useState } from "react";
 
-const InvoiceActions = ({
-  invoiceId,
-  status,
-  onView,
-  onEdit,
-  onDelete,
-  onSend,
-}) => {
+const InvoiceActions = ({ invoiceId, status, onView, onDelete, onSend }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   return (

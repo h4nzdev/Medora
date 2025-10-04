@@ -20,12 +20,14 @@ import AddInvoiceModal from "../../../components/ClinicComponents/AddInvoiceModa
 import {
   getInvoicesByClinic,
   createInvoice,
+  deleteInvoice,
 } from "../../../services/invoiceService";
 import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "sonner";
 import InvoiceTableBody from "./components/InvoiceTableBody";
 import { createNotification } from "../../../services/notificationService";
 import ClinicInvoiceViewModal from "./components/ClinicInvoiceViewModal";
+import Swal from "sweetalert2";
 
 export default function ClinicInvoices() {
   const [invoices, setInvoices] = useState([]);
@@ -94,6 +96,39 @@ export default function ClinicInvoices() {
       console.error("Error creating invoice:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId, invoiceNumber) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `You are about to delete invoice ${invoiceNumber}. This action cannot be undone!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      background: "#ffffff",
+      color: "#1e293b",
+      customClass: {
+        title: "text-slate-800 text-xl font-semibold",
+        htmlContainer: "text-slate-600",
+        confirmButton: "px-4 py-2 rounded-lg font-medium",
+        cancelButton: "px-4 py-2 rounded-lg font-medium",
+      },
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteInvoice(invoiceId);
+        // Refresh the invoices list
+        fetchInvoices();
+        toast.success("Invoice deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting invoice:", error);
+        toast.error("Failed to delete invoice.");
+      }
     }
   };
 
@@ -290,6 +325,7 @@ export default function ClinicInvoices() {
               <InvoiceTableBody
                 invoices={currentInvoices}
                 onView={handleViewInvoice}
+                onDelete={handleDeleteInvoice}
               />
             </table>
           </div>

@@ -99,8 +99,8 @@ const ClientLogin = () => {
     } catch (error) {
       if (error.response?.data?.message) {
         setError(error.response.data.message);
-        toast.warn(error.response.data.message, {
-          toastId: "login-error",
+        toast.warning(error.response.data.message, {
+          id: "login-error"
         });
       } else {
         setError("Login failed. Please check your connection and try again.");
