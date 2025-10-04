@@ -6,20 +6,21 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  MoreHorizontal,
-  FileText,
 } from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
 import { getInvoicesByPatient } from "../../../services/invoiceService";
 import socket from "../../../services/socket.js";
-import { formatDate, useDate, useTime } from "../../../utils/date";
+import { formatDate } from "../../../utils/date";
 import ClientInvoiceActions from "./components/ClientInvoiceActions.jsx";
+import ClientPaymentModal from "./components/ClientPaymentModal.jsx";
 
 export default function ClientInvoices() {
   const [invoices, setInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useContext(AuthContext);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   const fetchInvoices = async () => {
     if (user?._id) {
@@ -50,8 +51,12 @@ export default function ClientInvoices() {
   };
 
   const handlePay = (invoice) => {
-    console.log("Paying invoice:", invoice);
-    // Implement payment logic, e.g., redirect to a payment page
+    setSelectedInvoice(invoice);
+    setIsPaymentModalOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    fetchInvoices();
   };
 
   const filteredInvoices = invoices.filter((invoice) => {
@@ -65,10 +70,17 @@ export default function ClientInvoices() {
   });
 
   // Calculate stats
-  const totalAmount = invoices.reduce((sum, invoice) => sum + (invoice.totalAmount || 0), 0);
-  const paidInvoices = invoices.filter(invoice => invoice.status === 'paid');
-  const unpaidInvoices = invoices.filter(invoice => invoice.status === 'unpaid');
-  const overdueInvoices = invoices.filter(invoice => invoice.status === 'overdue');
+  const totalAmount = invoices.reduce(
+    (sum, invoice) => sum + (invoice.totalAmount || 0),
+    0
+  );
+  const paidInvoices = invoices.filter((invoice) => invoice.status === "paid");
+  const unpaidInvoices = invoices.filter(
+    (invoice) => invoice.status === "unpaid"
+  );
+  const overdueInvoices = invoices.filter(
+    (invoice) => invoice.status === "overdue"
+  );
 
   const getStatusBadge = (status) => {
     const statusMap = {
@@ -242,7 +254,8 @@ export default function ClientInvoices() {
                             )}`}
                           >
                             {getStatusIcon(invoice.status)}
-                            {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                            {invoice.status.charAt(0).toUpperCase() +
+                              invoice.status.slice(1)}
                           </span>
                         </div>
                       </div>
@@ -276,7 +289,11 @@ export default function ClientInvoices() {
                               Created: {formatDate(invoice.createdAt)}
                             </p>
                           </div>
-                          <ClientInvoiceActions invoice={invoice} onView={handleView} onPay={handlePay} />
+                          <ClientInvoiceActions
+                            invoice={invoice}
+                            onView={handleView}
+                            onPay={handlePay}
+                          />
                         </div>
                       </div>
                     </div>
@@ -369,7 +386,8 @@ export default function ClientInvoices() {
                               )}`}
                             >
                               {getStatusIcon(invoice.status)}
-                              {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                              {invoice.status.charAt(0).toUpperCase() +
+                                invoice.status.slice(1)}
                             </span>
                           </td>
                           <td className="px-6">
@@ -378,7 +396,11 @@ export default function ClientInvoices() {
                             </span>
                           </td>
                           <td className="px-6 text-right">
-                           <ClientInvoiceActions invoice={invoice} onView={handleView} onPay={handlePay} />
+                            <ClientInvoiceActions
+                              invoice={invoice}
+                              onView={handleView}
+                              onPay={handlePay}
+                            />
                           </td>
                         </tr>
                       ))
@@ -404,6 +426,14 @@ export default function ClientInvoices() {
           )}
         </section>
       </div>
+      {selectedInvoice && (
+        <ClientPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          invoice={selectedInvoice}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }
