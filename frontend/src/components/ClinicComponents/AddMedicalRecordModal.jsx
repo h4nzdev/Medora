@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
   X,
@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createNotification } from "../../services/notificationService";
+import { AppointmentContext } from "../../context/AppointmentContext";
 
 const AddMedicalRecordModal = ({
   isOpen,
@@ -25,6 +26,7 @@ const AddMedicalRecordModal = ({
   const [treatment, setTreatment] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { fetchAppointments } = useContext(AppointmentContext);
   const [prescriptions, setPrescriptions] = useState([
     { medicine: "", dosage: "", duration: "" },
   ]);
@@ -84,6 +86,7 @@ const AddMedicalRecordModal = ({
       }
 
       toast.success("Medical records was added successfully");
+      fetchAppointments();
       onClose(); // Close modal on success
     } catch (error) {
       console.error("Error adding medical record:", error);
