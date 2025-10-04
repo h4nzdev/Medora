@@ -13,6 +13,7 @@ import socket from "../../../services/socket.js";
 import { formatDate } from "../../../utils/date";
 import ClientInvoiceActions from "./components/ClientInvoiceActions.jsx";
 import ClientPaymentModal from "./components/ClientPaymentModal.jsx";
+import ClientInvoiceViewModal from "./components/ClientInvoiceViewModal.jsx";
 
 export default function ClientInvoices() {
   const [invoices, setInvoices] = useState([]);
@@ -20,6 +21,7 @@ export default function ClientInvoices() {
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useContext(AuthContext);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
   const fetchInvoices = async () => {
@@ -46,8 +48,8 @@ export default function ClientInvoices() {
   }, [user]);
 
   const handleView = (invoice) => {
-    console.log("Viewing invoice:", invoice);
-    // Implement view logic, e.g., open a modal with invoice details
+    setSelectedInvoice(invoice);
+    setIsViewModalOpen(true);
   };
 
   const handlePay = (invoice) => {
@@ -432,6 +434,13 @@ export default function ClientInvoices() {
           onClose={() => setIsPaymentModalOpen(false)}
           invoice={selectedInvoice}
           onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
+      {selectedInvoice && (
+        <ClientInvoiceViewModal
+          isOpen={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          invoice={selectedInvoice}
         />
       )}
     </div>
