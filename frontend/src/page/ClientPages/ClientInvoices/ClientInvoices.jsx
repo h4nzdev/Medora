@@ -13,6 +13,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { getInvoicesByPatient } from "../../../services/invoiceService";
 import socket from "../../../services/socket.js";
 import { formatDate, useDate, useTime } from "../../../utils/date";
+import ClientInvoiceActions from "./components/ClientInvoiceActions.jsx";
 
 export default function ClientInvoices() {
   const [invoices, setInvoices] = useState([]);
@@ -42,6 +43,16 @@ export default function ClientInvoices() {
       socket.off("invoice_updated", fetchInvoices);
     };
   }, [user]);
+
+  const handleView = (invoice) => {
+    console.log("Viewing invoice:", invoice);
+    // Implement view logic, e.g., open a modal with invoice details
+  };
+
+  const handlePay = (invoice) => {
+    console.log("Paying invoice:", invoice);
+    // Implement payment logic, e.g., redirect to a payment page
+  };
 
   const filteredInvoices = invoices.filter((invoice) => {
     const searchTermLower = searchTerm.toLowerCase();
@@ -265,13 +276,7 @@ export default function ClientInvoices() {
                               Created: {formatDate(invoice.createdAt)}
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            className="p-3 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-700 transition-all duration-300 hover:scale-110"
-                            aria-label="More options"
-                          >
-                            <MoreHorizontal className="h-5 w-5" />
-                          </button>
+                          <ClientInvoiceActions invoice={invoice} onView={handleView} onPay={handlePay} />
                         </div>
                       </div>
                     </div>
@@ -373,13 +378,7 @@ export default function ClientInvoices() {
                             </span>
                           </td>
                           <td className="px-6 text-right">
-                            <button
-                              type="button"
-                              className="p-3 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-700 transition-all duration-300 hover:scale-110"
-                              aria-label="More options"
-                            >
-                              <MoreHorizontal className="h-6 w-6" />
-                            </button>
+                           <ClientInvoiceActions invoice={invoice} onView={handleView} onPay={handlePay} />
                           </td>
                         </tr>
                       ))
