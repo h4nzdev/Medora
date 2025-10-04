@@ -35,10 +35,14 @@ const DoctorProfile = () => {
   const [invoices, setInvoices] = useState([]);
 
   const doctor = doctors?.find((doc) => doc._id === id);
-  const totalAmount = invoices.reduce(
-    (sum, invoice) => sum + (invoice.totalAmount || 0),
+  const hasUnpaid = invoices.some((invoice) => invoice.status === "unpaid");
+  const balances = invoices.filter((invoice) => invoice.status === "unpaid");
+  const totalAmount = balances.reduce(
+    (sum, balance) => sum + (balance.totalAmount || 0),
     0
   );
+
+  console.log(balances);
 
   const fetchReviews = async () => {
     if (doctor) {
@@ -69,9 +73,12 @@ const DoctorProfile = () => {
   };
 
   const handleBook = () => {
-    if (totalAmount !== 0)
+    if (hasUnpaid)
       return toast.warning(
-        `You still have an unpaid balance of ₱${totalAmount}. Please settle it before booking a new appointment.`
+        `You still have an unpaid balance of ₱${totalAmount}. Please settle it before booking a new appointment.`,
+        {
+          id: "unpaid-notif",
+        }
       );
 
     return setIsAppointmentModalOpen(true);
@@ -97,8 +104,6 @@ const DoctorProfile = () => {
   useEffect(() => {
     fetchInvoices();
   }, []);
-
-  console.log(totalAmount);
 
   if (!doctor) {
     return (
@@ -495,7 +500,7 @@ const DoctorProfile = () => {
               <button
                 onClick={handleBook}
                 className={`group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
-                  totalAmount !== 0
+                  hasUnpaid
                     ? "bg-gray-800/50 cursor-not-allowed"
                     : "bg-gradient-to-r from-cyan-500 to-sky-500 cursor-pointer"
                 } font-semibold text-base md:text-lg mx-auto`}

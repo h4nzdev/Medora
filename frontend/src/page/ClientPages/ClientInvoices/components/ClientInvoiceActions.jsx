@@ -14,7 +14,7 @@ const ClientInvoiceActions = ({ invoice, onView, onPay }) => {
       </button>
 
       {isDropdownOpen && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20">
+        <div className="absolute right-0 md:top-full bottom-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20">
           <button
             onClick={() => {
               onView(invoice);

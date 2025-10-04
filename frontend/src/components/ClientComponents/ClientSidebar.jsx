@@ -28,6 +28,8 @@ export default function ClientSidebar() {
   const menuItems = [
     { icon: LayoutDashboard, label: "Dashboard", link: "/client/dashboard" },
     { icon: Clock, label: "Timeline", link: "/client/timeline" },
+    { icon: MessageSquare, label: "AI Chat", link: "/client/chats" },
+    { icon: Bell, label: "Notifications", link: "/client/notifications" },
     {
       icon: Calendar,
       label: "Appointments",
@@ -37,7 +39,6 @@ export default function ClientSidebar() {
         { label: "Find Doctors", link: "/client/doctors" },
       ],
     },
-    { icon: MessageSquare, label: "AI Chat", link: "/client/chats" },
     {
       icon: FileText,
       label: "Health Records",
@@ -57,7 +58,6 @@ export default function ClientSidebar() {
         { label: "Settings", link: "/client/settings" },
       ],
     },
-    { icon: Bell, label: "Notifications", link: "/client/notifications" },
   ];
 
   const path = useLocation();

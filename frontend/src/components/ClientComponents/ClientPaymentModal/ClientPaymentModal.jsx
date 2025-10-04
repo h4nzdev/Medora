@@ -398,9 +398,14 @@ export default function ClientPaymentModal({
                   </button>
                   <button
                     type="submit"
+                    disabled={loading}
                     className="flex-1 px-6 py-3 bg-cyan-600 text-white rounded-xl hover:bg-cyan-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
                   >
-                    Complete Payment
+                    {loading ? (
+                      <Loader2 className="animate-spin" />
+                    ) : (
+                      "Complete Payment"
+                    )}
                   </button>
                 </div>
               </form>

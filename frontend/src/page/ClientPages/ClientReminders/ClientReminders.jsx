@@ -137,8 +137,7 @@ const ClientReminders = () => {
                 All Reminders
               </h2>
               <p className="text-slate-600 mt-2 text-lg">
-                {reminders.length} reminder{reminders.length !== 1 ? "s" : ""}{" "}
-                found
+                {reminders.length} reminder{reminders.length !== 1 ? "s" : ""} found
               </p>
             </div>
 
@@ -159,7 +158,7 @@ const ClientReminders = () => {
                 {reminders.map((r, index) => (
                   <div
                     key={r.id}
-                    className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden"
+                    className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex justify-between items-start mb-4">
@@ -203,9 +202,7 @@ const ClientReminders = () => {
                         <p className="text-cyan-700 font-bold text-xl">
                           {r.time}
                         </p>
-                        <p className="text-cyan-600 text-sm font-medium">
-                          Reminder Time
-                        </p>
+                        <p className="text-cyan-600 text-sm font-medium">Reminder Time</p>
                       </div>
                     </div>
 
