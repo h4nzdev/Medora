@@ -1,7 +1,7 @@
+import React from "react";
+
 const MobileClinicView = () => {
-  return (
-    <>
-      <h1>Hello</h1>
-    </>
-  )
-}
+  return <div></div>;
+};
+
+export default MobileClinicView;
