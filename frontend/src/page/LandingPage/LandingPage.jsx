@@ -849,7 +849,7 @@ const LandingPage = () => {
                 Heart Kho
               </h4>
               <p className="text-cyan-600 font-semibold">
-                Cheif Executive Officer
+                Chief Executive Officer
               </p>
             </div>
 
