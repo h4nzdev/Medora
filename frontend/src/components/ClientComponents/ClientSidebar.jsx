@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import logo from "../../assets/medoralogo2.png";
 
 export default function ClientSidebar() {
-  const { user, initials } = useContext(AuthContext);
+  const { user, initials, logout } = useContext(AuthContext);
   const [openDropdowns, setOpenDropdowns] = useState({});
 
   const menuItems = [
@@ -62,7 +62,6 @@ export default function ClientSidebar() {
 
   const path = useLocation();
   const navigate = useNavigate();
-  const { setUser, setRole } = useContext(AuthContext);
 
   const handleLogout = () => {
     Swal.fire({
@@ -74,11 +73,8 @@ export default function ClientSidebar() {
       confirmButtonText: "Yes, logout",
     }).then((result) => {
       if (result.isConfirmed) {
-        sessionStorage.removeItem("user");
-        sessionStorage.removeItem("role");
-        setUser(false);
-        setRole("Client");
-        navigate("/auth/login");
+        logout();
+        navigate("/client/login");
         toast.success("Logged out successfully!");
       }
     });

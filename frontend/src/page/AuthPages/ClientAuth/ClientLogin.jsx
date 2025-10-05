@@ -19,13 +19,14 @@ import clinic from "../../../assets/clinic.jpg";
 import { toast } from "sonner";
 
 const ClientLogin = () => {
-  const { setRole, setUser } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [warningShown, setWarningShown] = useState(false);
   const [error, setError] = useState();
   const [clinics, setClinics] = useState([]);
   const [selectedClinic, setSelectedClinic] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -85,8 +86,7 @@ const ClientLogin = () => {
       });
 
       if (res.data.patient) {
-        setRole(res.data.patient.role);
-        setUser(res.data.patient);
+        login(res.data.patient, res.data.patient.role, rememberMe);
         console.log("Login successful for patient:", res.data.patient.email);
 
         navigate(`/client/dashboard?clinicId=${selectedClinic._id}`);
@@ -100,7 +100,7 @@ const ClientLogin = () => {
       if (error.response?.data?.message) {
         setError(error.response.data.message);
         toast.warning(error.response.data.message, {
-          id: "login-error"
+          id: "login-error",
         });
       } else {
         setError("Login failed. Please check your connection and try again.");
@@ -337,6 +337,8 @@ const ClientLogin = () => {
               <label className="flex items-center group cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500/20 focus:ring-2"
                 />
                 <span className="ml-3 text-sm text-slate-600 group-hover:text-slate-800 transition-colors">

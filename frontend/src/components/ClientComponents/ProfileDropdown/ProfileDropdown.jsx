@@ -7,7 +7,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const ProfileDropdown = () => {
-  const { setUser, setRole, user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -22,11 +22,8 @@ const ProfileDropdown = () => {
       confirmButtonText: "Yes, logout",
     }).then((result) => {
       if (result.isConfirmed) {
-        sessionStorage.removeItem("user");
-        sessionStorage.removeItem("role");
-        setUser(false);
-        setRole("Client");
-        navigate("/auth/login");
+        logout();
+        navigate("/client/login");
       }
     });
   };
