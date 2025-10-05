@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   Loader2,
   UploadCloud,
+  X,
 } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
@@ -31,6 +32,14 @@ export default function ClinicRegister() {
     subscriptionPlan: "free", // default to free plan
     agreeToTerms: false,
   });
+
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    firstLetterUppercase: false,
+    number: false,
+    specialChar: false,
+  });
+  const [showPasswordValidation, setShowPasswordValidation] = useState(false);
   const [clinicPicture, setClinicPicture] = useState(null);
   const [picturePreview, setPicturePreview] = useState(null);
 
@@ -39,8 +48,28 @@ export default function ClinicRegister() {
   const [isVerificationStep, setIsVerificationStep] = useState(false);
   const [verificationInput, setVerificationInput] = useState("");
 
+  const validatePassword = (password) => {
+    setPasswordValidation({
+      length: password.length >= 6,
+      firstLetterUppercase: /^[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
+      specialChar: /[!@#$%^&*]/.test(password),
+    });
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "password") {
+      validatePassword(value);
+      // Show validation when user starts typing
+      if (value.length > 0) {
+        setShowPasswordValidation(true);
+      } else {
+        setShowPasswordValidation(false);
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -81,11 +110,19 @@ export default function ClinicRegister() {
     toast.success("Payment details saved successfully!");
   };
 
+  const allPasswordRequirementsMet =
+    Object.values(passwordValidation).every(Boolean);
+
   const handleProceedToVerification = async (e) => {
     e.preventDefault();
     if (isLoading) return;
 
     // Client-side validation
+    if (!allPasswordRequirementsMet) {
+      toast.error("Password does not meet the requirements.");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
       return;
@@ -169,6 +206,17 @@ export default function ClinicRegister() {
       setIsLoading(false);
     }
   };
+
+  const ValidationItem = ({ isValid, text }) => (
+    <div
+      className={`flex items-center space-x-2 transition-colors duration-200 ${
+        isValid ? "text-green-600" : "text-red-500"
+      }`}
+    >
+      {isValid ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+      <span className="text-sm">{text}</span>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -443,7 +491,7 @@ export default function ClinicRegister() {
 
               {/* Password & Confirm Password */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-semibold text-slate-700">
                     Password
                   </label>
@@ -455,6 +503,30 @@ export default function ClinicRegister() {
                     placeholder="••••••••"
                     className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
                   />
+
+                  {/* Password Validation Popup */}
+                  {showPasswordValidation && (
+                    <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-white border border-slate-200 rounded-xl shadow-lg z-10">
+                      <div className="space-y-2">
+                        <ValidationItem
+                          isValid={passwordValidation.firstLetterUppercase}
+                          text="First letter must be uppercase"
+                        />
+                        <ValidationItem
+                          isValid={passwordValidation.length}
+                          text="At least 6 characters"
+                        />
+                        <ValidationItem
+                          isValid={passwordValidation.number}
+                          text="Must contain a number"
+                        />
+                        <ValidationItem
+                          isValid={passwordValidation.specialChar}
+                          text="Must contain a special character (!@#$%^&*)"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-slate-700">
@@ -647,12 +719,14 @@ export default function ClinicRegister() {
                 disabled={
                   isLoading ||
                   !formData.agreeToTerms ||
+                  !allPasswordRequirementsMet ||
                   formData.password !== formData.confirmPassword ||
                   (formData.subscriptionPlan !== "free" && !isPaymentSetup)
                 }
                 className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
                   isLoading ||
                   !formData.agreeToTerms ||
+                  !allPasswordRequirementsMet ||
                   formData.password !== formData.confirmPassword ||
                   (formData.subscriptionPlan !== "free" && !isPaymentSetup)
                     ? "opacity-50 cursor-not-allowed"

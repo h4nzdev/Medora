@@ -49,14 +49,9 @@ const ProfileDropdown = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-full w-10 h-10 bg-slate-200 flex items-center justify-center hover:bg-slate-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
-      >
-        <img
-          src={user?.patientPicture}
-          alt={user?.name}
-          className="rounded-full max-w-10 max-h-10"
-        />
-      </button>
+        className="rounded-full w-10 h-10 bg-cover bg-center flex items-center justify-center hover:bg-slate-300 transition-colors duration-200 outline-none ring-2 ring-offset-2 ring-cyan-500"
+        style={{ backgroundImage: `url(${user?.patientPicture})` }}
+      ></button>
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100/80 py-2 z-50 animate-in fade-in-20 zoom-in-95 duration-200 md:hidden">

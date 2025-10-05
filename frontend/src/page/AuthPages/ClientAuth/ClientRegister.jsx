@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Shield, Star } from "lucide-react";
+import { ArrowLeft, Shield, Star, Check, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import clinic from "../../../assets/clinic.jpg";
@@ -27,6 +27,7 @@ export default function ClientRegister() {
     number: false,
     specialChar: false,
   });
+  const [showPasswordValidation, setShowPasswordValidation] = useState(false);
   const [patientPicture, setPatientPicture] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isVerificationStep, setIsVerificationStep] = useState(false);
@@ -61,6 +62,12 @@ export default function ClientRegister() {
 
     if (name === "password") {
       validatePassword(value);
+      // Show validation when user starts typing
+      if (value.length > 0) {
+        setShowPasswordValidation(true);
+      } else {
+        setShowPasswordValidation(false);
+      }
     }
 
     if (name.startsWith("emergencyContact.")) {
@@ -92,7 +99,8 @@ export default function ClientRegister() {
     }
   };
 
-  const allPasswordRequirementsMet = Object.values(passwordValidation).every(Boolean);
+  const allPasswordRequirementsMet =
+    Object.values(passwordValidation).every(Boolean);
 
   const handleProceedToVerification = async (e) => {
     e.preventDefault();
@@ -182,6 +190,17 @@ export default function ClientRegister() {
       setIsLoading(false);
     }
   };
+
+  const ValidationItem = ({ isValid, text }) => (
+    <div
+      className={`flex items-center space-x-2 transition-colors duration-200 ${
+        isValid ? "text-green-600" : "text-red-500"
+      }`}
+    >
+      {isValid ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+      <span className="text-sm">{text}</span>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex bg-slate-50">
@@ -507,7 +526,7 @@ export default function ClientRegister() {
                 <hr className="border-slate-200" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
+                  <div className="relative">
                     <label className="block text-sm font-medium text-slate-700 mb-2">
                       Password
                     </label>
@@ -520,38 +539,30 @@ export default function ClientRegister() {
                       placeholder="••••••••"
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
                     />
-                    <div className="text-sm text-slate-500 mt-2">
-                      <p
-                        className={
-                          passwordValidation.length ? "text-green-500" : ""
-                        }
-                      >
-                        At least 6 characters
-                      </p>
-                      <p
-                        className={
-                          passwordValidation.firstLetterUppercase
-                            ? "text-green-500"
-                            : ""
-                        }
-                      >
-                        First letter uppercase
-                      </p>
-                      <p
-                        className={
-                          passwordValidation.number ? "text-green-500" : ""
-                        }
-                      >
-                        Must contain a number
-                      </p>
-                      <p
-                        className={
-                          passwordValidation.specialChar ? "text-green-500" : ""
-                        }
-                      >
-                        1 special character
-                      </p>
-                    </div>
+
+                    {/* Password Validation Popup */}
+                    {showPasswordValidation && (
+                      <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-white border border-slate-200 rounded-xl shadow-lg z-10">
+                        <div className="space-y-2">
+                          <ValidationItem
+                            isValid={passwordValidation.firstLetterUppercase}
+                            text="First letter must be uppercase"
+                          />
+                          <ValidationItem
+                            isValid={passwordValidation.length}
+                            text="At least 6 characters"
+                          />
+                          <ValidationItem
+                            isValid={passwordValidation.number}
+                            text="Must contain a number"
+                          />
+                          <ValidationItem
+                            isValid={passwordValidation.specialChar}
+                            text="Must contain a special character (!@#$%^&*)"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
