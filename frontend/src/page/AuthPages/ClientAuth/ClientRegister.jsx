@@ -21,6 +21,12 @@ export default function ClientRegister() {
     emergencyContact: { name: "", email: "", phone: "" },
   });
 
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    firstLetterUppercase: false,
+    number: false,
+    specialChar: false,
+  });
   const [patientPicture, setPatientPicture] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [isVerificationStep, setIsVerificationStep] = useState(false);
@@ -41,8 +47,21 @@ export default function ClientRegister() {
     fetchClinics();
   }, []);
 
+  const validatePassword = (password) => {
+    setPasswordValidation({
+      length: password.length >= 6,
+      firstLetterUppercase: /^[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
+      specialChar: /[!@#$%^&*]/.test(password),
+    });
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "password") {
+      validatePassword(value);
+    }
 
     if (name.startsWith("emergencyContact.")) {
       const field = name.split(".")[1];
@@ -73,9 +92,16 @@ export default function ClientRegister() {
     }
   };
 
+  const allPasswordRequirementsMet = Object.values(passwordValidation).every(Boolean);
+
   const handleProceedToVerification = async (e) => {
     e.preventDefault();
     if (isLoading) return;
+
+    if (!allPasswordRequirementsMet) {
+      toast.error("Password does not meet the requirements.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error("Passwords do not match");
@@ -245,7 +271,7 @@ export default function ClientRegister() {
             </h2>
             <p className="text-slate-600 text-lg">
               {isVerificationStep
-                ? `We've sent a 6-digit code to ${formData.email}. Please enter it below.`
+                ? `We\'ve sent a 6-digit code to ${formData.email}. Please enter it below.`
                 : "Register to get started"}
             </p>
           </div>
@@ -494,6 +520,38 @@ export default function ClientRegister() {
                       placeholder="••••••••"
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
                     />
+                    <div className="text-sm text-slate-500 mt-2">
+                      <p
+                        className={
+                          passwordValidation.length ? "text-green-500" : ""
+                        }
+                      >
+                        At least 6 characters
+                      </p>
+                      <p
+                        className={
+                          passwordValidation.firstLetterUppercase
+                            ? "text-green-500"
+                            : ""
+                        }
+                      >
+                        First letter uppercase
+                      </p>
+                      <p
+                        className={
+                          passwordValidation.number ? "text-green-500" : ""
+                        }
+                      >
+                        Must contain a number
+                      </p>
+                      <p
+                        className={
+                          passwordValidation.specialChar ? "text-green-500" : ""
+                        }
+                      >
+                        1 special character
+                      </p>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -534,9 +592,9 @@ export default function ClientRegister() {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || !allPasswordRequirementsMet}
                   className={`w-full bg-gradient-to-r from-cyan-600 to-cyan-500 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 ${
-                    isLoading
+                    isLoading || !allPasswordRequirementsMet
                       ? "opacity-50 cursor-not-allowed"
                       : "hover:from-cyan-700 hover:to-cyan-600 hover:scale-[1.02] active:scale-[0.98]"
                   }`}
