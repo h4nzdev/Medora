@@ -90,6 +90,12 @@ const LandingPage = () => {
                 Features
               </button>
               <button
+                onClick={() => scrollToSection("how-it-works")}
+                className="text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
+              >
+                How It Works
+              </button>
+              <button
                 onClick={() => scrollToSection("clinics")}
                 className="text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
               >
@@ -106,6 +112,12 @@ const LandingPage = () => {
                 className="text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
               >
                 Contact
+              </button>
+              <button
+                onClick={() => scrollToSection("faq")}
+                className="text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
+              >
+                FAQ
               </button>
               <a
                 href="/client/login"
@@ -145,6 +157,12 @@ const LandingPage = () => {
                   Features
                 </button>
                 <button
+                  onClick={() => scrollToSection("how-it-works")}
+                  className="text-left text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
+                >
+                  How It Works
+                </button>
+                <button
                   onClick={() => scrollToSection("clinics")}
                   className="text-left text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
                 >
@@ -161,6 +179,12 @@ const LandingPage = () => {
                   className="text-left text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
                 >
                   Contact
+                </button>
+                <button
+                  onClick={() => scrollToSection("faq")}
+                  className="text-left text-slate-600 hover:text-cyan-600 font-medium transition-colors duration-200"
+                >
+                  FAQ
                 </button>
                 <a
                   href="/client/login"
@@ -360,6 +384,171 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section className="py-24 bg-white" id="how-it-works">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+              How It Works
+            </h3>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Get started with Medora in three simple steps
+            </p>
+          </div>
+
+          <div className=" mx-auto">
+            {/* Step 1 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
+              <div className="order-2 md:order-1">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl text-white text-2xl font-bold mb-6 shadow-lg">
+                  1
+                </div>
+                <h4 className="text-3xl font-bold text-slate-800 mb-4">
+                  Create Your Account
+                </h4>
+                <p className="text-lg text-slate-600 leading-relaxed mb-6">
+                  Sign up in less than 2 minutes. Simply provide your basic
+                  information, and you're ready to go. No complicated forms or
+                  lengthy verification processes.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Quick registration process</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Secure account setup</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Instant access to features</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="order-1 md:order-2">
+                <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-3xl p-8 shadow-xl border border-cyan-200 h-80 flex items-center justify-center relative overflow-hidden">
+                  <div className="text-center">
+                    <div className="w-32 h-32 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-16 h-16 text-cyan-600" />
+                    </div>
+                    <p className="text-cyan-700 font-semibold">
+                      User Registration
+                    </p>
+                  </div>
+                  {/* Decorative elements */}
+                  <div className="absolute top-4 right-4 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></div>
+                  <div className="absolute bottom-8 left-8 w-4 h-4 bg-cyan-300 rounded-full animate-pulse delay-300"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
+              <div>
+                <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-3xl p-8 shadow-xl border border-cyan-200 h-80 flex items-center justify-center relative overflow-hidden">
+                  <div className="text-center">
+                    <div className="w-32 h-32 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4">
+                      <BarChart3 className="w-16 h-16 text-cyan-600" />
+                    </div>
+                    <p className="text-cyan-700 font-semibold">
+                      AI Health Check
+                    </p>
+                  </div>
+                  {/* Decorative elements */}
+                  <div className="absolute top-8 left-4 w-3 h-3 bg-cyan-400 rounded-full animate-pulse delay-150"></div>
+                  <div className="absolute bottom-4 right-4 w-4 h-4 bg-cyan-300 rounded-full animate-pulse delay-500"></div>
+                </div>
+              </div>
+              <div>
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl text-white text-2xl font-bold mb-6 shadow-lg">
+                  2
+                </div>
+                <h4 className="text-3xl font-bold text-slate-800 mb-4">
+                  Check Your Symptoms
+                </h4>
+                <p className="text-lg text-slate-600 leading-relaxed mb-6">
+                  Use our AI-powered symptom checker to get instant preliminary
+                  insights about your health. Our intelligent system asks the
+                  right questions to understand your condition better.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Describe symptoms in plain language</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Get AI-powered health insights</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Receive care recommendations</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="order-2 md:order-1">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl text-white text-2xl font-bold mb-6 shadow-lg">
+                  3
+                </div>
+                <h4 className="text-3xl font-bold text-slate-800 mb-4">
+                  Book Your Appointment
+                </h4>
+                <p className="text-lg text-slate-600 leading-relaxed mb-6">
+                  Browse our network of trusted clinics and healthcare
+                  providers. Book appointments instantly with just a few clicks
+                  and manage everything from your dashboard.
+                </p>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Choose from verified clinics</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Select convenient time slots</span>
+                  </li>
+                  <li className="flex items-center gap-3 text-slate-700">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span>Receive instant confirmation</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="order-1 md:order-2">
+                <div className="bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-3xl p-8 shadow-xl border border-cyan-200 h-80 flex items-center justify-center relative overflow-hidden">
+                  <div className="text-center">
+                    <div className="w-32 h-32 bg-white rounded-2xl shadow-lg flex items-center justify-center mx-auto mb-4">
+                      <Calendar className="w-16 h-16 text-cyan-600" />
+                    </div>
+                    <p className="text-cyan-700 font-semibold">
+                      Book Appointment
+                    </p>
+                  </div>
+                  {/* Decorative elements */}
+                  <div className="absolute top-6 right-6 w-3 h-3 bg-cyan-400 rounded-full animate-pulse delay-700"></div>
+                  <div className="absolute bottom-6 left-6 w-4 h-4 bg-cyan-300 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-16">
+              <a
+                href="/client/register"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white font-bold text-lg px-10 py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+              >
+                Start Your Health Journey
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Featured Clinics Section */}
       <section
         id="clinics"
@@ -505,6 +694,113 @@ const LandingPage = () => {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-24 bg-white">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-16">
+            <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
+              Frequently Asked Questions
+            </h3>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+              Everything you need to know about Medora and how it works
+            </p>
+          </div>
+
+          <div className="mx-auto space-y-4">
+            {/* FAQ Item 1 */}
+            <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
+              <summary className="flex justify-between items-center cursor-pointer list-none">
+                <h4 className="text-lg font-semibold text-slate-800">
+                  How does the AI Symptom Checker work?
+                </h4>
+                <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
+                  +
+                </span>
+              </summary>
+              <p className="mt-4 text-slate-600 leading-relaxed">
+                Our AI Symptom Checker uses advanced machine learning algorithms
+                to analyze your symptoms and provide preliminary health
+                insights. Simply describe your symptoms, and our AI will ask
+                relevant follow-up questions to better understand your condition
+                before providing recommendations.
+              </p>
+            </details>
+
+            {/* FAQ Item 2 */}
+            <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
+              <summary className="flex justify-between items-center cursor-pointer list-none">
+                <h4 className="text-lg font-semibold text-slate-800">
+                  Is my medical data secure?
+                </h4>
+                <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
+                  +
+                </span>
+              </summary>
+              <p className="mt-4 text-slate-600 leading-relaxed">
+                Absolutely. Medora is HIPAA compliant and uses bank-level
+                encryption to protect your medical records. Your data is stored
+                securely and never shared with third parties without your
+                explicit consent.
+              </p>
+            </details>
+
+            {/* FAQ Item 3 */}
+            <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
+              <summary className="flex justify-between items-center cursor-pointer list-none">
+                <h4 className="text-lg font-semibold text-slate-800">
+                  How do I book an appointment?
+                </h4>
+                <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
+                  +
+                </span>
+              </summary>
+              <p className="mt-4 text-slate-600 leading-relaxed">
+                Booking an appointment is simple! Browse our featured clinics,
+                select your preferred healthcare provider, and click "Book
+                Appointment." You'll be able to view available time slots and
+                confirm your booking instantly.
+              </p>
+            </details>
+
+            {/* FAQ Item 4 */}
+            <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
+              <summary className="flex justify-between items-center cursor-pointer list-none">
+                <h4 className="text-lg font-semibold text-slate-800">
+                  Can clinics join Medora?
+                </h4>
+                <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
+                  +
+                </span>
+              </summary>
+              <p className="mt-4 text-slate-600 leading-relaxed">
+                Yes! Healthcare providers and clinics can register on Medora to
+                manage appointments, patient records, and streamline their
+                operations. We offer different subscription plans including
+                Basic and Pro to suit your clinic's needs.
+              </p>
+            </details>
+
+            {/* FAQ Item 5 */}
+            <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
+              <summary className="flex justify-between items-center cursor-pointer list-none">
+                <h4 className="text-lg font-semibold text-slate-800">
+                  Is Medora available 24/7?
+                </h4>
+                <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
+                  +
+                </span>
+              </summary>
+              <p className="mt-4 text-slate-600 leading-relaxed">
+                Yes! Our AI Symptom Checker and platform features are available
+                24/7. While individual clinic hours may vary, you can always
+                access your medical records, book future appointments, and get
+                AI-powered health insights anytime.
+              </p>
+            </details>
+          </div>
         </div>
       </section>
 
