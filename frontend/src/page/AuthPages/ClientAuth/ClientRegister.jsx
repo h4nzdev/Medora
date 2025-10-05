@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Shield, Star, Check, X } from "lucide-react";
 import axios from "axios";
@@ -35,6 +35,7 @@ export default function ClientRegister() {
   const [isLoading, setIsLoading] = useState(false);
   const [clinics, setClinics] = useState([]);
   const navigate = useNavigate();
+  const passwordValidationTimer = useRef(null);
 
   useEffect(() => {
     const fetchClinics = async () => {
@@ -65,6 +66,10 @@ export default function ClientRegister() {
       // Show validation when user starts typing
       if (value.length > 0) {
         setShowPasswordValidation(true);
+        clearTimeout(passwordValidationTimer.current);
+        passwordValidationTimer.current = setTimeout(() => {
+          setShowPasswordValidation(false);
+        }, 3000);
       } else {
         setShowPasswordValidation(false);
       }
@@ -535,6 +540,8 @@ export default function ClientRegister() {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
+                      onFocus={() => setShowPasswordValidation(true)}
+                      onBlur={() => setShowPasswordValidation(false)}
                       required
                       placeholder="••••••••"
                       className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"

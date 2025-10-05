@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import logo from "../../assets/medoralogo2.png";
 
 export default function ClinicSidebar() {
-  const { user } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   const [openDropdowns, setOpenDropdowns] = useState([]);
 
   const menuItems = [
@@ -99,7 +99,6 @@ export default function ClinicSidebar() {
 
   const path = useLocation();
   const navigate = useNavigate();
-  const { setUser, setRole } = useContext(AuthContext);
 
   const handleLogout = () => {
     Swal.fire({
@@ -111,11 +110,8 @@ export default function ClinicSidebar() {
       confirmButtonText: "Yes, logout",
     }).then((result) => {
       if (result.isConfirmed) {
-        sessionStorage.removeItem("user");
-        sessionStorage.removeItem("role");
-        setUser(false);
-        setRole("Clinic");
-        navigate("/auth/login");
+        logout();
+        navigate("/clinic/login");
         toast.success("Logout successfully!");
       }
     });

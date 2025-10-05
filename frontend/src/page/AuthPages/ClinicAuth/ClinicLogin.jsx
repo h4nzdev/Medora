@@ -20,11 +20,12 @@ import clinic from "../../../assets/clinic.jpg";
 import { toast } from "sonner";
 
 export default function ClinicLogin() {
-  const { setRole, setUser } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -42,8 +43,7 @@ export default function ClinicLogin() {
       });
 
       if (res.data.clinic) {
-        setRole(res.data.clinic.role);
-        setUser(res.data.clinic);
+        login(res.data.clinic, res.data.clinic.role, rememberMe);
         setError(null);
       } else {
         console.error("Unexpected response from server:", res.data);
@@ -237,6 +237,8 @@ export default function ClinicLogin() {
               <label className="flex items-center group cursor-pointer">
                 <input
                   type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500/20 focus:ring-2"
                 />
                 <span className="ml-3 text-sm text-slate-600 group-hover:text-slate-800 transition-colors">
