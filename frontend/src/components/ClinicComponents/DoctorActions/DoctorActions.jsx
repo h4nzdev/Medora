@@ -17,7 +17,7 @@ const DoctorActions = ({ id, doctor, onEdit }) => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3000/doctor/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/doctor/${id}`);
       toast.success("Doctor deleted successfully!");
       fetchDoctors(); // Refresh the doctors list
     } catch (error) {
