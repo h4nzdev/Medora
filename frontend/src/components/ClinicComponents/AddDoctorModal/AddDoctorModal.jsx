@@ -111,6 +111,24 @@ const AddDoctorModal = ({
             },
           }
         );
+        setFormData({
+          name: "",
+          gender: "",
+          qualification: "",
+          specialty: "",
+          experience: "",
+          email: "",
+          phone: "",
+          status: "Active",
+          availability: [
+            {
+              day: "Monday",
+              startTime: "09:00",
+              endTime: "17:00",
+            },
+          ],
+        });
+        setProfileImage(null);
         toast.success("Doctor updated successfully!");
       } else {
         await axios.post(
@@ -122,6 +140,24 @@ const AddDoctorModal = ({
             },
           }
         );
+        setFormData({
+          name: "",
+          gender: "",
+          qualification: "",
+          specialty: "",
+          experience: "",
+          email: "",
+          phone: "",
+          status: "Active",
+          availability: [
+            {
+              day: "Monday",
+              startTime: "09:00",
+              endTime: "17:00",
+            },
+          ],
+        });
+        setProfileImage(null);
         toast.success("Doctor added successfully!");
       }
       fetchDoctors();
@@ -180,6 +216,7 @@ const AddDoctorModal = ({
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
+                  placeholder="John Davis"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -288,6 +325,7 @@ const AddDoctorModal = ({
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  placeholder="john.davis@example.com"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -307,6 +345,8 @@ const AddDoctorModal = ({
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  placeholder="09***09**099"
+                  maxLength={11}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
