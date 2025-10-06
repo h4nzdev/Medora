@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Stethoscope,
   FileText,
@@ -75,7 +77,11 @@ const LandingPage = () => {
               onClick={() => scrollToSection("hero")}
               className="flex items-center gap-3 cursor-pointer"
             >
-              <img src={logo} alt="logo" className="w-10 h-10" />
+              <img
+                src={logo || "/placeholder.svg"}
+                alt="logo"
+                className="w-10 h-10"
+              />
               <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                 Medora
               </h1>
@@ -209,8 +215,15 @@ const LandingPage = () => {
       <main
         className="pt-32 pb-24 container mx-auto px-6 relative overflow-hidden"
         id="hero"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=800&width=1600&query=abstract+medical+healthcare+pattern+light+blue+white)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
       >
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
+        <div className="grid lg:grid-cols-2 gap-12 items-center relative z-10">
           {/* Left Content - Fixed Mobile Centering */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center gap-2 bg-cyan-50 text-cyan-700 px-4 py-2 rounded-full text-sm font-medium mb-6 border border-cyan-200">
@@ -272,7 +285,7 @@ const LandingPage = () => {
               <div className="w-80 h-80 sm:w-96 sm:h-96 bg-gradient-to-br from-cyan-50 to-cyan-100 rounded-3xl shadow-2xl border border-cyan-200 flex items-center justify-center relative overflow-hidden">
                 {/* Placeholder Content */}
                 <img
-                  src={clinic}
+                  src={clinic || "/placeholder.svg"}
                   alt=""
                   className="w-full h-full object-cover rounded-3xl"
                 />
@@ -319,9 +332,15 @@ const LandingPage = () => {
       {/* Features Section */}
       <section
         id="features"
-        className="py-18 bg-gradient-to-b from-white to-slate-50"
+        className="py-18 bg-gradient-to-b from-white to-slate-50 relative"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=1000&width=1600&query=subtle+geometric+hexagon+pattern+medical+light+cyan+white)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-        <div className="container mx-auto px-6">
+        <div className="absolute inset-0 bg-white/90"></div>
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-20">
             <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
               Key Features
@@ -385,8 +404,18 @@ const LandingPage = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 bg-white" id="how-it-works">
-        <div className="container mx-auto px-6">
+      <section
+        className="py-24 bg-white relative"
+        id="how-it-works"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=1200&width=1600&query=soft+flowing+waves+abstract+light+cyan+gradient)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        <div className="absolute inset-0 bg-white/85"></div>
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
               How It Works
@@ -606,7 +635,7 @@ const LandingPage = () => {
                       {clinic.clinicPicture ? (
                         <div className="relative">
                           <img
-                            src={clinic.clinicPicture}
+                            src={clinic.clinicPicture || "/placeholder.svg"}
                             alt={clinic.clinicName}
                             onError={(e) => {
                               console.error("Image failed to load:", {
@@ -698,8 +727,17 @@ const LandingPage = () => {
       </section>
 
       {/* FAQ Section */}
-      <section id="faq" className="py-24 bg-white">
-        <div className="container mx-auto px-6">
+      <section
+        id="faq"
+        className="py-24 bg-white relative"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=1000&width=1600&query=medical+heartbeat+pulse+pattern+light+cyan+minimal)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-white/92"></div>
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
               Frequently Asked Questions
@@ -807,9 +845,15 @@ const LandingPage = () => {
       {/* Team Section */}
       <section
         id="team"
-        className="py-24 bg-gradient-to-b from-slate-50 to-white"
+        className="py-24 bg-gradient-to-b from-slate-50 to-white relative"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=1000&width=1600&query=professional+modern+gradient+mesh+cyan+blue+abstract)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-        <div className="container mx-auto px-6">
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50/95 to-white/95"></div>
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
               Meet Our Team
@@ -826,7 +870,7 @@ const LandingPage = () => {
               <div className="relative mb-6">
                 <div className="w-48 h-48 mx-auto bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-3xl shadow-lg group-hover:shadow-2xl transition-all duration-300 border border-cyan-200 flex items-center justify-center">
                   <div className="text-center">
-                    <img src={ayham} />
+                    <img src={ayham || "/placeholder.svg"} />
                   </div>
                 </div>
               </div>
@@ -842,7 +886,7 @@ const LandingPage = () => {
             <div className="text-center group">
               <div className="relative mb-6">
                 <div className="w-48 h-48 mx-auto bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-3xl shadow-lg group-hover:shadow-2xl transition-all duration-300 border border-cyan-200 flex items-center justify-center">
-                  <img src={heart} alt="" />
+                  <img src={heart || "/placeholder.svg"} alt="" />
                 </div>
               </div>
               <h4 className="text-2xl font-bold text-slate-800 mb-2">
@@ -857,7 +901,7 @@ const LandingPage = () => {
             <div className="text-center group">
               <div className="relative mb-6">
                 <div className="w-48 h-48 mx-auto bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-3xl shadow-lg group-hover:shadow-2xl transition-all duration-300 border border-cyan-200 flex items-center justify-center">
-                  <img src={hanz} alt="" />
+                  <img src={hanz || "/placeholder.svg"} alt="" />
                 </div>
               </div>
               <h4 className="text-2xl font-bold text-slate-800 mb-2">
@@ -872,9 +916,15 @@ const LandingPage = () => {
       {/* Contact Section */}
       <section
         id="contact"
-        className="py-24 bg-gradient-to-br from-slate-50 to-white"
+        className="py-24 bg-gradient-to-br from-slate-50 to-white relative"
+        style={{
+          backgroundImage: `url(/placeholder.svg?height=800&width=1600&query=elegant+dots+grid+pattern+cyan+white+minimal)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
       >
-        <div className="container mx-auto px-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/90 to-white/90"></div>
+        <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
             <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
               Get In Touch
@@ -946,7 +996,11 @@ const LandingPage = () => {
             {/* Company Info */}
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-6">
-                <img src={logo} alt="logo" className="w-10 h-10" />
+                <img
+                  src={logo || "/placeholder.svg"}
+                  alt="logo"
+                  className="w-10 h-10"
+                />
                 <h3 className="text-2xl font-bold">Medora</h3>
               </div>
               <p className="text-slate-300 text-lg leading-relaxed mb-6 max-w-md">
