@@ -1,4 +1,12 @@
-import { Bot, Send, User, Shield, Clock } from "lucide-react";
+import {
+  Bot,
+  Send,
+  User,
+  Shield,
+  Clock,
+  AlertTriangle,
+  Phone,
+} from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useContext } from "react";
@@ -14,6 +22,8 @@ const ClientChat = () => {
     maxCredits: 5,
     canChat: true,
   });
+  const [showEmergency, setShowEmergency] = useState(false);
+  const [emergencyData, setEmergencyData] = useState(null);
   const { user } = useContext(AuthContext);
 
   console.log("User data:", user);
@@ -68,6 +78,8 @@ const ClientChat = () => {
         text: "Hello! I'm Medora, your clinic appointment and symptoms checker assistant. I can help you with:\n\n• Checking your symptoms\n• Providing basic health information\n• Guiding you through the appointment booking process\n• Answering questions about clinic services\n\nHow may I assist you today?",
       },
     ]);
+    setShowEmergency(false);
+    setEmergencyData(null);
   };
 
   const handleSendMessage = async () => {
@@ -95,7 +107,6 @@ const ClientChat = () => {
     try {
       // 1) Save the user's message immediately
       if (user && user._id) {
-        // Check if user has clinicId (should be populated from login)
         if (!user.clinicId) {
           throw new Error(
             "Patient clinic information not found. Please log in again."
@@ -104,13 +115,13 @@ const ClientChat = () => {
 
         await axios.post(`${import.meta.env.VITE_API_URL}/chat/save-chat`, {
           patientId: user._id,
-          clinicId: user.clinicId._id || user.clinicId, // Handle both populated and non-populated clinicId
+          clinicId: user.clinicId._id || user.clinicId,
           role: "Client",
           message,
         });
       }
 
-      // 2) Ask AI for a reply
+      // 2) Ask AI for a reply - NOW WITH EMERGENCY DETECTION
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/chat`,
         {
@@ -121,21 +132,35 @@ const ClientChat = () => {
       const botMessage = {
         role: "bot",
         text: response.data.reply,
+        severity: response.data.severity,
+        emergency: response.data.emergency_trigger,
       };
 
       setChatHistory((prev) => [...prev, botMessage]);
 
-      // 3) Save AI reply immediately
-      if (user && user._id) {
-        await axios.post(`${import.meta.env.VITE_API_URL}/chat/save-chat`, {
-          patientId: user._id,
-          clinicId: user.clinicId._id || user.clinicId, // Handle both populated and non-populated clinicId
-          role: "ai",
+      // 3) Check for emergency and trigger emergency UI
+      if (response.data.emergency_trigger) {
+        setShowEmergency(true);
+        setEmergencyData({
+          severity: response.data.severity,
           message: response.data.reply,
+          timestamp: new Date().toLocaleTimeString(),
         });
       }
 
-      // 4) Increment chat credits after successful chat
+      // 4) Save AI reply immediately
+      if (user && user._id) {
+        await axios.post(`${import.meta.env.VITE_API_URL}/chat/save-chat`, {
+          patientId: user._id,
+          clinicId: user.clinicId._id || user.clinicId,
+          role: "ai",
+          message: response.data.reply,
+          severity: response.data.severity,
+          emergency: response.data.emergency_trigger,
+        });
+      }
+
+      // 5) Increment chat credits after successful chat
       if (user && user._id) {
         const creditResponse = await axios.post(
           `${import.meta.env.VITE_API_URL}/chat/increment-credits`,
@@ -150,7 +175,6 @@ const ClientChat = () => {
 
       let errorText = "Sorry, something went wrong. Please try again.";
 
-      // Provide more specific error messages
       if (error.message.includes("clinic information not found")) {
         errorText =
           "Unable to identify your clinic. Please log out and log in again.";
@@ -171,11 +195,24 @@ const ClientChat = () => {
     }
   };
 
-  // no buffered save; messages persist immediately
+  // Emergency contact handler
+  const handleEmergencyContact = () => {
+    // In a real app, this would trigger a call or connect to emergency services
+    alert("🚨 Connecting to emergency services... Please stay on the line.");
+
+    // You can also auto-dial emergency numbers
+    // window.location.href = 'tel:911';
+  };
+
+  // Close emergency banner
+  const handleCloseEmergency = () => {
+    setShowEmergency(false);
+    setEmergencyData(null);
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory, loading]);
+  }, [chatHistory, loading, showEmergency]);
 
   return (
     <div className="w-full h-full flex flex-col min-h-screen">
@@ -218,6 +255,45 @@ const ClientChat = () => {
         </div>
       </div>
 
+      {/* Emergency Banner - Shows when severe symptoms detected */}
+      {showEmergency && emergencyData && (
+        <div className="bg-red-50 border-b border-red-200 p-3 sm:p-4">
+          <div className="flex items-start space-x-3">
+            <div className="bg-red-100 p-2 rounded-full flex-shrink-0 mt-1">
+              <AlertTriangle className="h-5 w-5 text-red-600" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-red-900 text-sm sm:text-base">
+                  🚨 Medical Attention Required
+                </h3>
+                <button
+                  onClick={handleCloseEmergency}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  Dismiss
+                </button>
+              </div>
+              <p className="text-red-800 text-xs sm:text-sm mb-3">
+                {emergencyData.message}
+              </p>
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleEmergencyContact}
+                  className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>Call Emergency</span>
+                </button>
+                <button className="flex items-center space-x-2 bg-white text-red-600 border border-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors text-sm">
+                  <span>Contact Clinic</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Chat Messages - Mobile Scrolling Fixed */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4">
         {chatHistory.map((chat, index) => (
@@ -231,15 +307,38 @@ const ClientChat = () => {
               className={`max-w-[85%] sm:max-w-xs lg:max-w-md xl:max-w-lg px-3 py-2 sm:px-4 sm:py-3 rounded-lg ${
                 chat.role === "user"
                   ? "bg-cyan-600 text-white"
+                  : chat.emergency
+                  ? "bg-red-50 border border-red-200 text-red-900"
                   : "bg-white border border-gray-200 text-gray-900"
               }`}
             >
               {chat.role === "bot" && (
                 <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                  <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600 flex-shrink-0" />
-                  <span className="text-xs sm:text-sm font-medium text-cyan-600">
-                    AI Assistant
+                  <Bot
+                    className={`h-3 w-3 sm:h-4 sm:w-4 ${
+                      chat.emergency ? "text-red-600" : "text-cyan-600"
+                    } flex-shrink-0`}
+                  />
+                  <span
+                    className={`text-xs sm:text-sm font-medium ${
+                      chat.emergency ? "text-red-600" : "text-cyan-600"
+                    }`}
+                  >
+                    {chat.emergency ? "🚨 AI Assistant" : "AI Assistant"}
                   </span>
+                  {chat.severity && (
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        chat.severity === "SEVERE"
+                          ? "bg-red-100 text-red-800"
+                          : chat.severity === "MODERATE"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
+                      {chat.severity}
+                    </span>
+                  )}
                 </div>
               )}
               <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
@@ -263,7 +362,8 @@ const ClientChat = () => {
           </div>
         )}
 
-        {/* Chat Limit Reached Message - Mobile Optimized */}
+        {/* Rest of your existing components remain the same */}
+        {/* Chat Limit Reached Message */}
         {!chatCredits.canChat && (
           <div className="bg-red-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-red-200">
             <div className="flex items-center space-x-2 mb-2 sm:mb-3">
@@ -280,8 +380,8 @@ const ClientChat = () => {
           </div>
         )}
 
-        {/* Sample health questions - Mobile Grid Optimized */}
-        {chatCredits.canChat && (
+        {/* Sample health questions - Only show if no emergency and can chat */}
+        {chatCredits.canChat && !showEmergency && (
           <div className="bg-blue-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-blue-200">
             <h3 className="font-medium text-blue-900 mb-2 sm:mb-3 text-sm sm:text-base">
               Common Questions You Can Ask:
@@ -323,19 +423,21 @@ const ClientChat = () => {
           </div>
         )}
 
-        {/* Health Tips - Mobile Responsive */}
-        <div className="bg-cyan-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-cyan-200 hidden sm:block">
-          <div className="flex items-center space-x-2 mb-2 sm:mb-3">
-            <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600" />
-            <h3 className="font-medium text-cyan-900 text-sm sm:text-base">
-              Daily Health Reminder
-            </h3>
+        {/* Health Tips - Hide during emergencies */}
+        {!showEmergency && (
+          <div className="bg-cyan-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-cyan-200 hidden sm:block">
+            <div className="flex items-center space-x-2 mb-2 sm:mb-3">
+              <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600" />
+              <h3 className="font-medium text-cyan-900 text-sm sm:text-base">
+                Daily Health Reminder
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-cyan-800">
+              Remember to stay hydrated throughout the day. Aim for 8 glasses of
+              water to maintain optimal health and energy levels.
+            </p>
           </div>
-          <p className="text-xs sm:text-sm text-cyan-800">
-            Remember to stay hydrated throughout the day. Aim for 8 glasses of
-            water to maintain optimal health and energy levels.
-          </p>
-        </div>
+        )}
 
         <div ref={bottomRef}></div>
       </div>
@@ -348,21 +450,25 @@ const ClientChat = () => {
             placeholder={
               !chatCredits.canChat
                 ? "Daily chat limit reached"
+                : showEmergency
+                ? "Emergency detected - use buttons above"
                 : "Type your message..."
             }
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            disabled={!chatCredits.canChat}
+            disabled={!chatCredits.canChat || showEmergency}
             className={`flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none ${
-              !chatCredits.canChat ? "bg-gray-100 cursor-not-allowed" : ""
+              !chatCredits.canChat || showEmergency
+                ? "bg-gray-100 cursor-not-allowed"
+                : ""
             }`}
           />
           <button
             onClick={handleSendMessage}
-            disabled={loading || !chatCredits.canChat}
+            disabled={loading || !chatCredits.canChat || showEmergency}
             className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg flex items-center justify-center min-w-[44px] ${
-              !chatCredits.canChat
+              !chatCredits.canChat || showEmergency
                 ? "bg-gray-400 text-gray-600 cursor-not-allowed"
                 : "bg-cyan-600 text-white hover:bg-cyan-700 active:bg-cyan-800"
             } disabled:opacity-50 transition-colors`}

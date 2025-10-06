@@ -31,7 +31,7 @@ export const chatWithGemini = async (req, res) => {
     });
 
     const prompt = `
-You are Medora AI, a specialized virtual health assistant and symptom checker.
+You are Medora AI, a specialized virtual health assistant and symptom checker in the Philippines.
 
 🚨 EMERGENCY DETECTION:
 - Analyze the user's symptoms for severity
@@ -47,14 +47,16 @@ SEVERE SYMPTOMS (emergency_trigger: true):
 - Sudden weakness/numbness, confusion, severe headache  
 - Fainting, seizures, high fever with stiff neck
 - Severe abdominal pain, poisoning, suicidal thoughts
+- Signs of stroke or heart attack
 
 MODERATE SYMPTOMS (emergency_trigger: false):
 - Persistent fever, worsening cough, moderate pain
 - Symptoms that concern you but aren't immediately life-threatening
+- Diarrhea or vomiting that lasts more than 24 hours
 
 MILD SYMPTOMS (emergency_trigger: false):
 - Common cold, mild headache, minor aches
-- Routine health questions
+- Routine health questions, general wellness advice
 
 User: ${message}
 Response:`;
@@ -100,58 +102,152 @@ Response:`;
   }
 };
 
-// 🚨 Emergency contact function
+// 🚨 Philippines Emergency contact function
 export const getEmergencyContacts = async (req, res) => {
   try {
     const { severity, location } = req.body;
 
-    // Mock emergency contacts - in real app, this would come from a database
+    // Philippines-specific emergency contacts
     const emergencyContacts = {
       SEVERE: {
-        message: "🚨 IMMEDIATE MEDICAL ATTENTION REQUIRED",
+        message: "🚨 IMMEDIATE MEDICAL ATTENTION REQUIRED - PHILIPPINES",
         contacts: [
-          { name: "Emergency Services", number: "911", type: "emergency" },
-          { name: "Local Hospital", number: "+1-555-0123", type: "hospital" },
           {
-            name: "Poison Control",
-            number: "+1-800-222-1222",
+            name: "National Emergency Hotline",
+            number: "911",
+            type: "emergency",
+            description: "Nationwide emergency response",
+          },
+          {
+            name: "Philippine Red Cross",
+            number: "143",
+            type: "emergency",
+            description: "Ambulance and emergency services",
+          },
+          {
+            name: "Philippine National Police (PNP) Hotline",
+            number: "117",
+            type: "emergency",
+            description: "Police and emergency assistance",
+          },
+          {
+            name: "Bureau of Fire Protection",
+            number: "160",
+            type: "emergency",
+            description: "Fire and rescue services",
+          },
+          {
+            name: "National Poison Control",
+            number: "(02) 8524-1078",
             type: "specialty",
+            description:
+              "UP Manila National Poison Management and Control Center",
+          },
+          {
+            name: "National Center for Mental Health",
+            number: "(02) 8531-9001",
+            type: "mental_health",
+            description: "24/7 Mental health crisis line",
           },
         ],
         actions: [
-          "Call emergency services immediately",
-          "Do not drive yourself to the hospital",
-          "Have someone stay with you",
-          "Prepare your medical information",
+          "Call 911 or 143 immediately for emergency medical response",
+          "Do not drive yourself to the hospital - wait for ambulance",
+          "Have someone stay with you while waiting for help",
+          "Prepare your PhilHealth information and identification",
+          "Keep your location address ready to provide to responders",
+        ],
+        hospitals: [
+          "Philippine General Hospital (PGH) - Manila",
+          "St. Luke's Medical Center - Quezon City & Global City",
+          "Makati Medical Center - Makati",
+          "The Medical City - Pasig",
+          "Asian Hospital and Medical Center - Muntinlupa",
         ],
       },
       MODERATE: {
-        message: "⚠️ Medical Attention Recommended",
+        message: "⚠️ Medical Attention Recommended - PHILIPPINES",
         contacts: [
-          { name: "Urgent Care", number: "+1-555-0456", type: "urgent_care" },
           {
-            name: "Primary Care Physician",
-            number: "+1-555-0789",
-            type: "doctor",
+            name: "DOH Hotline",
+            number: "(02) 8651-7800",
+            type: "government",
+            description: "Department of Health information line",
           },
-          { name: "Telemedicine", number: "+1-555-0321", type: "telehealth" },
+          {
+            name: "Telemedicine Services",
+            number: "Varies by provider",
+            type: "telehealth",
+            description:
+              "Consult doctors online via KonsultaMD, SeeYouDoc, or Medgate",
+          },
+          {
+            name: "Local Health Center",
+            number: "Check your barangay",
+            type: "local_health",
+            description: "Visit your nearest barangay health center",
+          },
+          {
+            name: "Mercury Drug Patient Care Line",
+            number: "(02) 8911-5073",
+            type: "pharmacy",
+            description: "Medication and pharmacy questions",
+          },
         ],
         actions: [
-          "Contact healthcare provider within 24 hours",
-          "Monitor symptoms closely",
-          "Rest and avoid strenuous activity",
+          "Visit your nearest hospital emergency room or urgent care",
+          "Consult with a doctor within 24 hours",
+          "Check if your HMO (Maxicare, Intellicare, etc.) has telemedicine",
+          "Monitor symptoms closely and rest",
+          "Keep hydrated with clean water and oral rehydration solutions",
+        ],
+        recommendations: [
+          "Public Hospitals: PGH, East Avenue Medical Center, Jose R. Reyes Memorial Medical Center",
+          "Private Hospitals: St. Luke's, Makati Med, Medical City branches",
+          "Urgent Care: Hi-Precision Diagnostics, Healthway Medical clinics",
         ],
       },
       MILD: {
-        message: "ℹ️ Self-Care Recommended",
+        message: "ℹ️ Self-Care Recommended - PHILIPPINES",
         contacts: [
-          { name: "Pharmacy", number: "+1-555-0654", type: "pharmacy" },
-          { name: "Nurse Line", number: "+1-555-0987", type: "advice" },
+          {
+            name: "Botika ng Barangay",
+            number: "Visit local barangay",
+            type: "pharmacy",
+            description: "Affordable medicines at your local barangay",
+          },
+          {
+            name: "Mercury Drug / Watsons",
+            number: "Visit nearest branch",
+            type: "pharmacy",
+            description: "Over-the-counter medications and consultations",
+          },
+          {
+            name: "Barangay Health Center",
+            number: "Check local barangay",
+            type: "local_health",
+            description: "Free basic medical consultation and services",
+          },
+          {
+            name: "DOH Health Education Line",
+            number: "(02) 8651-7800",
+            type: "information",
+            description: "General health information and advice",
+          },
         ],
         actions: [
-          "Try home remedies first",
-          "Contact doctor if symptoms persist beyond 3 days",
-          "Stay hydrated and rest",
+          "Visit your barangay health center for free consultation",
+          "Get adequate rest and stay hydrated with clean water",
+          "Use over-the-counter medicines from trusted pharmacies",
+          "Practice proper hygiene and handwashing",
+          "Consult a doctor if symptoms persist beyond 3 days",
+        ],
+        home_remedies: [
+          "Ginger tea for nausea or sore throat",
+          "Calamansi juice with honey for cough and cold",
+          "Warm salt water gargle for sore throat",
+          "Proper rest in well-ventilated area",
+          "Balanced diet with fruits and vegetables",
         ],
       },
     };
@@ -180,24 +276,31 @@ export const summarizeChatHistory = async (req, res) => {
       return res.status(400).json({ error: "Messages array is required." });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 300,
+      },
+    });
 
-    // Create a summary prompt
+    // Create a summary prompt with Philippines context
     const summaryPrompt = `
-You are a medical assistant helping clinic staff understand patient conversations.
+You are a medical assistant helping clinic staff in the Philippines understand patient conversations.
 
-Please analyze the following chat conversation between a patient and our chatbot, and provide a helpful summary.
+Please analyze the following chat conversation between a patient and our chatbot, and provide a helpful summary for Philippine healthcare providers.
 
 Chat Messages:
 ${messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n")}
 
 Please provide a summary that includes:
 1. Main symptoms or concerns mentioned by the patient
-2. Key advice given by the chatbot
-3. Overall health topics discussed
-4. Any recommendations for follow-up
+2. Severity level assessed by the AI (if available)
+3. Key advice given by the chatbot
+4. Any emergency triggers or red flags detected
+5. Recommended follow-up actions appropriate for Philippine healthcare context
 
-Keep the summary clear, professional, and helpful for medical staff. Use bullet points for easy reading.
+Keep the summary clear, professional, and helpful for medical staff in the Philippines. Use plain text format.
 `;
 
     const result = await model.generateContent(summaryPrompt);
