@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
+import { toast } from "sonner";
 
 const ClientChat = () => {
   const [message, setMessage] = useState("");
@@ -25,9 +26,6 @@ const ClientChat = () => {
   const [showEmergency, setShowEmergency] = useState(false);
   const [emergencyData, setEmergencyData] = useState(null);
   const { user } = useContext(AuthContext);
-
-  console.log("User data:", user);
-  console.log("Chat history:", chatHistory);
 
   // Function to fetch chat credits
   const fetchChatCredits = async () => {
@@ -198,7 +196,9 @@ const ClientChat = () => {
   // Emergency contact handler
   const handleEmergencyContact = () => {
     // In a real app, this would trigger a call or connect to emergency services
-    alert("🚨 Connecting to emergency services... Please stay on the line.");
+    toast.info(
+      "🚨 Connecting to emergency services... Please stay on the line."
+    );
 
     // You can also auto-dial emergency numbers
     // window.location.href = 'tel:911';
@@ -257,7 +257,7 @@ const ClientChat = () => {
 
       {/* Emergency Banner - Shows when severe symptoms detected */}
       {showEmergency && emergencyData && (
-        <div className="bg-red-50 border-b border-red-200 p-3 sm:p-4">
+        <div className="sticky top-16 bg-red-50 border-b border-red-200 p-3 sm:p-4">
           <div className="flex items-start space-x-3">
             <div className="bg-red-100 p-2 rounded-full flex-shrink-0 mt-1">
               <AlertTriangle className="h-5 w-5 text-red-600" />
@@ -280,12 +280,12 @@ const ClientChat = () => {
               <div className="flex space-x-2">
                 <button
                   onClick={handleEmergencyContact}
-                  className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                  className="flex items-center space-x-2 bg-red-600 text-white md:px-4 px-2 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="md:h-4 md:w-4" />
                   <span>Call Emergency</span>
                 </button>
-                <button className="flex items-center space-x-2 bg-white text-red-600 border border-red-600 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors text-sm">
+                <button className="flex items-center space-x-2 bg-white text-red-600 border border-red-600 md:px-4 px-2 py-2 rounded-lg hover:bg-red-50 transition-colors text-sm">
                   <span>Contact Clinic</span>
                 </button>
               </div>
