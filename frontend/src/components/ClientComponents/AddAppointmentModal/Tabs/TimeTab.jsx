@@ -1,35 +1,56 @@
 "use client";
+import { useContext } from 'react';
+import { DoctorContext } from '../../../../context/DoctorContext';
 
-const TimeTab = ({ formData, setFormData, nextTab, prevTab, availability }) => {
+
+const TimeTab = ({ formData, setFormData, nextTab, prevTab }) => {
+    const { doctors } = useContext(DoctorContext);
+    const doctor = doctors.find(d => d._id === formData.doctorId);
+    const availability = doctor?.availability;
+
     const generateTimeSlots = (startStr, endStr) => {
         const slots = [];
-        const date = new Date(formData.date.toDateString()); // Use the date part only
+        if (!startStr || !endStr) return slots;
+
+        const date = new Date(formData.date.toDateString());
 
         const parseTime = (timeStr) => {
-            const [time, meridiem] = timeStr.split(' ');
-            let [hours, minutes] = time.split(':').map(Number);
-            if (meridiem.toLowerCase() === 'pm' && hours < 12) hours += 12;
-            if (meridiem.toLowerCase() === 'am' && hours === 12) hours = 0;
+            let hours, minutes;
+            const timeStrLower = timeStr.toLowerCase();
+            if (timeStrLower.includes('am') || timeStrLower.includes('pm')) {
+                const [time, meridiem] = timeStr.split(' ');
+                [hours, minutes] = time.split(':').map(Number);
+                if (meridiem.toLowerCase() === 'pm' && hours < 12) hours += 12;
+                if (meridiem.toLowerCase() === 'am' && hours === 12) hours = 0;
+            } else {
+                [hours, minutes] = timeStr.split(':').map(Number);
+            }
             return { hours, minutes };
         };
 
-        const { hours: startHour, minutes: startMinute } = parseTime(startStr);
-        const { hours: endHour, minutes: endMinute } = parseTime(endStr);
+        try {
+            const { hours: startHour, minutes: startMinute } = parseTime(startStr);
+            const { hours: endHour, minutes: endMinute } = parseTime(endStr);
 
-        const startDate = new Date(date.getTime());
-        startDate.setHours(startHour, startMinute, 0, 0);
+            const startDate = new Date(date.getTime());
+            startDate.setHours(startHour, startMinute, 0, 0);
 
-        const endDate = new Date(date.getTime());
-        endDate.setHours(endHour, endMinute, 0, 0);
+            const endDate = new Date(date.getTime());
+            endDate.setHours(endHour, endMinute, 0, 0);
 
-        let current = new Date(startDate);
-        while (current < endDate) {
-            slots.push(
-                current.getHours().toString().padStart(2, '0') + ':' + 
-                current.getMinutes().toString().padStart(2, '0')
-            );
-            current.setMinutes(current.getMinutes() + 30);
+            let current = new Date(startDate);
+            while (current < endDate) {
+                slots.push(
+                    current.getHours().toString().padStart(2, '0') + ':' +
+                    current.getMinutes().toString().padStart(2, '0')
+                );
+                current.setMinutes(current.getMinutes() + 30);
+            }
+        } catch (error) {
+            console.error("Error parsing time:", error);
+            return [];
         }
+
         return slots;
     };
 
@@ -66,7 +87,7 @@ const TimeTab = ({ formData, setFormData, nextTab, prevTab, availability }) => {
           </div>
         ) : (
           <p className="text-center text-slate-500">
-            The doctor is not available on {selectedDay}. Please select another date.
+            {scheduleForDay === undefined && availability ? `The doctor is not available on ${selectedDay}. Please select another date.` : "This doctor has not set their availability. Please contact the clinic."}
           </p>
         )}
         <div className="flex justify-between mt-8">
