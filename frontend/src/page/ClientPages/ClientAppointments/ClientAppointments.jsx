@@ -238,7 +238,7 @@ export default function ClientAppointments() {
                           </p>
                           <p className="text-sm text-slate-500">{user.email}</p>
                         </div>
-                        <ClientAppointmentActions />
+                        <ClientAppointmentActions id={appointment._id} appointment={appointment} />
                       </div>
                     </div>
                   </div>
