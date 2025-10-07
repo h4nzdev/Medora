@@ -19,7 +19,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { toast } from "sonner";
-import logo from "../../assets/medoralogo2.png";
+import logo from "../../assets/klinikahub.png";
 
 export default function ClientSidebar() {
   const { user, initials, logout } = useContext(AuthContext);
@@ -106,7 +106,7 @@ export default function ClientSidebar() {
       <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
         <img src={logo} alt="medoralogo" className="w-12 h-12" />
         <div>
-          <h1 className="text-lg font-bold text-slate-800">Medora</h1>
+          <h1 className="text-lg font-bold text-slate-800">KlinikaHub</h1>
           <p className="text-sm text-slate-500">Client Portal</p>
         </div>
       </div>
