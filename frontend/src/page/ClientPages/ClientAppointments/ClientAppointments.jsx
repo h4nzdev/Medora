@@ -19,6 +19,7 @@ import {
 import { getStatusBadge } from "../../../utils/clientAppointment.jsx";
 import { formatDate, useDate, useTime } from "../../../utils/date.jsx";
 import { useNavigate } from "react-router-dom";
+import ClientAppointmentActions from "./components/ClientAppointmentActions.jsx";
 
 export default function ClientAppointments() {
   const { appointments } = useContext(AppointmentContext);
@@ -237,13 +238,7 @@ export default function ClientAppointments() {
                           </p>
                           <p className="text-sm text-slate-500">{user.email}</p>
                         </div>
-                        <button
-                          type="button"
-                          className="p-3 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-700 transition-all duration-300 hover:scale-110"
-                          aria-label="More options"
-                        >
-                          <MoreHorizontal className="h-5 w-5" />
-                        </button>
+                        <ClientAppointmentActions />
                       </div>
                     </div>
                   </div>
@@ -263,7 +258,7 @@ export default function ClientAppointments() {
               )}
             </div>
 
-            <div className="hidden lg:block overflow-hidden rounded-2xl border border-white/20 bg-white/80 backdrop-blur-sm shadow-lg">
+            <div className="hidden lg:block overflow-visible rounded-2xl border border-white/20 bg-white/80 backdrop-blur-sm shadow-lg">
               <table className="w-full text-left">
                 <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50">
                   <tr>
@@ -340,13 +335,10 @@ export default function ClientAppointments() {
                           <p className="text-slate-500">{user.email}</p>
                         </td>
                         <td className="px-6 text-right">
-                          <button
-                            type="button"
-                            className="p-3 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-700 transition-all duration-300 hover:scale-110"
-                            aria-label="More options"
-                          >
-                            <MoreHorizontal className="h-6 w-6" />
-                          </button>
+                          <ClientAppointmentActions
+                            id={appointment._id}
+                            appointment={appointment}
+                          />
                         </td>
                       </tr>
                     ))
