@@ -1,20 +1,10 @@
 import { MoreHorizontal } from "lucide-react";
 import React, { useState } from "react";
-import Swal from "sweetalert2";
-import { deleteAppointment } from "../../../../services/appointmentService";
-import { toast } from "sonner";
 import { handleDelete } from "./actionFunctions";
-import ViewAppointmentModal from "./ViewAppointmentModal";
 
 const ClientAppointmentActions = ({ id, appointment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-
-  const handleViewClick = () => {
-    setIsViewModalOpen(true);
-    setIsOpen(false);
-  };
 
   return (
     <>
@@ -45,22 +35,12 @@ const ClientAppointmentActions = ({ id, appointment }) => {
               {isLoading ? "Deleting..." : "Delete"}
             </button>
 
-            <button
-              onClick={handleViewClick}
-              className="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-800 w-full text-start transition-all duration-300"
-            >
+            <button className="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-800 w-full text-start transition-all duration-300">
               View
             </button>
           </div>
         )}
       </div>
-
-      {isViewModalOpen && (
-        <ViewAppointmentModal
-          appointment={appointment}
-          onClose={() => setIsViewModalOpen(false)}
-        />
-      )}
     </>
   );
 };
