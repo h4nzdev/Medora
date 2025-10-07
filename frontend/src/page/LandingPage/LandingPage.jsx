@@ -83,7 +83,7 @@ const LandingPage = () => {
                 className="w-10 h-10"
               />
               <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                Medora
+                KlinikaHub
               </h1>
             </div>
 
@@ -239,7 +239,7 @@ const LandingPage = () => {
             </h2>
 
             <p className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Medora helps you manage your health with ease. Get instant advice
+              KlinikaHub helps you manage your health with ease. Get instant advice
               from our AI symptom checker, schedule appointments, and keep track
               of your medical records, all in one place.
             </p>
@@ -421,7 +421,7 @@ const LandingPage = () => {
               How It Works
             </h3>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Get started with Medora in three simple steps
+              Get started with KlinikaHub in three simple steps
             </p>
           </div>
 
@@ -743,7 +743,7 @@ const LandingPage = () => {
               Frequently Asked Questions
             </h3>
             <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Everything you need to know about Medora and how it works
+              Everything you need to know about KlinikaHub and how it works
             </p>
           </div>
 
@@ -778,7 +778,7 @@ const LandingPage = () => {
                 </span>
               </summary>
               <p className="mt-4 text-slate-600 leading-relaxed">
-                Absolutely. Medora is HIPAA compliant and uses bank-level
+                Absolutely. KlinikaHub is HIPAA compliant and uses bank-level
                 encryption to protect your medical records. Your data is stored
                 securely and never shared with third parties without your
                 explicit consent.
@@ -807,14 +807,14 @@ const LandingPage = () => {
             <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
               <summary className="flex justify-between items-center cursor-pointer list-none">
                 <h4 className="text-lg font-semibold text-slate-800">
-                  Can clinics join Medora?
+                  Can clinics join KlinikaHub?
                 </h4>
                 <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
                   +
                 </span>
               </summary>
               <p className="mt-4 text-slate-600 leading-relaxed">
-                Yes! Healthcare providers and clinics can register on Medora to
+                Yes! Healthcare providers and clinics can register on KlinikaHub to
                 manage appointments, patient records, and streamline their
                 operations. We offer different subscription plans including
                 Basic and Pro to suit your clinic's needs.
@@ -825,7 +825,7 @@ const LandingPage = () => {
             <details className="group bg-slate-50 rounded-2xl p-6 hover:bg-slate-100 transition-colors duration-200">
               <summary className="flex justify-between items-center cursor-pointer list-none">
                 <h4 className="text-lg font-semibold text-slate-800">
-                  Is Medora available 24/7?
+                  Is KlinikaHub available 24/7?
                 </h4>
                 <span className="text-cyan-600 text-2xl group-open:rotate-45 transition-transform duration-200">
                   +
@@ -949,7 +949,7 @@ const LandingPage = () => {
                 href="mailto:medora603@gmail.com"
                 className="text-cyan-600 font-semibold hover:text-cyan-700 transition-colors duration-200"
               >
-                medora603@gmail.com
+                KlinikaHub603@gmail.com
               </a>
             </div>
 
@@ -1001,7 +1001,7 @@ const LandingPage = () => {
                   alt="logo"
                   className="w-10 h-10"
                 />
-                <h3 className="text-2xl font-bold">Medora</h3>
+                <h3 className="text-2xl font-bold">KlinikaHub</h3>
               </div>
               <p className="text-slate-300 text-lg leading-relaxed mb-6 max-w-md">
                 Revolutionizing healthcare through innovative technology, making
@@ -1072,11 +1072,11 @@ const LandingPage = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-slate-300">
                   <Mail className="w-5 h-5 text-cyan-400" />
-                  <span>support@medora.com</span>
+                  <span>support@KlinikaHub.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-slate-300">
                   <Phone className="w-5 h-5 text-cyan-400" />
-                  <span>+1 (800) MEDORA-1</span>
+                  <span>+1 (800) KlinikaHub-1</span>
                 </div>
                 <div className="flex items-start gap-3 text-slate-300">
                   <MapPin className="w-5 h-5 text-cyan-400 mt-0.5" />
@@ -1093,7 +1093,7 @@ const LandingPage = () => {
           {/* Bottom Bar */}
           <div className="border-t border-slate-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-slate-400">
-              © 2025 Medora. All rights reserved.
+              © 2025 KlinikaHub. All rights reserved.
             </p>
             <div className="flex items-center gap-6 text-sm text-slate-400">
               <a
