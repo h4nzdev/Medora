@@ -151,7 +151,7 @@ const DoctorsList = () => {
                     <div className="flex items-center justify-between">
                       <span>Consultation:</span>
                       <span className="font-semibold text-emerald-600">
-                        $45
+                        ₱45
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
