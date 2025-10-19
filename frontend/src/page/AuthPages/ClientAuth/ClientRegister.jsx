@@ -223,7 +223,7 @@ export default function ClientRegister() {
               />
               <div className="ml-6 text-left">
                 <h1 className="text-4xl font-bold text-white tracking-tight">
-                  KlinikaHub
+                  Medora
                 </h1>
                 <p className="text-cyan-100 font-medium tracking-wider">
                   Patient Portal
@@ -235,7 +235,7 @@ export default function ClientRegister() {
                 Create Your Patient Account
               </h2>
               <p className="text-cyan-100 text-lg leading-relaxed max-w-md">
-                Join KlinikaHub to manage appointments, records, and reminders
+                Join Medora to manage appointments, records, and reminders
                 securely.
               </p>
             </div>

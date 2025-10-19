@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { CreditCard, CheckCircle, XCircle } from "lucide-react";
 import PaymentModal from "../../../components/ClinicComponents/PaymentModal/PaymentModal";
@@ -46,6 +46,16 @@ export default function ClinicSubscriptions() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentSetup, setIsPaymentSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [billingHistory, setBillingHistory] = useState([]);
+
+  useEffect(() => {
+    if (user && user._id) {
+      const storedHistory = localStorage.getItem(`billingHistory_${user._id}`);
+      if (storedHistory) {
+        setBillingHistory(JSON.parse(storedHistory));
+      }
+    }
+  }, [user]);
 
   const handlePlanSelect = (plan) => {
     if (plan.toLowerCase() === currentPlan.toLowerCase()) {
@@ -77,9 +87,36 @@ export default function ClinicSubscriptions() {
       );
       toast.success(res.data.message);
       setUser({ ...user, subscriptionPlan: plan });
+
+      const planDetails = plans.find(p => p.name.toLowerCase() === plan.toLowerCase());
+
+      const newTransaction = {
+        date: new Date().toISOString().split("T")[0],
+        amount: planDetails ? planDetails.price : "₱0",
+        status: "Paid",
+      };
+
+      const updatedHistory = [...billingHistory, newTransaction];
+      setBillingHistory(updatedHistory);
+      if (user && user._id) {
+        localStorage.setItem(`billingHistory_${user._id}`, JSON.stringify(updatedHistory));
+      }
+
     } catch (error) {
       console.error("Error updating subscription:", error);
       toast.error("Failed to update subscription.");
+
+      const planDetails = plans.find(p => p.name.toLowerCase() === (selectedPlan || plan).toLowerCase());
+      const newTransaction = {
+        date: new Date().toISOString().split("T")[0],
+        amount: planDetails ? planDetails.price : "₱0",
+        status: "Failed",
+      };
+      const updatedHistory = [...billingHistory, newTransaction];
+      setBillingHistory(updatedHistory);
+      if (user && user._id) {
+        localStorage.setItem(`billingHistory_${user._id}`, JSON.stringify(updatedHistory));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -201,57 +238,33 @@ export default function ClinicSubscriptions() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-t border-slate-200 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4">2024-05-01</td>
-                <td className="py-3 px-4">$29.99</td>
-                <td className="py-3 px-4 flex items-center gap-2 text-emerald-600">
-                  <CheckCircle className="w-5 h-5" />
-                  Paid
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <button
-                    type="button"
-                    className="text-cyan-600 hover:underline cursor-not-allowed"
-                    disabled
-                  >
-                    View Invoice
-                  </button>
-                </td>
-              </tr>
-              <tr className="border-t border-slate-200 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4">2024-04-01</td>
-                <td className="py-3 px-4">$29.99</td>
-                <td className="py-3 px-4 flex items-center gap-2 text-emerald-600">
-                  <CheckCircle className="w-5 h-5" />
-                  Paid
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <button
-                    type="button"
-                    className="text-cyan-600 hover:underline cursor-not-allowed"
-                    disabled
-                  >
-                    View Invoice
-                  </button>
-                </td>
-              </tr>
-              <tr className="border-t border-slate-200 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4">2024-03-01</td>
-                <td className="py-3 px-4">$29.99</td>
-                <td className="py-3 px-4 flex items-center gap-2 text-red-600">
-                  <XCircle className="w-5 h-5" />
-                  Failed
-                </td>
-                <td className="py-3 px-4 text-right">
-                  <button
-                    type="button"
-                    className="text-cyan-600 hover:underline cursor-not-allowed"
-                    disabled
-                  >
-                    View Invoice
-                  </button>
-                </td>
-              </tr>
+              {billingHistory.length > 0 ? (
+                billingHistory.map((item, index) => (
+                  <tr key={index} className="border-t border-slate-200 hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-4">{item.date}</td>
+                    <td className="py-3 px-4">{item.amount}</td>
+                    <td className={`py-3 px-4 flex items-center gap-2 ${item.status === 'Paid' ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {item.status === 'Paid' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                      {item.status}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        type="button"
+                        className="text-cyan-600 hover:underline cursor-not-allowed"
+                        disabled
+                      >
+                        View Invoice
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr className="border-t border-slate-200">
+                    <td colSpan="4" className="text-center py-8 text-slate-500">
+                        No billing history found.
+                    </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
