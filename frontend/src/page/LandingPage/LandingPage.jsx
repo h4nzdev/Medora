@@ -23,7 +23,7 @@ import ayham from "../../assets/ayham.jpg";
 import heart from "../../assets/heart.jpg";
 import hanz from "../../assets/hanz.jpg";
 import clinic from "../../assets/clinic.jpg";
-import logo from "../../assets/medoralogo.png";
+import logo from "../../assets/medoralogo1.png";
 import axios from "axios";
 
 const LandingPage = () => {
@@ -82,7 +82,7 @@ const LandingPage = () => {
                 alt="logo"
                 className="w-10 h-10"
               />
-              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              <h1 className="text-2xl font-bold text-cyan-400 tracking-tight">
                 Medora
               </h1>
             </div>
@@ -949,7 +949,7 @@ const LandingPage = () => {
                 href="mailto:medora603@gmail.com"
                 className="text-cyan-600 font-semibold hover:text-cyan-700 transition-colors duration-200"
               >
-                medora603@gmail.com
+                Medora@gmail.com
               </a>
             </div>
 
@@ -1072,11 +1072,11 @@ const LandingPage = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3 text-slate-300">
                   <Mail className="w-5 h-5 text-cyan-400" />
-                  <span>support@medora.com</span>
+                  <span>support@Medora.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-slate-300">
                   <Phone className="w-5 h-5 text-cyan-400" />
-                  <span>+1 (800) MEDORA-1</span>
+                  <span>+1 (800) Medora-1</span>
                 </div>
                 <div className="flex items-start gap-3 text-slate-300">
                   <MapPin className="w-5 h-5 text-cyan-400 mt-0.5" />

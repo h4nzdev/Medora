@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../../../context/AuthContext";
-import logo from "../../../assets/medoralogo.png";
+import logo from "../../../assets/medoralogo1.png";
 import clinic from "../../../assets/clinic.jpg";
 import { toast } from "sonner";
 
@@ -207,7 +207,9 @@ const ClientLogin = () => {
             <div className="flex items-center justify-center mb-4">
               <img src={logo} className="w-12 h-12" alt="Medora Logo" />
               <div className="ml-3 text-left">
-                <h1 className="text-2xl font-bold text-slate-800">Medora</h1>
+                <h1 className="text-2xl font-bold text-slate-800">
+                  Medora
+                </h1>
                 <p className="text-cyan-600 text-sm font-medium">
                   Patient Portal
                 </p>

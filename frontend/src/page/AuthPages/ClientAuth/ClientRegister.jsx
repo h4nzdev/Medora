@@ -4,7 +4,7 @@ import { ArrowLeft, Shield, Star, Check, X } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import clinic from "../../../assets/clinic.jpg";
-import logo from "../../../assets/medoralogo.png";
+import logo from "../../../assets/medoralogo1.png";
 
 export default function ClientRegister() {
   const [formData, setFormData] = useState({

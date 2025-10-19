@@ -18,13 +18,19 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
+const allowedOrigins = [
+  "https://medora-dun.vercel.app",
+  "https://klinikahub.vercel.app", // 👈 your new domain
+  "http://localhost:5173",
+];
+
 dotenv.config();
 configDB();
 const app = express();
 const httpServer = createServer(app); // Create HTTP server
 const io = new Server(httpServer, {
   cors: {
-    origin: ["https://medora-dun.vercel.app", "http://localhost:5173"],
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // <-- added PATCH
     credentials: true,
   },
