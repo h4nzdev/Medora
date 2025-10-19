@@ -19,7 +19,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { toast } from "sonner";
-import logo from "../../assets/klinikahub.png";
+import logo from "../../assets/medoralogo1.png";
 
 export default function ClientSidebar() {
   const { user, initials, logout } = useContext(AuthContext);
@@ -106,7 +106,7 @@ export default function ClientSidebar() {
       <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
         <img src={logo} alt="medoralogo" className="w-12 h-12" />
         <div>
-          <h1 className="text-lg font-bold text-slate-800">KlinikaHub</h1>
+          <h1 className="text-lg font-bold text-slate-800">Medora</h1>
           <p className="text-sm text-slate-500">Client Portal</p>
         </div>
       </div>
@@ -118,10 +118,11 @@ export default function ClientSidebar() {
               <div>
                 <button
                   onClick={() => toggleDropdown(index)}
-                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${isItemActive(item)
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
+                    isItemActive(item)
                       ? "bg-cyan-600 text-white shadow-md transform scale-105"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-                    }`}
+                  }`}
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium flex-1">{item.label}</span>
@@ -137,10 +138,11 @@ export default function ClientSidebar() {
                     {item.items.map((subItem, subIndex) => (
                       <Link to={subItem.link} key={subIndex} className="block">
                         <button
-                          className={`w-full flex items-center space-x-3 p-2 pl-6 rounded-lg transition-all duration-200 text-left text-sm ${isSubItemActive(subItem.link)
+                          className={`w-full flex items-center space-x-3 p-2 pl-6 rounded-lg transition-all duration-200 text-left text-sm ${
+                            isSubItemActive(subItem.link)
                               ? "bg-cyan-100 text-cyan-700 border-l-2 border-cyan-600"
                               : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
-                            }`}
+                          }`}
                         >
                           <span className="font-medium">{subItem.label}</span>
                         </button>
@@ -152,10 +154,11 @@ export default function ClientSidebar() {
             ) : (
               <Link to={item.link} className="block">
                 <button
-                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${isItemActive(item)
+                  className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 text-left ${
+                    isItemActive(item)
                       ? "bg-cyan-600 text-white shadow-md transform scale-105"
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-800"
-                    }`}
+                  }`}
                 >
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>
