@@ -7,6 +7,7 @@ This is a comprehensive dental clinic management system with separate interfaces
 ### Client-Side
 
 *   **Authentication:** Secure user registration and login.
+*   **Email Verification:** Secure user's valid email.
 *   **Appointment Management:** Book, view, and manage appointments.
 *   **Medical Records:** Access and view personal medical records.
 *   **Real-time Chat:** Communicate with the clinic in real-time.
