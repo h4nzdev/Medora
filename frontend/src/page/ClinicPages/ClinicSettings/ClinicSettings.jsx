@@ -5,7 +5,7 @@ const ClinicSettings = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className="p-6">
+    <div className="">
       <h1 className="text-2xl font-bold text-slate-800 mb-6">Settings</h1>
 
       {/* Dark Mode Toggle */}

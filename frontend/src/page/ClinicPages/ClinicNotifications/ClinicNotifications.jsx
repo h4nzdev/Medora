@@ -16,7 +16,7 @@ import {
 import { useNotification } from "../../../context/NotificationContext";
 import { formatDate, useTime } from "../../../utils/date";
 
-const ClientNotifications = () => {
+const ClinicNotifications = () => {
   const { notifications, markAsRead } = useNotification();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
@@ -69,10 +69,10 @@ const ClientNotifications = () => {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
             <div className="flex-1">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent tracking-tight">
-                Notifications
+                Clinic Notifications
               </h1>
               <p className="text-slate-600 mt-3 text-lg sm:text-xl leading-relaxed">
-                Stay updated with your appointments, payments, and alerts.
+                Stay updated with appointments, patient updates, and clinic alerts.
               </p>
             </div>
           </div>
@@ -275,4 +275,4 @@ const ClientNotifications = () => {
   );
 };
 
-export default ClientNotifications;
+export default ClinicNotifications;

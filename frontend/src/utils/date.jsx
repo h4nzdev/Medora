@@ -2,10 +2,17 @@ export const useTime = (isoString) => {
   if (!isoString) return "";
 
   const date = new Date(isoString);
-  const hours = date.getUTCHours().toString().padStart(2, "0");
+  const hours = date.getUTCHours();
   const minutes = date.getUTCMinutes().toString().padStart(2, "0");
 
-  return `${hours}:${minutes}`; // Returns "09:00" from "2025-10-19T09:00:00.000+00:00"
+  // Convert to 12-hour format with AM/PM
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const twelveHour = hours % 12 || 12; // Convert 0 to 12 for midnight
+
+  return `${twelveHour}:${minutes} ${ampm}`;
+  // Returns "9:00 AM" from "2025-10-19T09:00:00.000+00:00"
+  // Returns "2:30 PM" from "2025-10-19T14:30:00.000+00:00"
+  // Returns "12:00 AM" from "2025-10-19T00:00:00.000+00:00"
 };
 
 export const createISOFromDateAndTime = (date, time24h) => {

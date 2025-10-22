@@ -14,6 +14,7 @@ import ClinicDoctorProfile from "../page/ClinicPages/DoctorProfile/ClinicDoctorP
 import ClinicPatientProfile from "../page/ClinicPages/PatientProfile/ClinicPatientProfile";
 import ClinicCalendar from "../page/ClinicPages/ClinicCalendar";
 import InvoicesPage from "../page/ClinicPages/ClinicInvoicePage/InvoicesPage"; // Import the new page
+import ClinicNotifications from "../page/ClinicPages/ClinicNotifications/ClinicNotifications";
 
 const ClinicRoutes = () => {
   return (
@@ -80,6 +81,14 @@ const ClinicRoutes = () => {
           element={
             <ClinicLayout>
               <ClinicMedicalRecords />
+            </ClinicLayout>
+          }
+        />
+        <Route
+          path="/clinic/notifications"
+          element={
+            <ClinicLayout>
+              <ClinicNotifications />
             </ClinicLayout>
           }
         />

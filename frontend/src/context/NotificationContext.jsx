@@ -21,9 +21,11 @@ export const NotificationProvider = ({ children }) => {
     if (user && user._id && user.role) {
       const fetchNotifications = async () => {
         try {
+          // Determine recipient type based on user role
+          const recipientType = user.role === "clinic" ? "Clinic" : "Client";
           const fetchedNotifications = await getUserNotifications(
             user._id,
-            "Client"
+            recipientType
           );
           setNotifications(fetchedNotifications);
         } catch (error) {

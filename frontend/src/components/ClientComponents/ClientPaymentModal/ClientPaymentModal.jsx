@@ -48,11 +48,14 @@ export default function ClientPaymentModal({
   });
 
   const handlePaymentMethodSelect = (method) => {
+    console.log("💰 Payment method selected:", method);
     setPaymentMethod(method);
     if (method === "cash") {
       // If cash is selected, proceed directly
+      console.log("💰 Calling onSubmit with cash payment");
       onSubmit({ paymentMethod: "cash", bankDetails: null });
     } else {
+      console.log("💰 Moving to step 2 for online payment");
       setStep(2);
     }
   };
@@ -69,6 +72,13 @@ export default function ClientPaymentModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("💰 Submitting online payment with details:", {
+      paymentMethod: "online",
+      bankDetails: {
+        ...bankDetails,
+        bank: selectedBank,
+      },
+    });
     onSubmit({
       paymentMethod: "online",
       bankDetails: {

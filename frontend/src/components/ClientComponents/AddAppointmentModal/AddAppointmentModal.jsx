@@ -9,6 +9,7 @@ import axios from "axios";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import ClientPaymentModal from "../ClientPaymentModal/ClientPaymentModal";
 import useMedicalRecords from "../../../hooks/medicalRecords";
+import { createNotification } from "../../../services/notificationService";
 
 // Import the new tab components
 import DateTab from "./Tabs/DateTab";
@@ -83,7 +84,47 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     setIsPaymentModalOpen(true);
   };
 
+  const sendNotificationToClinic = async (appointmentData, doctorData) => {
+    try {
+      console.log("Sending notification to clinic...");
+      console.log("Clinic ID:", user.clinicId?._id);
+      console.log("Appointment data:", appointmentData);
+      console.log("Doctor data:", doctorData);
+
+      // Create notification for the clinic
+      const notificationResult = await createNotification({
+        recipientId: user.clinicId?._id, // Clinic ID
+        recipientType: "Clinic",
+        message: `New appointment booked by ${user.name} with Dr. ${
+          doctorData?.name || "Unknown Doctor"
+        } on ${new Date(appointmentData.date).toLocaleDateString()} at ${
+          appointmentData.time
+        }`,
+        type: "appointment",
+        metadata: {
+          appointmentId: appointmentData._id,
+          patientId: user._id,
+          patientName: user.name,
+          doctorId: appointmentData.doctorId,
+          doctorName: doctorData?.name,
+          date: appointmentData.date,
+          time: appointmentData.time,
+          type: appointmentData.type,
+          bookingType: appointmentData.bookingType,
+        },
+      });
+
+      console.log("Notification sent successfully:", notificationResult);
+      return notificationResult;
+    } catch (error) {
+      console.error("Failed to send notification to clinic:", error);
+      console.error("Error details:", error.response?.data || error.message);
+      // Don't show error to user as this doesn't affect the main booking flow
+    }
+  };
+
   const handlePaymentSubmit = async (paymentData) => {
+    console.log("🎯 handlePaymentSubmit called with:", paymentData);
     setIsLoading(true);
     try {
       const datePart = formData.date.toISOString().split("T")[0];
@@ -98,12 +139,99 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
         paymentDetails: paymentData.bankDetails,
       };
 
+      console.log("📦 Final data being sent:", finalData);
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/appointment/add-appointment`,
         finalData
       );
+
+      console.log("✅ Appointment created:", res.data);
+      console.log("📋 Appointment response structure:", {
+        hasData: !!res.data,
+        hasId: !!(res.data && res.data._id),
+        appointmentId: res.data?._id,
+        fullResponse: res.data
+      });
+
+      // 🔥 ADD THIS - Send notification to clinic after successful booking
+      if (res.data && res.data._id) {
+        const createdAppointment = res.data;
+
+        // Find doctor details for the notification
+        const selectedDoctor = doctors.find(
+          (doc) => doc._id === formData.doctorId
+        );
+
+        console.log("🎯 Sending notification to clinic...");
+        console.log("Clinic ID:", user.clinicId?._id);
+        console.log("Doctor:", selectedDoctor?.name);
+
+        try {
+          // Create notification for the clinic
+          const notificationResult = await createNotification({
+            recipientId: user.clinicId?._id, // Clinic ID
+            recipientType: "Clinic",
+            message: `New appointment booked by ${user.name} with Dr. ${
+              selectedDoctor?.name || "Unknown Doctor"
+            } on ${new Date(createdAppointment.date).toLocaleDateString()}`,
+            type: "appointment",
+            metadata: {
+              appointmentId: createdAppointment._id,
+              patientId: user._id,
+              patientName: user.name,
+              doctorId: formData.doctorId,
+              doctorName: selectedDoctor?.name,
+              date: createdAppointment.date,
+              time: formData.time,
+              type: formData.type,
+              bookingType: formData.bookingType,
+            },
+          });
+
+          console.log(
+            "✅ Notification sent to clinic successfully!",
+            notificationResult
+          );
+        } catch (notificationError) {
+          console.error("❌ Failed to send notification:", notificationError);
+          console.error("Error details:", notificationError.response?.data);
+        }
+      } else {
+        console.log("❌ No appointment ID in response");
+        console.log("🔄 Attempting notification anyway...");
+        
+        // Try to send notification even without appointment ID
+        try {
+          const selectedDoctor = doctors.find(
+            (doc) => doc._id === formData.doctorId
+          );
+          
+          await createNotification({
+            recipientId: user.clinicId?._id,
+            recipientType: "Clinic",
+            message: `New appointment booked by ${user.name} with Dr. ${
+              selectedDoctor?.name || "Unknown Doctor"
+            }`,
+            type: "appointment",
+            metadata: {
+              patientId: user._id,
+              patientName: user.name,
+              doctorId: formData.doctorId,
+              doctorName: selectedDoctor?.name,
+              date: formData.date,
+              time: formData.time,
+              type: formData.type,
+              bookingType: formData.bookingType,
+            },
+          });
+          console.log("✅ Fallback notification sent successfully!");
+        } catch (fallbackError) {
+          console.error("❌ Fallback notification also failed:", fallbackError);
+        }
+      }
 
       if (paymentData.paymentMethod === "cash") {
         toast.success(
@@ -118,6 +246,7 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
       onClose();
     } catch (error) {
       console.error("Error booking appointment:", error);
+      console.error("Error response:", error.response?.data);
       toast.error("Failed to book appointment. Please try again.");
     } finally {
       setIsLoading(false);

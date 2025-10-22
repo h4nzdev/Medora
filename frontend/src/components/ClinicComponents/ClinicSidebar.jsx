@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Calendar1,
   ChevronRight,
+  Bell,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
@@ -50,6 +51,7 @@ export default function ClinicSidebar() {
       label: "Settings",
       link: "/clinic/settings",
     },
+    { icon: Bell, label: "Notifications", link: "/clinic/notifications" },
     {
       icon: CreditCard,
       label: "Payments",
