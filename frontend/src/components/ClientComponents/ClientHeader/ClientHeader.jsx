@@ -40,7 +40,7 @@ const ClientHeader = () => {
                   />
                 </svg>
                 <span className="absolute top-0 right-0 block rounded-full bg-red-400 text-[12px] text-white w-4 h-4 flex items-center justify-center">
-                  {notifications.length}
+                  {notifications.filter((n) => n.isRead === false).length}
                 </span>
               </button>
             </Link>

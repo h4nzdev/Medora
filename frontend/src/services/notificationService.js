@@ -9,7 +9,7 @@ export const createNotification = async (data) => {
     return res.data;
   } catch (error) {
     console.error("Error creating notification:", error);
-    throw error.response?.data || error; // rethrow so frontend can handle
+    throw error.response?.data || error;
   }
 };
 
@@ -31,6 +31,48 @@ export const markNotificationAsRead = async (id) => {
     return res.data;
   } catch (error) {
     console.error("Error marking notification as read:", error);
+    throw error.response?.data || error;
+  }
+};
+
+// ✅ Mark all notifications as read for a user
+export const markAllNotificationsAsRead = async (
+  recipientId,
+  recipientType
+) => {
+  try {
+    const res = await axios.put(`${API_URL}/mark-all-read`, {
+      // Changed from PATCH to PUT
+      recipientId,
+      recipientType,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    throw error.response?.data || error;
+  }
+};
+
+// ✅ Delete a single notification
+export const deleteNotification = async (id) => {
+  try {
+    const res = await axios.delete(`${API_URL}/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    throw error.response?.data || error;
+  }
+};
+
+// ✅ Delete all notifications for a user
+export const deleteAllNotifications = async (recipientId, recipientType) => {
+  try {
+    const res = await axios.delete(`${API_URL}/user/all`, {
+      data: { recipientId, recipientType },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting all notifications:", error);
     throw error.response?.data || error;
   }
 };

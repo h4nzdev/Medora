@@ -12,12 +12,22 @@ import {
   AlertCircle,
   Info,
   Filter,
+  Trash2,
+  CheckCheck,
+  Trash,
 } from "lucide-react";
 import { useNotification } from "../../../context/NotificationContext";
 import { formatDate, useTime } from "../../../utils/date";
 
 const ClientNotifications = () => {
-  const { notifications, markAsRead } = useNotification();
+  const {
+    notifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    deleteAllNotifications,
+  } = useNotification();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -62,6 +72,32 @@ const ClientNotifications = () => {
     { label: "System", value: "system", icon: Info },
   ];
 
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
+  };
+
+  const handleDeleteNotification = (notificationId) => {
+    if (window.confirm("Are you sure you want to delete this notification?")) {
+      deleteNotification(notificationId);
+    }
+  };
+
+  const handleDeleteAllNotifications = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete all notifications? This action cannot be undone."
+      )
+    ) {
+      deleteAllNotifications();
+    }
+  };
+
+  const hasUnreadNotifications = notifications.some(
+    (notification) => !notification.isRead
+  );
+
+  const hasNotifications = notifications.length > 0;
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
       <div className="mx-auto">
@@ -74,6 +110,31 @@ const ClientNotifications = () => {
               <p className="text-slate-600 mt-3 text-lg sm:text-xl leading-relaxed">
                 Stay updated with your appointments, payments, and alerts.
               </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              {/* Delete All Button */}
+              {hasNotifications && (
+                <button
+                  onClick={handleDeleteAllNotifications}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+                >
+                  <Trash className="w-4 h-4" />
+                  <span className="font-medium">Delete All</span>
+                </button>
+              )}
+
+              {/* Mark All as Read Button */}
+              {hasUnreadNotifications && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="flex items-center gap-2 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors duration-200 shadow-sm hover:shadow-md"
+                >
+                  <CheckCheck className="w-4 h-4" />
+                  <span className="font-medium">Mark All as Read</span>
+                </button>
+              )}
             </div>
           </div>
         </header>
@@ -105,6 +166,33 @@ const ClientNotifications = () => {
                   );
                 })}
               </div>
+
+              {/* Quick Actions in Sidebar */}
+              {hasNotifications && (
+                <div className="mt-8 pt-6 border-t border-slate-200">
+                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
+                    Quick Actions
+                  </h4>
+                  <div className="space-y-2">
+                    {hasUnreadNotifications && (
+                      <button
+                        onClick={handleMarkAllAsRead}
+                        className="w-full flex items-center gap-3 p-3 rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-all duration-200"
+                      >
+                        <CheckCheck className="w-4 h-4" />
+                        <span className="font-medium">Mark All Read</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={handleDeleteAllNotifications}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl text-red-700 bg-red-50 hover:bg-red-100 transition-all duration-200"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="font-medium">Delete All</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </aside>
 
@@ -188,6 +276,11 @@ const ClientNotifications = () => {
               <p className="text-slate-600 mt-2 text-lg">
                 {filteredNotifications.length} notification
                 {filteredNotifications.length !== 1 ? "s" : ""} found
+                {hasUnreadNotifications && (
+                  <span className="ml-2 text-cyan-600 font-semibold">
+                    ({notifications.filter((n) => !n.isRead).length} unread)
+                  </span>
+                )}
               </p>
             </div>
 
@@ -227,9 +320,21 @@ const ClientNotifications = () => {
                           <h3 className="font-bold text-slate-800 text-lg group-hover:text-cyan-600 transition-colors duration-300">
                             {notification.message}
                           </h3>
-                          {!notification.isRead && (
-                            <span className="flex-shrink-0 w-2 h-2 bg-cyan-500 rounded-full mt-2"></span>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {!notification.isRead && (
+                              <span className="flex-shrink-0 w-2 h-2 bg-cyan-500 rounded-full mt-2"></span>
+                            )}
+                            {/* Delete Button */}
+                            <button
+                              onClick={() =>
+                                handleDeleteNotification(notification._id)
+                              }
+                              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                              title="Delete notification"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -276,3 +381,4 @@ const ClientNotifications = () => {
 };
 
 export default ClientNotifications;
+  

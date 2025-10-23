@@ -3,6 +3,9 @@ import { toast } from "sonner";
 import {
   getUserNotifications,
   markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification as deleteNotificationService,
+  deleteAllNotifications as deleteAllNotificationsService,
 } from "../services/notificationService";
 import { AuthContext } from "./AuthContext";
 import ringtone from "../assets/notification.mp3";
@@ -73,7 +76,7 @@ export const NotificationProvider = ({ children }) => {
           }
         );
 
-        // ✅ Mark that we’ve already shown these
+        // ✅ Mark that we've already shown these
         setPrevNotifications((prev) => [...prev, ...newOnes]);
       }
     }
@@ -90,9 +93,62 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const markAllAsRead = async () => {
+    if (!user?._id || !user?.role) return;
+
+    try {
+      const recipientType = user.role === "clinic" ? "Clinic" : "Client";
+      await markAllNotificationsAsRead(user._id, recipientType);
+
+      // Update local state
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+
+      toast.success("All notifications marked as read");
+    } catch (error) {
+      console.error("Error marking all as read:", error);
+      toast.error("Failed to mark all notifications as read.");
+    }
+  };
+
+  const deleteNotification = async (id) => {
+    try {
+      await deleteNotificationService(id); // Use the renamed import
+      setNotifications((prev) => prev.filter((n) => n._id !== id));
+      toast.success("Notification deleted");
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      toast.error("Failed to delete notification.");
+    }
+  };
+
+  const deleteAllNotifications = async () => {
+    if (!user?._id || !user?.role) return;
+
+    try {
+      const recipientType = user.role === "clinic" ? "Clinic" : "Client";
+      await deleteAllNotificationsService(user._id, recipientType); // Use the renamed import
+
+      // Clear local state
+      setNotifications([]);
+      setPrevNotifications([]);
+
+      toast.success("All notifications deleted");
+    } catch (error) {
+      console.error("Error deleting all notifications:", error);
+      toast.error("Failed to delete all notifications.");
+    }
+  };
+
   return (
     <NotificationContext.Provider
-      value={{ notifications, markAsRead, setShowSplashNotif }}
+      value={{
+        notifications,
+        markAsRead,
+        markAllAsRead,
+        deleteNotification,
+        deleteAllNotifications,
+        setShowSplashNotif,
+      }}
     >
       {children}
     </NotificationContext.Provider>
