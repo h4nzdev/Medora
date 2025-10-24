@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { AuthContext } from "./AuthContext";
+import { useSettings } from "./SettingsContext"; // 👈 IMPORT SETTINGS
 import sound from "../assets/reminder2.mp3";
 import ringtone from "../assets/ringtone.mp3";
 
@@ -10,6 +11,7 @@ export const useReminder = () => useContext(ReminderContext);
 
 export const ReminderProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
+  const { settings } = useSettings(); // 👈 GET SETTINGS
   const [reminders, setReminders] = useState([]);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [dueReminder, setDueReminder] = useState(null);
@@ -42,33 +44,47 @@ export const ReminderProvider = ({ children }) => {
           if (!dueReminder) {
             setDueReminder(r);
             setIsNotificationModalOpen(true);
-            alarmSound.currentTime = 0;
-            alarmSound.play().catch((err) => {
-              console.warn("Sound play blocked by browser:", err);
-            });
+
+            // 🔔 Play alarm sound ONLY if sound is enabled
+            if (settings.soundEnabled) {
+              // 👈 CHECK SETTING
+              alarmSound.currentTime = 0;
+              alarmSound.play().catch((err) => {
+                console.warn("Sound play blocked by browser:", err);
+              });
+            }
           }
         }
       });
     }, 10000); // Check every 10 seconds
 
     return () => clearInterval(interval);
-  }, [reminders, alarmSound, dueReminder]);
+  }, [reminders, alarmSound, dueReminder, settings]); // 👈 ADD SETTINGS TO DEPENDENCY
 
   useEffect(() => {
     if (isNotificationModalOpen && dueReminder) {
       callTimer.current = setTimeout(() => {
         if (user) {
-          toast.info(
-            `Calling ${user.phone} initiated for reminder: ${dueReminder.name}. You did not acknowledge in time.`
-          );
+          // 📱 Show call notification ONLY if notifications are enabled
+          if (settings.notifications) {
+            // 👈 CHECK SETTING
+            toast.info(
+              `Calling ${user.phone} initiated for reminder: ${dueReminder.name}. You did not acknowledge in time.`
+            );
+          }
+
+          // 🔔 Play ringtone ONLY if sound is enabled
+          if (settings.soundEnabled) {
+            // 👈 CHECK SETTING
+            ringtoneSound.currentTime = 0;
+            ringtoneSound.play().catch((err) => {
+              console.warn("Sound play blocked by browser:", err);
+            });
+          }
         }
         setIsNotificationModalOpen(false);
         setDueReminder(null);
         alarmSound.pause();
-        ringtoneSound.currentTime = 0;
-        ringtoneSound.play().catch((err) => {
-          console.warn("Sound play blocked by browser:", err);
-        });
       }, 30000); // 30 seconds
     }
 
@@ -77,7 +93,14 @@ export const ReminderProvider = ({ children }) => {
         clearTimeout(callTimer.current);
       }
     };
-  }, [isNotificationModalOpen, dueReminder, alarmSound, ringtoneSound, user]);
+  }, [
+    isNotificationModalOpen,
+    dueReminder,
+    alarmSound,
+    ringtoneSound,
+    user,
+    settings,
+  ]); // 👈 ADD SETTINGS
 
   const saveReminders = (updated) => {
     setReminders(updated);

@@ -1,53 +1,59 @@
-import React, { useState } from "react";
-import { Moon, Sun, FileText, Bell, User, Shield, Smartphone } from "lucide-react";
+import React, { useContext, useState } from "react";
+import {
+  FileText,
+  Bell,
+  User,
+  Shield,
+  Smartphone,
+  MessageCircle,
+} from "lucide-react";
+import { submitFeedback } from "../../../services/feedbackService";
+import { AuthContext } from "../../../context/AuthContext";
+import { toast } from "sonner";
+import { useSettings } from "../../../context/SettingsContext";
+import ChangePasswordModal from "../../../components/ClientComponents/ChangePasswordModal/ChangePasswordModal";
 
 const ClientSettings = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [notifications, setNotifications] = useState(true);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackType, setFeedbackType] = useState("suggestion");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const { user } = useContext(AuthContext);
+  const { settings, toggleNotifications, toggleSound } = useSettings();
+
+  const handleSubmitFeedback = async (e) => {
+    e.preventDefault();
+    if (!feedbackMessage.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      await submitFeedback({
+        userId: user._id,
+        message: feedbackMessage,
+        type: feedbackType,
+      });
+      toast.success("Thanks for your feedback! We'll check it out");
+      setFeedbackMessage("");
+    } catch (error) {
+      toast.error("Oops! Failed to submit feedback. Try again!");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pb-6">
       <div className="mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">Settings</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
+            Settings
+          </h1>
           <p className="text-slate-600 mt-2 font-medium tracking-wide">
             Customize your personal preferences and account settings.
           </p>
         </header>
 
         <div className="space-y-6">
-          {/* Dark Mode Toggle */}
-          <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-                  {darkMode ? (
-                    <Moon className="w-6 h-6 text-slate-600" />
-                  ) : (
-                    <Sun className="w-6 h-6 text-slate-600" />
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-800">Dark Mode</h2>
-                  <p className="text-slate-500">Toggle dark mode appearance</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                  darkMode ? "bg-cyan-600" : "bg-slate-200"
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-                    darkMode ? "translate-x-6" : "translate-x-1"
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-
           {/* Notifications Settings */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
@@ -55,26 +61,34 @@ const ClientSettings = () => {
                 <Bell className="w-6 h-6 text-cyan-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-800">Notification Settings</h2>
-                <p className="text-slate-500">Manage your reminder notifications</p>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Notification Settings
+                </h2>
+                <p className="text-slate-500">
+                  Manage your reminder notifications
+                </p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                 <div>
-                  <h3 className="font-medium text-slate-800">Push Notifications</h3>
-                  <p className="text-slate-600 text-sm">Receive reminder notifications</p>
+                  <h3 className="font-medium text-slate-800">
+                    Push Notifications
+                  </h3>
+                  <p className="text-slate-600 text-sm">
+                    Receive reminder notifications
+                  </p>
                 </div>
                 <button
-                  onClick={() => setNotifications(!notifications)}
+                  onClick={toggleNotifications} // 👈 UPDATED
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                    notifications ? "bg-emerald-600" : "bg-slate-200"
+                    settings.notifications ? "bg-emerald-600" : "bg-slate-200"
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-                      notifications ? "translate-x-6" : "translate-x-1"
+                      settings.notifications ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                 </button>
@@ -83,17 +97,19 @@ const ClientSettings = () => {
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                 <div>
                   <h3 className="font-medium text-slate-800">Sound Alerts</h3>
-                  <p className="text-slate-600 text-sm">Play sound when reminders are due</p>
+                  <p className="text-slate-600 text-sm">
+                    Play sound when reminders are due
+                  </p>
                 </div>
                 <button
-                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  onClick={toggleSound} // 👈 UPDATED
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                    soundEnabled ? "bg-emerald-600" : "bg-slate-200"
+                    settings.soundEnabled ? "bg-emerald-600" : "bg-slate-200"
                   }`}
                 >
                   <span
                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-                      soundEnabled ? "translate-x-6" : "translate-x-1"
+                      settings.soundEnabled ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                 </button>
@@ -108,38 +124,117 @@ const ClientSettings = () => {
                 <User className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-800">Account Settings</h2>
-                <p className="text-slate-500">Manage your personal information</p>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Account Settings
+                </h2>
+                <p className="text-slate-500">
+                  Manage your personal information
+                </p>
               </div>
             </div>
 
             <div className="space-y-3">
               <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">Edit Profile</span>
+                  <span className="font-medium text-slate-800">
+                    Edit Profile
+                  </span>
                   <span className="text-slate-400">→</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Update your personal information</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  Update your personal information
+                </p>
               </button>
 
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+              <button
+                onClick={() => setShowChangePassword(true)}
+                className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">Change Password</span>
+                  <span className="font-medium text-slate-800">
+                    Change Password
+                  </span>
                   <span className="text-slate-400">→</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Update your account password</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  Update your account password
+                </p>
               </button>
             </div>
+          </div>
+
+          {/* 📝 FEEDBACK SECTION - NEW! */}
+          <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-cyan-600" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Send Feedback
+                </h2>
+                <p className="text-slate-500">
+                  Found a bug? Have a suggestion? Let us know!
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmitFeedback} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Feedback Type
+                </label>
+                <select
+                  value={feedbackType}
+                  onChange={(e) => setFeedbackType(e.target.value)}
+                  className="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                >
+                  <option value="suggestion">Suggestion</option>
+                  <option value="bug">Bug Report</option>
+                  <option value="complaint">Complaint</option>
+                  <option value="compliment">Compliment</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Your Message
+                </label>
+                <textarea
+                  value={feedbackMessage}
+                  onChange={(e) => setFeedbackMessage(e.target.value)}
+                  placeholder="Tell us what's on your mind... 😊"
+                  rows="4"
+                  className="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting || !feedbackMessage.trim()}
+                className="w-full bg-cyan-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Sending Feedback..." : "Send Feedback 🚀"}
+              </button>
+            </form>
+
+            <p className="text-slate-500 text-sm mt-4 text-center">
+              We read every message and appreciate your help making our app
+              better!
+            </p>
           </div>
 
           {/* App Settings */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Smartphone className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Smartphone className="w-6 h-6 text-green-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-800">App Preferences</h2>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  App Preferences
+                </h2>
                 <p className="text-slate-500">Customize your app experience</p>
               </div>
             </div>
@@ -147,18 +242,26 @@ const ClientSettings = () => {
             <div className="space-y-3">
               <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">Reminder Settings</span>
+                  <span className="font-medium text-slate-800">
+                    Reminder Settings
+                  </span>
                   <span className="text-slate-400">→</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Configure default reminder options</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  Configure default reminder options
+                </p>
               </button>
 
               <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">Data & Storage</span>
+                  <span className="font-medium text-slate-800">
+                    Data & Storage
+                  </span>
                   <span className="text-slate-400">→</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Manage your data and storage preferences</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  Manage your data and storage preferences
+                </p>
               </button>
             </div>
           </div>
@@ -166,12 +269,16 @@ const ClientSettings = () => {
           {/* Privacy and Terms Section */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <Shield className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <Shield className="w-6 h-6 text-orange-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-800">Privacy & Security</h2>
-                <p className="text-slate-500">Review our privacy policy and terms of service</p>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Privacy & Security
+                </h2>
+                <p className="text-slate-500">
+                  Review our privacy policy and terms of service
+                </p>
               </div>
             </div>
 
@@ -182,9 +289,8 @@ const ClientSettings = () => {
                   Privacy Policy
                 </h3>
                 <p className="text-slate-600 text-sm mb-3">
-                  Our privacy policy outlines how we collect, use, and protect your
-                  personal health information. We are committed to maintaining the
-                  confidentiality and security of your data.
+                  Our privacy policy outlines how we collect, use, and protect
+                  your personal health information.
                 </p>
                 <button className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors">
                   Read full policy →
@@ -197,25 +303,11 @@ const ClientSettings = () => {
                   Terms of Service
                 </h3>
                 <p className="text-slate-600 text-sm mb-3">
-                  By using our health reminder service, you agree to these terms which 
-                  explain your rights and responsibilities as a user of our platform.
+                  By using our health reminder service, you agree to these terms
+                  which explain your rights and responsibilities.
                 </p>
                 <button className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors">
                   Read full terms →
-                </button>
-              </div>
-
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                <h3 className="font-medium text-slate-800 mb-2 flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-slate-600" />
-                  Data Security
-                </h3>
-                <p className="text-slate-600 text-sm mb-3">
-                  Learn about how we protect your personal health data and what 
-                  security measures we have in place to keep your information safe.
-                </p>
-                <button className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors">
-                  Learn more →
                 </button>
               </div>
             </div>
@@ -224,11 +316,13 @@ const ClientSettings = () => {
           {/* Support Section */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <FileText className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                <FileText className="w-6 h-6 text-slate-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-800">Help & Support</h2>
+                <h2 className="text-lg font-semibold text-slate-800">
+                  Help & Support
+                </h2>
                 <p className="text-slate-500">Get help and contact support</p>
               </div>
             </div>
@@ -239,28 +333,43 @@ const ClientSettings = () => {
                   <span className="font-medium text-slate-800">FAQ</span>
                   <span className="text-slate-400">→</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Find answers to common questions</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  Find answers to common questions
+                </p>
               </button>
 
               <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">Contact Support</span>
+                  <span className="font-medium text-slate-800">
+                    Contact Support
+                  </span>
                   <span className="text-slate-400">→</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Get in touch with our support team</p>
+                <p className="text-slate-600 text-sm mt-1">
+                  Get in touch with our support team
+                </p>
               </button>
 
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+              <div className="w-full text-left p-4 bg-slate-50 rounded-lg">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">App Version</span>
+                  <span className="font-medium text-slate-800">
+                    App Version
+                  </span>
                   <span className="text-slate-500 text-sm">v1.2.0</span>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">Current app version information</p>
-              </button>
+                <p className="text-slate-600 text-sm mt-1">
+                  Current app version information
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+        user={user}
+      />
     </div>
   );
 };

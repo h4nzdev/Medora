@@ -8,6 +8,7 @@ import {
   deleteAllNotifications as deleteAllNotificationsService,
 } from "../services/notificationService";
 import { AuthContext } from "./AuthContext";
+import { useSettings } from "./SettingsContext"; // 👈 IMPORT SETTINGS
 import ringtone from "../assets/notification.mp3";
 
 const NotificationContext = createContext();
@@ -16,6 +17,7 @@ export const useNotification = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
+  const { settings } = useSettings(); // 👈 GET SETTINGS
   const [notifications, setNotifications] = useState([]);
   const [prevNotifications, setPrevNotifications] = useState([]);
   const [showSplashNotif, setShowSplashNotif] = useState(true);
@@ -52,35 +54,41 @@ export const NotificationProvider = ({ children }) => {
       );
 
       if (newOnes.length > 0) {
-        // 🔔 Play ringtone ONCE
-        const audio = new Audio(ringtone);
-        audio.currentTime = 0;
-        audio.play().catch((err) => {
-          console.error("Audio play failed:", err);
-        });
+        // 🔔 Play ringtone ONLY if sound is enabled
+        if (settings.soundEnabled) {
+          // 👈 CHECK SETTING
+          const audio = new Audio(ringtone);
+          audio.currentTime = 0;
+          audio.play().catch((err) => {
+            console.error("Audio play failed:", err);
+          });
+        }
 
-        // 📌 Show ONLY ONE toast for the batch
-        toast.info(
-          newOnes.length === 1
-            ? newOnes[0].message
-            : `You have ${newOnes.length} new notifications`,
-          {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            toastId: "batch-notification", // 🔑 same ID so it won't stack
-          }
-        );
+        // 📌 Show notification toast ONLY if notifications are enabled
+        if (settings.notifications) {
+          // 👈 CHECK SETTING
+          toast.info(
+            newOnes.length === 1
+              ? newOnes[0].message
+              : `You have ${newOnes.length} new notifications`,
+            {
+              position: "top-right",
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              toastId: "batch-notification",
+            }
+          );
+        }
 
         // ✅ Mark that we've already shown these
         setPrevNotifications((prev) => [...prev, ...newOnes]);
       }
     }
-  }, [notifications, prevNotifications]);
+  }, [notifications, prevNotifications, settings]); // 👈 ADD SETTINGS TO DEPENDENCY
 
   const markAsRead = async (id) => {
     try {
@@ -112,7 +120,7 @@ export const NotificationProvider = ({ children }) => {
 
   const deleteNotification = async (id) => {
     try {
-      await deleteNotificationService(id); // Use the renamed import
+      await deleteNotificationService(id);
       setNotifications((prev) => prev.filter((n) => n._id !== id));
       toast.success("Notification deleted");
     } catch (error) {
@@ -126,7 +134,7 @@ export const NotificationProvider = ({ children }) => {
 
     try {
       const recipientType = user.role === "clinic" ? "Clinic" : "Client";
-      await deleteAllNotificationsService(user._id, recipientType); // Use the renamed import
+      await deleteAllNotificationsService(user._id, recipientType);
 
       // Clear local state
       setNotifications([]);

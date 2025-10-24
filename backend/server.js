@@ -13,6 +13,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import invoiceRouter from "./routes/invoiceRoutes.js";
+import feedbackRouter from "./routes/feedbackRoutes.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
@@ -73,6 +74,7 @@ app.use("/", chatRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/invoices", invoiceRouter);
 app.use("/api/notification", notificationRouter);
+app.use("/api/feedback", feedbackRouter);
 
 httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on PORT : 3000`);

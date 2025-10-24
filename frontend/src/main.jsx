@@ -9,6 +9,7 @@ import App from "./App.jsx";
 
 // ✅ Correct import for PWA
 import { registerSW } from "virtual:pwa-register";
+import { SettingsProvider } from "./context/SettingsContext.jsx";
 
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -16,7 +17,9 @@ createRoot(document.getElementById("root")).render(
       <PatientsProvider>
         <AppointmentProvider>
           <ClinicProvider>
-            <App />
+            <SettingsProvider>
+              <App />
+            </SettingsProvider>
           </ClinicProvider>
         </AppointmentProvider>
       </PatientsProvider>
