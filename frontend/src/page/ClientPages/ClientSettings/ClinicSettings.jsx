@@ -12,6 +12,9 @@ import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "sonner";
 import { useSettings } from "../../../context/SettingsContext";
 import ChangePasswordModal from "../../../components/ClientComponents/ChangePasswordModal/ChangePasswordModal";
+import PrivacyPolicy from "../../../components/PrivacyPolicy";
+import TermsOfService from "../../../components/TermsOfService";
+import { Link } from "react-router-dom";
 
 const ClientSettings = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -20,6 +23,9 @@ const ClientSettings = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const { user } = useContext(AuthContext);
   const { settings, toggleNotifications, toggleSound } = useSettings();
+
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const handleSubmitFeedback = async (e) => {
     e.preventDefault();
@@ -134,17 +140,19 @@ const ClientSettings = () => {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">
-                    Edit Profile
-                  </span>
-                  <span className="text-slate-400">→</span>
-                </div>
-                <p className="text-slate-600 text-sm mt-1">
-                  Update your personal information
-                </p>
-              </button>
+              <Link to="/client/profile">
+                <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-slate-800">
+                      Edit Profile
+                    </span>
+                    <span className="text-slate-400">→</span>
+                  </div>
+                  <p className="text-slate-600 text-sm mt-1">
+                    Update your personal information
+                  </p>
+                </button>
+              </Link>
 
               <button
                 onClick={() => setShowChangePassword(true)}
@@ -203,7 +211,7 @@ const ClientSettings = () => {
                 <textarea
                   value={feedbackMessage}
                   onChange={(e) => setFeedbackMessage(e.target.value)}
-                  placeholder="Tell us what's on your mind... 😊"
+                  placeholder="Tell us what's on your mind..."
                   rows="4"
                   className="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
                   required
@@ -215,7 +223,7 @@ const ClientSettings = () => {
                 disabled={isSubmitting || !feedbackMessage.trim()}
                 className="w-full bg-cyan-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? "Sending Feedback..." : "Send Feedback 🚀"}
+                {isSubmitting ? "Sending Feedback..." : "Send Feedback"}
               </button>
             </form>
 
@@ -283,7 +291,10 @@ const ClientSettings = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div
+                onClick={() => setShowPrivacyPolicy(true)}
+                className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+              >
                 <h3 className="font-medium text-slate-800 mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-slate-600" />
                   Privacy Policy
@@ -297,7 +308,10 @@ const ClientSettings = () => {
                 </button>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div
+                onClick={() => setShowTerms(true)}
+                className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+              >
                 <h3 className="font-medium text-slate-800 mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-slate-600" />
                   Terms of Service
@@ -365,6 +379,13 @@ const ClientSettings = () => {
           </div>
         </div>
       </div>
+      <PrivacyPolicy
+        isOpen={showPrivacyPolicy}
+        onClose={() => setShowPrivacyPolicy(false)}
+      />
+
+      <TermsOfService isOpen={showTerms} onClose={() => setShowTerms(false)} />
+
       <ChangePasswordModal
         isOpen={showChangePassword}
         onClose={() => setShowChangePassword(false)}

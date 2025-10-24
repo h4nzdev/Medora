@@ -91,7 +91,7 @@ export const clinicRegister = async (req, res) => {
       password: hashedPassword, // save hashed password
       phone,
       address,
-      clinicPicture: req.file ? req.file.path : '', // Save the public URL path
+      clinicPicture: req.file ? req.file.path : "", // Save the public URL path
       agreeToTerms,
       subscriptionPlan,
     });
@@ -108,5 +108,110 @@ export const clinicRegister = async (req, res) => {
   } catch (error) {
     console.error("Error in clinicRegister:", error);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Send password change verification for clinic
+export const sendClinicPasswordChangeVerification = async (req, res) => {
+  try {
+    const { email, currentPassword } = req.body;
+
+    // 1. Find clinic and verify current password
+    const clinic = await Clinic.findOne({ email });
+    if (!clinic) {
+      return res.status(404).json({ message: "Clinic not found" });
+    }
+
+    // 2. Verify current password
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      clinic.password
+    );
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // 3. Generate verification code (REUSE YOUR EXISTING SYSTEM)
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationCodes[email] = code;
+
+    // 4. Send email (REUSE YOUR EXISTING EMAIL SERVICE)
+    const emailResponse = await sendVerificationEmail(email, code);
+
+    if (emailResponse.success) {
+      res.json({ message: "Verification code sent successfully" });
+    } else {
+      res.status(500).json({ message: emailResponse.message });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error sending verification code",
+      error: error.message,
+    });
+  }
+};
+
+// Verify and change clinic password
+export const verifyAndChangeClinicPassword = async (req, res) => {
+  try {
+    const { email, verificationCode, currentPassword, newPassword } = req.body;
+
+    // 1. Verify the code (REUSE YOUR EXISTING SYSTEM)
+    if (verificationCodes[email] !== verificationCode) {
+      return res.status(400).json({ message: "Invalid verification code." });
+    }
+
+    // 2. Find clinic and verify current password again (for security)
+    const clinic = await Clinic.findOne({ email });
+    if (!clinic) {
+      return res.status(404).json({ message: "Clinic not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      clinic.password
+    );
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // 3. Hash new password and update
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    clinic.password = hashedNewPassword;
+    await clinic.save();
+
+    // 4. Clean up verification code
+    delete verificationCodes[email];
+
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error changing password",
+      error: error.message,
+    });
+  }
+};
+
+// Simple password update (for admin use - no verification)
+export const updateClinicPassword = async (req, res) => {
+  try {
+    const { clinicId } = req.params;
+    const { newPassword } = req.body;
+
+    const clinic = await Clinic.findById(clinicId);
+    if (!clinic) {
+      return res.status(404).json({ message: "Clinic not found" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    clinic.password = hashedPassword;
+    await clinic.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error updating password",
+      error: error.message,
+    });
   }
 };

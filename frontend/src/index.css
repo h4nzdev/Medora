@@ -9,6 +9,59 @@ html {
   display: none;
 }
 
+/* Auto-Hide Slim Cyan Scrollbar */
+.auto-hide-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.auto-hide-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.auto-hide-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.auto-hide-scroll::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 10px;
+  transition: all 0.5s ease;
+}
+
+/* Show scrollbar on container hover */
+.auto-hide-scroll:hover::-webkit-scrollbar-thumb {
+  background: #6a6a6a; /* cyan-500 */
+}
+
+.auto-hide-scroll:hover::-webkit-scrollbar-track {
+  background: #f1f5f9; /* slate-100 */
+}
+
+/* Show scrollbar when scrolling (using JS class) */
+.auto-hide-scroll.scrolling::-webkit-scrollbar-thumb {
+  background: #6a6a6a;
+}
+
+.auto-hide-scroll.scrolling::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+/* For Firefox */
+.auto-hide-scroll {
+  scrollbar-color: transparent transparent;
+}
+
+.auto-hide-scroll:hover {
+  scrollbar-color: #6a6a6a #f1f5f9;
+}
+
+.auto-hide-scroll.scrolling {
+  scrollbar-color: #6a6a6a #f1f5f9;
+}
+
 /* Calendar customization */
 .react-calendar {
   border: none !important;
@@ -74,7 +127,7 @@ html {
   transition: all 0.2s ease;
 }
 .calendar-container .react-calendar__tile--active {
-  background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+  background: linear-gradient(135deg, #6a6a6a, #0891b2) !important;
   color: white !important;
   border-radius: 50% !important;
   box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3) !important;

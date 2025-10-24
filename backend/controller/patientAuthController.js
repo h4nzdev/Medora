@@ -137,3 +137,84 @@ export const registerClient = async (req, res) => {
     });
   }
 };
+
+// Send password change verification
+export const sendPasswordChangeVerification = async (req, res) => {
+  try {
+    const { email, currentPassword } = req.body;
+
+    // 1. Find patient and verify current password
+    const patient = await Patient.findOne({ email });
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    // 2. Verify current password
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      patient.password
+    );
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // 3. Generate verification code (REUSE YOUR EXISTING SYSTEM)
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    verificationCodes[email] = code;
+
+    // 4. Send email (REUSE YOUR EXISTING EMAIL SERVICE)
+    const emailResponse = await sendVerificationEmail(email, code);
+
+    if (emailResponse.success) {
+      res.json({ message: "Verification code sent successfully" });
+    } else {
+      res.status(500).json({ message: emailResponse.message });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error sending verification code",
+      error: error.message,
+    });
+  }
+};
+
+// Verify and change password
+export const verifyAndChangePassword = async (req, res) => {
+  try {
+    const { email, verificationCode, currentPassword, newPassword } = req.body;
+
+    // 1. Verify the code (REUSE YOUR EXISTING SYSTEM)
+    if (verificationCodes[email] !== verificationCode) {
+      return res.status(400).json({ message: "Invalid verification code." });
+    }
+
+    // 2. Find patient and verify current password again (for security)
+    const patient = await Patient.findOne({ email });
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      patient.password
+    );
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // 3. Hash new password and update
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    patient.password = hashedNewPassword;
+    await patient.save();
+
+    // 4. Clean up verification code
+    delete verificationCodes[email];
+
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error changing password",
+      error: error.message,
+    });
+  }
+};

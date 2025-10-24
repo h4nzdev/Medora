@@ -2,9 +2,9 @@ import { useState } from "react";
 import { X, Check, XCircle, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import {
-  sendPasswordChangeVerification,
-  verifyAndChangePassword,
-} from "../../../services/passwordService";
+  sendClinicPasswordChangeVerification,
+  verifyAndChangeClinicPassword,
+} from "../../../services/clinicPasswordService";
 
 const ChangePasswordModal = ({ isOpen, onClose, user }) => {
   const [step, setStep] = useState(1);
@@ -43,7 +43,7 @@ const ChangePasswordModal = ({ isOpen, onClose, user }) => {
 
     setIsLoading(true);
     try {
-      await sendPasswordChangeVerification(user.email, currentPassword);
+      await sendClinicPasswordChangeVerification(user.email, currentPassword);
       toast.success("Verification code sent to your email! 📧");
       setStep(2);
     } catch (error) {
@@ -74,7 +74,7 @@ const ChangePasswordModal = ({ isOpen, onClose, user }) => {
 
     setIsLoading(true);
     try {
-      await verifyAndChangePassword(
+      await verifyAndChangeClinicPassword(
         user.email,
         verificationCode,
         currentPassword,
