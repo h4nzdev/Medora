@@ -6,6 +6,18 @@ import {
   Clock,
   AlertTriangle,
   Phone,
+  Stethoscope,
+  Heart,
+  Zap,
+  Sparkles,
+  VolumeX,
+  Volume2,
+  ThumbsUp,
+  ThumbsDown,
+  MoreHorizontal,
+  BookOpen,
+  Calendar,
+  MapPin,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -25,7 +37,31 @@ const ClientChat = () => {
   });
   const [showEmergency, setShowEmergency] = useState(false);
   const [emergencyData, setEmergencyData] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [quickActions, setQuickActions] = useState(true);
   const { user } = useContext(AuthContext);
+
+  // Enhanced sample questions with categories
+  const sampleQuestions = {
+    symptoms: [
+      "I have headache and fever",
+      "Cough and sore throat for 3 days",
+      "Stomach pain after eating",
+      "Feeling dizzy and tired",
+    ],
+    general: [
+      "What are flu symptoms?",
+      "How to manage stress?",
+      "When to see a doctor for fever?",
+      "Healthy diet tips",
+    ],
+    appointment: [
+      "How to book appointment?",
+      "What to bring to clinic?",
+      "Emergency contact number",
+      "Clinic operating hours",
+    ],
+  };
 
   // Function to fetch chat credits
   const fetchChatCredits = async () => {
@@ -49,7 +85,8 @@ const ClientChat = () => {
       setChatHistory([
         {
           role: "bot",
-          text: "Hello! I'm Medora, your clinic appointment and symptoms checker assistant. I can help you with:\n\n• Checking your symptoms\n• Providing basic health information\n• Guiding you through the appointment booking process\n• Answering questions about clinic services\n\nHow may I assist you today?",
+          text: "👋 Hello! I'm Medora, your AI health assistant. I can help you with:\n\n• Symptom checking and basic advice\n• Health information and tips\n• Appointment guidance\n• Emergency assessment\n\n💡 You have 5 free messages today. Let's start with how you're feeling!",
+          type: "welcome",
         },
       ]);
     }
@@ -73,11 +110,35 @@ const ClientChat = () => {
     setChatHistory([
       {
         role: "bot",
-        text: "Hello! I'm Medora, your clinic appointment and symptoms checker assistant. I can help you with:\n\n• Checking your symptoms\n• Providing basic health information\n• Guiding you through the appointment booking process\n• Answering questions about clinic services\n\nHow may I assist you today?",
+        text: "👋 Hello! I'm Medora, your AI health assistant. I can help you with:\n\n• Symptom checking and basic advice\n• Health information and tips\n• Appointment guidance\n• Emergency assessment\n\n💡 You have 5 free messages today. Let's start with how you're feeling!",
+        type: "welcome",
       },
     ]);
     setShowEmergency(false);
     setEmergencyData(null);
+    setQuickActions(true);
+  };
+
+  // Text-to-speech function
+  const speakText = (text) => {
+    if ("speechSynthesis" in window) {
+      const speech = new SpeechSynthesisUtterance();
+      speech.text = text.replace(/[👋💡🚨📋📍🕒❤️⚡🎯]/g, "");
+      speech.rate = 0.9;
+      speech.pitch = 1;
+      speech.volume = 1;
+
+      speech.onstart = () => setIsSpeaking(true);
+      speech.onend = () => setIsSpeaking(false);
+      speech.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(speech);
+    }
+  };
+
+  const stopSpeaking = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
   };
 
   const handleSendMessage = async () => {
@@ -87,7 +148,8 @@ const ClientChat = () => {
     if (!chatCredits.canChat) {
       const errorMessage = {
         role: "bot",
-        text: "You've reached your daily chat limit of 5 messages. Please come back tomorrow for more assistance.",
+        text: "❌ You've reached your daily chat limit of 5 messages. Please come back tomorrow for more assistance.\n\n📞 For urgent concerns, contact your healthcare provider directly.",
+        type: "limit_reached",
       };
       setChatHistory((prev) => [...prev, errorMessage]);
       return;
@@ -96,11 +158,16 @@ const ClientChat = () => {
     const userMessage = {
       role: "user",
       text: message,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     setChatHistory((prev) => [...prev, userMessage]);
     setMessage("");
     setLoading(true);
+    setQuickActions(false);
 
     try {
       // 1) Save the user's message immediately
@@ -119,7 +186,7 @@ const ClientChat = () => {
         });
       }
 
-      // 2) Ask AI for a reply - NOW WITH EMERGENCY DETECTION
+      // 2) Ask AI for a reply
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/chat`,
         {
@@ -132,6 +199,10 @@ const ClientChat = () => {
         text: response.data.reply,
         severity: response.data.severity,
         emergency: response.data.emergency_trigger,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
 
       setChatHistory((prev) => [...prev, botMessage]);
@@ -142,7 +213,10 @@ const ClientChat = () => {
         setEmergencyData({
           severity: response.data.severity,
           message: response.data.reply,
-          timestamp: new Date().toLocaleTimeString(),
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         });
       }
 
@@ -171,21 +245,25 @@ const ClientChat = () => {
     } catch (error) {
       console.error("Error fetching bot response:", error);
 
-      let errorText = "Sorry, something went wrong. Please try again.";
+      let errorText = "❌ Sorry, something went wrong. Please try again.";
 
       if (error.message.includes("clinic information not found")) {
         errorText =
-          "Unable to identify your clinic. Please log out and log in again.";
+          "❌ Unable to identify your clinic. Please log out and log in again.";
       } else if (error.response?.status === 400) {
         errorText =
-          "Invalid request. Please check your connection and try again.";
+          "❌ Invalid request. Please check your connection and try again.";
       } else if (error.response?.status === 500) {
-        errorText = "Server error. Please try again in a moment.";
+        errorText = "❌ Server error. Please try again in a moment.";
       }
 
       const errorMessage = {
         role: "bot",
         text: errorText,
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
       setChatHistory((prev) => [...prev, errorMessage]);
     } finally {
@@ -195,13 +273,16 @@ const ClientChat = () => {
 
   // Emergency contact handler
   const handleEmergencyContact = () => {
-    // In a real app, this would trigger a call or connect to emergency services
     toast.info(
       "🚨 Connecting to emergency services... Please stay on the line."
     );
+    // Auto-dial emergency numbers
+    window.location.href = "tel:911";
+  };
 
-    // You can also auto-dial emergency numbers
-    // window.location.href = 'tel:911';
+  const handleClinicContact = () => {
+    toast.info("📞 Contacting your clinic...");
+    window.location.href = "tel:+1234567890";
   };
 
   // Close emergency banner
@@ -210,83 +291,125 @@ const ClientChat = () => {
     setEmergencyData(null);
   };
 
+  // Quick action handler
+  const handleQuickAction = (question) => {
+    setMessage(question);
+  };
+
+  // Feedback handler
+  const handleFeedback = (helpful) => {
+    toast.success(`Thank you for your feedback!`);
+  };
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory, loading, showEmergency]);
 
   return (
-    <div className="w-full h-full flex flex-col min-h-screen">
-      {/* Header - Mobile Optimized */}
-      <div className="bg-white border-b border-gray-200 p-3 sm:p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
-            <div className="bg-cyan-100 p-2 sm:p-3 rounded-full flex-shrink-0">
-              <Bot className="h-5 w-5 sm:h-6 sm:w-6 text-cyan-600" />
+    <div className="w-full h-full flex flex-col min-h-screen bg-gradient-to-br from-slate-50 to-cyan-50/30">
+      {/* Enhanced Header */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 p-3 sm:p-4 lg:p-6 sticky top-18 z-10 mb-10">
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
+          {/* Left Section - Logo & Title */}
+          <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-1 min-w-0">
+            <div className="relative flex-shrink-0">
+              <div className="bg-gradient-to-br from-cyan-500 to-blue-500 p-1.5 sm:p-2 lg:p-3 rounded-xl sm:rounded-2xl shadow-lg">
+                <Bot className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full border-2 border-white"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
-                AI Symptom Checker
-              </h1>
-              <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
-                Get basic advice for your symptoms. This is not a substitute for
-                professional medical advice.
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent truncate">
+                  Medora AI
+                </h1>
+                <span className="px-1.5 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium hidden sm:inline-block">
+                  Beta
+                </span>
+              </div>
+              <p className="text-slate-600 text-xs sm:text-sm lg:text-base hidden xs:block">
+                Your health companion
               </p>
-              {/* Chat Credits Display - Mobile Optimized */}
-              <div className="flex items-center space-x-1 sm:space-x-2 mt-1 sm:mt-2">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600 flex-shrink-0" />
-                <span
-                  className={`text-xs sm:text-sm font-medium truncate ${
-                    chatCredits.canChat ? "text-cyan-600" : "text-red-600"
-                  }`}
-                >
-                  {chatCredits.canChat
-                    ? `${chatCredits.credits}/${chatCredits.maxCredits} chats left`
-                    : "Limit reached"}
+            </div>
+          </div>
+
+          {/* Right Section - Controls */}
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
+            {/* Credits Display - Compact on mobile */}
+            <div
+              className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl border ${
+                chatCredits.canChat
+                  ? "bg-cyan-50 border-cyan-200 text-cyan-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-xs sm:text-sm font-semibold">
+                  {chatCredits.credits}/{chatCredits.maxCredits}
                 </span>
               </div>
             </div>
+
+            {/* Voice Control - Icon only on mobile */}
+            <button
+              onClick={
+                isSpeaking
+                  ? stopSpeaking
+                  : () =>
+                      speakText(chatHistory[chatHistory.length - 1]?.text || "")
+              }
+              className="p-1.5 sm:p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg sm:rounded-xl transition-all duration-200"
+            >
+              {isSpeaking ? (
+                <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
+              ) : (
+                <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
+            </button>
+
+            {/* Clear Button - Smaller on mobile */}
+            <button
+              onClick={handleClearHistory}
+              className="px-2 py-1.5 sm:px-3 sm:py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg sm:rounded-xl transition-all duration-200 text-xs sm:text-sm font-medium"
+            >
+              Clear
+            </button>
           </div>
-          <button
-            onClick={handleClearHistory}
-            className="text-xs sm:text-sm text-cyan-700 hover:text-cyan-900 border border-cyan-200 hover:border-cyan-400 px-2 py-1 sm:px-3 sm:py-1 rounded-md whitespace-nowrap ml-2"
-          >
-            Clear
-          </button>
         </div>
       </div>
 
-      {/* Emergency Banner - Shows when severe symptoms detected */}
+      {/* Enhanced Emergency Banner */}
       {showEmergency && emergencyData && (
-        <div className="sticky top-16 bg-red-50 border-b border-red-200 p-3 sm:p-4">
-          <div className="flex items-start space-x-3">
-            <div className="bg-red-100 p-2 rounded-full flex-shrink-0 mt-1">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-red-900 text-sm sm:text-base">
-                  🚨 Medical Attention Required
-                </h3>
-                <button
-                  onClick={handleCloseEmergency}
-                  className="text-red-500 hover:text-red-700 text-sm"
-                >
-                  Dismiss
-                </button>
+        <div className="sticky top-20 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 lg:p-6 shadow-lg z-10 animate-pulse">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 flex-1">
+                <div className="bg-white/20 p-3 rounded-2xl">
+                  <AlertTriangle className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-lg mb-1">
+                    🚨 Medical Emergency Detected
+                  </h3>
+                  <p className="text-red-100 text-sm opacity-90">
+                    {emergencyData.message}
+                  </p>
+                </div>
               </div>
-              <p className="text-red-800 text-xs sm:text-sm mb-3">
-                {emergencyData.message}
-              </p>
               <div className="flex space-x-2">
                 <button
                   onClick={handleEmergencyContact}
-                  className="flex items-center space-x-2 bg-red-600 text-white md:px-4 px-2 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm"
+                  className="bg-white text-red-600 px-4 py-2 rounded-xl font-semibold hover:bg-red-50 transition-colors flex items-center space-x-2"
                 >
-                  <Phone className="md:h-4 md:w-4" />
-                  <span>Call Emergency</span>
+                  <Phone className="h-4 w-4" />
+                  <span>Call 911</span>
                 </button>
-                <button className="flex items-center space-x-2 bg-white text-red-600 border border-red-600 md:px-4 px-2 py-2 rounded-lg hover:bg-red-50 transition-colors text-sm">
-                  <span>Contact Clinic</span>
+                <button
+                  onClick={handleClinicContact}
+                  className="bg-red-700 text-white px-4 py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors"
+                >
+                  Contact Clinic
                 </button>
               </div>
             </div>
@@ -294,187 +417,318 @@ const ClientChat = () => {
         </div>
       )}
 
-      {/* Chat Messages - Mobile Scrolling Fixed */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 space-y-3 sm:space-y-4">
-        {chatHistory.map((chat, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              chat.role === "user" ? "justify-end" : "justify-start"
-            }`}
-          >
+      {/* Enhanced Chat Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto">
+          {chatHistory.map((chat, index) => (
             <div
-              className={`max-w-[85%] sm:max-w-xs lg:max-w-md xl:max-w-lg px-3 py-2 sm:px-4 sm:py-3 rounded-lg ${
-                chat.role === "user"
-                  ? "bg-cyan-600 text-white"
-                  : chat.emergency
-                  ? "bg-red-50 border border-red-200 text-red-900"
-                  : "bg-white border border-gray-200 text-gray-900"
+              key={index}
+              className={`flex ${
+                chat.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              {chat.role === "bot" && (
-                <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                  <Bot
-                    className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                      chat.emergency ? "text-red-600" : "text-cyan-600"
-                    } flex-shrink-0`}
-                  />
-                  <span
-                    className={`text-xs sm:text-sm font-medium ${
-                      chat.emergency ? "text-red-600" : "text-cyan-600"
-                    }`}
-                  >
-                    {chat.emergency ? "🚨 AI Assistant" : "AI Assistant"}
-                  </span>
-                  {chat.severity && (
+              <div
+                className={`max-w-[90%] lg:max-w-2xl rounded-2xl p-4 lg:p-6 relative group ${
+                  chat.role === "user"
+                    ? "bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg"
+                    : chat.emergency
+                    ? "bg-red-50 border-2 border-red-200 text-red-900"
+                    : chat.type === "welcome"
+                    ? "bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 text-slate-800"
+                    : "bg-white border border-slate-200 shadow-sm text-slate-800"
+                }`}
+              >
+                {/* Message Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    {chat.role === "bot" ? (
+                      <>
+                        <div
+                          className={`p-2 rounded-xl ${
+                            chat.emergency
+                              ? "bg-red-100 text-red-600"
+                              : chat.type === "welcome"
+                              ? "bg-blue-100 text-blue-600"
+                              : "bg-cyan-100 text-cyan-600"
+                          }`}
+                        >
+                          <Bot className="h-4 w-4" />
+                        </div>
+                        <span
+                          className={`font-semibold text-sm ${
+                            chat.emergency ? "text-red-700" : "text-cyan-700"
+                          }`}
+                        >
+                          {chat.emergency ? "🚨 Emergency Alert" : "Medora AI"}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="p-2 rounded-xl bg-white/20">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <span className="font-semibold text-sm text-white/90">
+                          You
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {chat.timestamp && (
                     <span
-                      className={`text-xs px-2 py-1 rounded-full ${
-                        chat.severity === "SEVERE"
-                          ? "bg-red-100 text-red-800"
-                          : chat.severity === "MODERATE"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
+                      className={`text-xs ${
+                        chat.role === "user"
+                          ? "text-white/70"
+                          : "text-slate-500"
                       }`}
                     >
-                      {chat.severity}
+                      {chat.timestamp}
                     </span>
                   )}
                 </div>
-              )}
-              <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
-                {chat.text}
+
+                {/* Message Content */}
+                <p className="text-sm lg:text-base leading-relaxed whitespace-pre-wrap">
+                  {chat.text}
+                </p>
+
+                {/* Message Footer */}
+                {chat.role === "bot" && !chat.type && (
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200/50">
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => speakText(chat.text)}
+                        className="p-1 text-slate-500 hover:text-cyan-600 transition-colors"
+                      >
+                        <Volume2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <span className="text-xs text-slate-500">Helpful?</span>
+                      <button
+                        onClick={() => handleFeedback(true)}
+                        className="p-1 text-slate-400 hover:text-green-500 transition-colors"
+                      >
+                        <ThumbsUp className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(false)}
+                        className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+                      >
+                        <ThumbsDown className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {loading && (
+            <div className="flex justify-start">
+              <div className="max-w-[90%] lg:max-w-2xl bg-white border border-slate-200 rounded-2xl p-4 lg:p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-cyan-100 rounded-xl">
+                    <Bot className="h-4 w-4 text-cyan-600" />
+                  </div>
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced Quick Actions */}
+          {quickActions && chatCredits.canChat && !showEmergency && (
+            <div className="bg-white/80 backdrop-blur-sm border border-slate-200/60 rounded-2xl p-6 lg:p-8 shadow-lg mt-10">
+              <div className="text-center mb-6">
+                <Sparkles className="h-8 w-8 text-cyan-500 mx-auto mb-3" />
+                <h3 className="text-lg lg:text-xl font-semibold text-slate-800 mb-2">
+                  Quick Start Questions
+                </h3>
+                <p className="text-slate-600 text-sm lg:text-base">
+                  Choose a category or type your own question
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Symptoms Category */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Stethoscope className="h-5 w-5 text-red-500" />
+                    <h4 className="font-semibold text-slate-800">
+                      Describe Symptoms
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {sampleQuestions.symptoms.map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuickAction(question)}
+                        className="text-left p-3 bg-slate-50 hover:bg-red-50 hover:border-red-200 border border-slate-200 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                      >
+                        <p className="text-sm text-slate-700">{question}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* General Health */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <BookOpen className="h-5 w-5 text-blue-500" />
+                    <h4 className="font-semibold text-slate-800">
+                      Health Information
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {sampleQuestions.general.map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuickAction(question)}
+                        className="text-left p-3 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 border border-slate-200 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                      >
+                        <p className="text-sm text-slate-700">{question}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Appointment Related */}
+                <div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Calendar className="h-5 w-5 text-green-500" />
+                    <h4 className="font-semibold text-slate-800">
+                      Clinic & Appointments
+                    </h4>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {sampleQuestions.appointment.map((question, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleQuickAction(question)}
+                        className="text-left p-3 bg-slate-50 hover:bg-green-50 hover:border-green-200 border border-slate-200 rounded-xl transition-all duration-200 hover:scale-[1.02]"
+                      >
+                        <p className="text-sm text-slate-700">{question}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Enhanced Chat Limit Message */}
+          {!chatCredits.canChat && (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-6 lg:p-8 text-center">
+              <Clock className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+              <h3 className="text-lg lg:text-xl font-semibold text-amber-800 mb-2">
+                Daily Limit Reached
+              </h3>
+              <p className="text-amber-700 text-sm lg:text-base mb-4">
+                You've used all your free messages for today. Your credits will
+                reset in {Math.ceil(24 - new Date().getHours() + 1)} hours.
               </p>
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div className="max-w-[85%] sm:max-w-xs lg:max-w-md xl:max-w-lg px-3 py-2 sm:px-4 sm:py-3 rounded-lg bg-white border border-gray-200 text-gray-900">
-              <div className="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
-                <Bot className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-600" />
-                <span className="text-xs sm:text-sm font-medium text-cyan-600">
-                  AI Assistant
-                </span>
-              </div>
-              <p className="text-sm">Typing...</p>
-            </div>
-          </div>
-        )}
-
-        {/* Rest of your existing components remain the same */}
-        {/* Chat Limit Reached Message */}
-        {!chatCredits.canChat && (
-          <div className="bg-red-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-red-200">
-            <div className="flex items-center space-x-2 mb-2 sm:mb-3">
-              <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0" />
-              <h3 className="font-medium text-red-900 text-sm sm:text-base">
-                Daily Chat Limit Reached
-              </h3>
-            </div>
-            <p className="text-xs sm:text-sm text-red-800">
-              You've used all 5 of your daily chat messages. Your chat credits
-              will reset tomorrow. For urgent medical concerns, please contact
-              your healthcare provider directly.
-            </p>
-          </div>
-        )}
-
-        {/* Sample health questions - Only show if no emergency and can chat */}
-        {chatCredits.canChat && !showEmergency && (
-          <div className="bg-blue-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-blue-200">
-            <h3 className="font-medium text-blue-900 mb-2 sm:mb-3 text-sm sm:text-base">
-              Common Questions You Can Ask:
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-              <div
-                onClick={() => setMessage("I have a headache and feel tired")}
-                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
-              >
-                <p className="text-xs sm:text-sm text-blue-800">
-                  "I have a headache and feel tired"
-                </p>
-              </div>
-              <div
-                onClick={() => setMessage("What are symptoms of flu?")}
-                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
-              >
-                <p className="text-xs sm:text-sm text-blue-800">
-                  "What are symptoms of flu?"
-                </p>
-              </div>
-              <div
-                onClick={() => setMessage("When should I see a doctor?")}
-                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
-              >
-                <p className="text-xs sm:text-sm text-blue-800">
-                  "When should I see a doctor?"
-                </p>
-              </div>
-              <div
-                onClick={() => setMessage("How to manage stress?")}
-                className="text-left p-2 sm:p-3 bg-white rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-50 transition-colors"
-              >
-                <p className="text-xs sm:text-sm text-blue-800">
-                  "How to manage stress?"
-                </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={handleClinicContact}
+                  className="px-6 py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>Call Clinic</span>
+                </button>
+                <button className="px-6 py-3 bg-white text-amber-600 border border-amber-300 rounded-xl font-semibold hover:bg-amber-50 transition-colors">
+                  Learn About Premium
+                </button>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Health Tips - Hide during emergencies */}
-        {!showEmergency && (
-          <div className="bg-cyan-50 rounded-lg sm:rounded-xl p-3 sm:p-4 lg:p-6 border border-cyan-200 hidden sm:block">
-            <div className="flex items-center space-x-2 mb-2 sm:mb-3">
-              <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-600" />
-              <h3 className="font-medium text-cyan-900 text-sm sm:text-base">
-                Daily Health Reminder
-              </h3>
-            </div>
-            <p className="text-xs sm:text-sm text-cyan-800">
-              Remember to stay hydrated throughout the day. Aim for 8 glasses of
-              water to maintain optimal health and energy levels.
-            </p>
-          </div>
-        )}
-
-        <div ref={bottomRef}></div>
+          <div ref={bottomRef} />
+        </div>
       </div>
 
-      {/* Message Input - Mobile Optimized */}
-      <div className="bg-white border-t border-gray-200 p-3 sm:p-4 lg:p-6">
-        <div className="flex space-x-2 sm:space-x-3">
-          <input
-            type="text"
-            placeholder={
-              !chatCredits.canChat
-                ? "Daily chat limit reached"
-                : showEmergency
-                ? "Emergency detected - use buttons above"
-                : "Type your message..."
-            }
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-            disabled={!chatCredits.canChat || showEmergency}
-            className={`flex-1 px-3 py-2 sm:px-4 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none ${
-              !chatCredits.canChat || showEmergency
-                ? "bg-gray-100 cursor-not-allowed"
-                : ""
-            }`}
-          />
-          <button
-            onClick={handleSendMessage}
-            disabled={loading || !chatCredits.canChat || showEmergency}
-            className={`px-4 py-2 sm:px-6 sm:py-3 rounded-lg flex items-center justify-center min-w-[44px] ${
-              !chatCredits.canChat || showEmergency
-                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                : "bg-cyan-600 text-white hover:bg-cyan-700 active:bg-cyan-800"
-            } disabled:opacity-50 transition-colors`}
-          >
-            <Send className="h-4 w-4" />
-          </button>
+      {/* Enhanced Input Area */}
+      <div className="bg-white/80 backdrop-blur-sm border-t border-slate-200/60 p-4 lg:p-6 sticky bottom-0">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex space-x-3 lg:space-x-4">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder={
+                  !chatCredits.canChat
+                    ? "Daily limit reached - try again tomorrow"
+                    : showEmergency
+                    ? "Emergency detected - use emergency buttons above"
+                    : "Ask about symptoms, health tips, or appointments..."
+                }
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                disabled={!chatCredits.canChat || showEmergency}
+                className={`w-full px-4 lg:px-6 py-3 lg:py-4 text-sm lg:text-base border-2 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none transition-all duration-200 ${
+                  !chatCredits.canChat || showEmergency
+                    ? "bg-slate-100 border-slate-300 text-slate-500 cursor-not-allowed"
+                    : "bg-white border-slate-300 text-slate-800 hover:border-cyan-300"
+                }`}
+              />
+              {message && (
+                <button
+                  onClick={() => setMessage("")}
+                  className="absolute right-14 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <button
+              onClick={handleSendMessage}
+              disabled={
+                loading ||
+                !chatCredits.canChat ||
+                showEmergency ||
+                !message.trim()
+              }
+              className={`px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center space-x-2 min-w-[60px] justify-center ${
+                !chatCredits.canChat || showEmergency || !message.trim()
+                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 shadow-lg hover:shadow-xl transform hover:scale-105"
+              }`}
+            >
+              <Send className="h-4 w-4 lg:h-5 lg:w-5" />
+              <span className="hidden sm:inline">Send</span>
+            </button>
+          </div>
+
+          {/* Quick Tips */}
+          {chatCredits.canChat && !showEmergency && (
+            <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <Shield className="h-3 w-3" />
+                  <span>Secure & Private</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Sparkles className="h-3 w-3" />
+                  <span>AI-Powered</span>
+                </div>
+              </div>
+              <div className="text-right">
+                {chatCredits.credits > 0 && (
+                  <span>{chatCredits.credits} messages left today</span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
