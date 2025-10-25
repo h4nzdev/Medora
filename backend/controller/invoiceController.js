@@ -213,11 +213,9 @@ export const getInvoicesByPatient = async (req, res) => {
 
     res.status(200).json(invoices);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching invoices for patient",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching invoices for patient",
+      error: error.message,
+    });
   }
 };

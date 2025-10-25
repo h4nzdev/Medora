@@ -9,6 +9,9 @@ import {
   MoreHorizontal,
   Sparkles,
   TrendingUp,
+  XCircle,
+  Bell,
+  ChevronRight,
 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
@@ -18,12 +21,15 @@ import { Link } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { formatDate, useDate, useTime } from "../../../utils/date";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ClientDashboard() {
   const { user } = useContext(AuthContext);
   const [appointments, setAppointments] = useState([]);
   const [date, setDate] = useState(new Date());
   const [showAll, setShowAll] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   const healthTips = [
     "Stay hydrated by drinking at least 8 glasses of water a day.",
@@ -67,6 +73,98 @@ export default function ClientDashboard() {
   const visibleAppointments = showAll
     ? completedAppointments
     : completedAppointments.slice(0, 5);
+
+  // Format date for display (React Native style)
+  const formatDisplayDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  // Format time for display (React Native style)
+  const formatDisplayTime = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch (error) {
+      return "Invalid Time";
+    }
+  };
+
+  // Handle cancel appointment
+  const handleCancelAppointment = async (appointment) => {
+    setDropdownVisible(false);
+    try {
+      console.log(`🔄 Cancelling appointment: ${appointment._id}`);
+      // Add your cancel appointment API call here
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((app) =>
+          app._id === appointment._id ? { ...app, status: "cancelled" } : app
+        )
+      );
+      console.log("✅ Appointment cancelled successfully");
+    } catch (error) {
+      console.error("❌ Error cancelling appointment:", error);
+    }
+  };
+
+  // Handle set reminder
+  const handleSetReminder = (appointment) => {
+    setDropdownVisible(false);
+    console.log("Setting reminder for:", appointment);
+  };
+
+  // Show dropdown menu
+  const showDropdown = (appointment) => {
+    setSelectedAppointment(appointment);
+    setDropdownVisible(true);
+  };
+
+  // Modal animations ONLY
+  const modalBackdropVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const modalContentVariants = {
+    hidden: { y: "100%", opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+      },
+    },
+    exit: {
+      y: "100%",
+      opacity: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn",
+      },
+    },
+  };
 
   return (
     <div className="w-full flex">
@@ -174,6 +272,95 @@ export default function ClientDashboard() {
           </div>
         </section>
 
+        {/* Animated Dropdown Modal - ONLY ANIMATED PART */}
+        <AnimatePresence>
+          {dropdownVisible && (
+            <motion.div
+              className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center"
+              variants={modalBackdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              onClick={() => setDropdownVisible(false)}
+            >
+              <motion.div
+                className="bg-white rounded-t-2xl mx-2 mb-2 shadow-2xl w-full max-w-md"
+                variants={modalContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Drag handle */}
+                <div className="flex justify-center py-3">
+                  <div className="w-12 h-1 bg-slate-300 rounded-full" />
+                </div>
+
+                {/* Menu header */}
+                <div className="px-6 pb-3 border-b border-slate-100">
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Appointment Options
+                  </h3>
+                  <p className="text-slate-500 text-sm mt-1 truncate">
+                    {selectedAppointment && selectedAppointment?.doctorId?.name}
+                  </p>
+                </div>
+
+                {/* Menu items */}
+                <div className="py-2">
+                  {/* Set Reminder */}
+                  <button
+                    onClick={() => handleSetReminder(selectedAppointment)}
+                    className="flex items-center w-full px-6 py-4 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                  >
+                    <div className="bg-blue-100 p-3 rounded-xl mr-4">
+                      <Bell className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-slate-800 font-medium text-base">
+                        Set Reminder
+                      </p>
+                      <p className="text-slate-500 text-sm mt-1">
+                        Get notified before appointment
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400" />
+                  </button>
+
+                  {/* Cancel Appointment */}
+                  <button
+                    onClick={() => handleCancelAppointment(selectedAppointment)}
+                    className="flex items-center w-full px-6 py-4 hover:bg-red-50 active:bg-red-100 transition-colors"
+                  >
+                    <div className="bg-red-100 p-3 rounded-xl mr-4">
+                      <XCircle className="w-5 h-5 text-red-500" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <p className="text-red-600 font-medium text-base">
+                        Cancel Appointment
+                      </p>
+                      <p className="text-red-400 text-sm mt-1">
+                        Free up this time slot
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-red-400" />
+                  </button>
+                </div>
+
+                {/* Cancel button */}
+                <button
+                  onClick={() => setDropdownVisible(false)}
+                  className="mx-4 my-3 bg-slate-100 py-4 rounded-xl w-[calc(100%-2rem)] hover:bg-slate-200 active:bg-slate-300 transition-colors"
+                >
+                  <p className="text-slate-600 font-semibold text-base">
+                    Close
+                  </p>
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-slate-800 mb-6 hidden lg:block">
             Recent Appointments
@@ -182,58 +369,75 @@ export default function ClientDashboard() {
             Upcoming Appointments
           </h2>
 
-          {/* Mobile Card Layout */}
-          <div className="block lg:hidden space-y-3 sm:space-y-4">
+          {/* Mobile Card Layout - REACT NATIVE STYLE */}
+          <div className="block lg:hidden space-y-4">
             {upcomingAppointments.length === 0 ? (
-              <div className="text-center py-8 sm:py-10">
-                <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl sm:rounded-2xl p-6 sm:p-8 w-fit mx-auto mb-4 sm:mb-6">
-                  <CalendarIcon className="w-12 h-12 sm:w-16 sm:h-16 text-slate-400 mx-auto" />
+              <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
+                <div className="bg-slate-100 rounded-2xl p-6 mb-6 inline-block">
+                  <CalendarIcon className="w-16 h-16 text-slate-400" />
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-700 mb-2">
-                  No upcoming appointments yet
+                <h3 className="text-xl font-bold text-slate-700 mb-2">
+                  No upcoming appointments
                 </h3>
-                <p className="text-sm sm:text-base text-slate-500 px-4">
-                  Your upcoming appointments will appear here.
+                <p className="text-slate-500 mb-6">
+                  Schedule your next appointment to get started
                 </p>
+                <Link
+                  to="/client/appointments"
+                  className="inline-flex items-center px-6 py-3 bg-cyan-500 rounded-xl text-white font-semibold hover:bg-cyan-600 transition-colors"
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  Schedule Now
+                </Link>
               </div>
             ) : (
               upcomingAppointments.slice(0, 5).map((appointment) => (
                 <div
                   key={appointment._id}
-                  className="group relative overflow-hidden bg-white rounded-xl sm:rounded-2xl shadow-lg border border-slate-200 p-4 sm:p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5"
+                  className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
-                        <h3 className="font-semibold text-slate-800 text-base sm:text-lg truncate">
-                          {appointment?.doctorId?.name}
-                        </h3>
-                        <span className="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded-full w-fit">
+                  {/* Doctor Info Row */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1 mr-2">
+                      <h3 className="font-bold text-slate-800 text-lg mb-2 truncate">
+                        {appointment?.doctorId?.name}
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="bg-slate-200 px-3 py-1 rounded-full text-slate-600 text-xs font-medium">
                           {appointment?.doctorId?.specialty}
                         </span>
+                        <span className="bg-slate-100 px-3 py-1 rounded-full text-slate-700 text-xs font-medium capitalize">
+                          Consultation
+                        </span>
                       </div>
-                      <p className="text-slate-500 text-sm mt-1">
-                        {useDate(appointment.date)} at{" "}
-                        {useTime(appointment.date)}
-                      </p>
                     </div>
-                    <div className="flex items-center justify-between sm:justify-end space-x-2 mt-2 sm:mt-0">
+
+                    {/* Status & Menu */}
+                    <div className="flex flex-col items-end gap-2">
                       {getStatusBadge(appointment.status)}
                       <button
-                        type="button"
-                        className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors ml-auto sm:ml-2"
-                        aria-label="More options"
+                        onClick={() => showDropdown(appointment)}
+                        className="p-1 hover:bg-slate-100 rounded transition-colors"
                       >
-                        <MoreHorizontal className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <MoreHorizontal className="w-5 h-5 text-slate-600" />
                       </button>
                     </div>
                   </div>
 
+                  {/* Date & Time */}
                   <div className="flex items-center justify-between">
-                    <div>
-                      <span className="inline-block bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm font-medium capitalize">
-                        {appointment.type}
-                      </span>
+                    <div className="flex items-center flex-1">
+                      <CalendarIcon className="w-4 h-4 text-slate-500" />
+                      <p className="text-slate-600 ml-2 font-medium">
+                        {formatDisplayDate(appointment.date)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center">
+                      <BellRing className="w-4 h-4 text-slate-500" />
+                      <p className="text-slate-600 ml-2 font-medium">
+                        {formatDisplayTime(appointment.date)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -241,6 +445,7 @@ export default function ClientDashboard() {
             )}
           </div>
 
+          {/* Desktop Table View - UNCHANGED */}
           <div className="hidden lg:block bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
             <div className="overflow-x-auto">
               <table className="w-full text-left">

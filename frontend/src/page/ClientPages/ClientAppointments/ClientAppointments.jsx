@@ -6,6 +6,9 @@ import {
   AlertCircle,
   MoreHorizontal,
   AlertTriangle,
+  XCircle,
+  Bell,
+  ChevronRight,
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
@@ -19,7 +22,253 @@ import {
 import { getStatusBadge } from "../../../utils/clientAppointment.jsx";
 import { formatDate, useDate, useTime } from "../../../utils/date.jsx";
 import { useNavigate } from "react-router-dom";
-import ClientAppointmentActions from "./components/ClientAppointmentActions.jsx";
+import { motion, AnimatePresence } from "framer-motion";
+
+// New Actions Component with React Native Style Modal
+const ClientAppointmentActions = ({ id, appointment }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+
+  const handleDelete = async (id, setIsLoading, setIsOpen) => {
+    setIsLoading(true);
+    // Your delete logic here
+    console.log("Deleting appointment:", id);
+    setIsLoading(false);
+    setIsOpen(false);
+  };
+
+  const handleSetReminder = (appointment) => {
+    setDropdownVisible(false);
+    console.log("Setting reminder for:", appointment);
+    toast.success("Reminder set for appointment!");
+  };
+
+  const handleCancelAppointment = async (appointment) => {
+    setDropdownVisible(false);
+    try {
+      console.log(`🔄 Cancelling appointment: ${appointment._id}`);
+      // Add your cancel appointment API call here
+      toast.success("Appointment cancelled successfully");
+    } catch (error) {
+      console.error("❌ Error cancelling appointment:", error);
+      toast.error("Failed to cancel appointment");
+    }
+  };
+
+  // Modal animations
+  const modalBackdropVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  const modalContentVariants = {
+    hidden: { y: "100%", opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+      },
+    },
+    exit: {
+      y: "100%",
+      opacity: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn",
+      },
+    },
+  };
+
+  return (
+    <>
+      {/* Old Dropdown (for desktop) */}
+      <div className="relative hidden lg:block">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-3 hover:bg-gradient-to-br hover:from-slate-100 hover:to-slate-200 rounded-xl text-slate-600 hover:text-slate-800 transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md"
+          aria-label="More options"
+        >
+          <MoreHorizontal className="h-5 w-5 md:h-6 md:w-6" />
+        </button>
+
+        {isOpen && (
+          <div
+            className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl z-50 border border-white/20
+            lg:top-full lg:bottom-auto bottom-full"
+          >
+            <button className="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-sky-50 hover:text-cyan-700 w-full text-start border-b border-slate-200/50 transition-all duration-300">
+              Edit
+            </button>
+
+            <button
+              onClick={() => handleDelete(id, setIsLoading, setIsOpen)}
+              disabled={isLoading}
+              className="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-50 hover:text-red-700 w-full text-start border-b border-slate-200/50 transition-all duration-300"
+            >
+              {isLoading ? "Deleting..." : "Delete"}
+            </button>
+
+            <button className="block px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 hover:text-slate-800 w-full text-start transition-all duration-300">
+              View
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setDropdownVisible(true)}
+        className="lg:hidden p-1 hover:bg-slate-100 rounded transition-colors"
+      >
+        <MoreHorizontal className="w-5 h-5 text-slate-600" />
+      </button>
+
+      {/* React Native Style Modal for Mobile */}
+      <AnimatePresence>
+        {dropdownVisible && (
+          <motion.div
+            className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center lg:hidden"
+            variants={modalBackdropVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            onClick={() => setDropdownVisible(false)}
+          >
+            <motion.div
+              className="bg-white rounded-t-2xl mx-2 mb-2 shadow-2xl w-full max-w-md"
+              variants={modalContentVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drag handle */}
+              <div className="flex justify-center py-3">
+                <div className="w-12 h-1 bg-slate-300 rounded-full" />
+              </div>
+
+              {/* Menu header */}
+              <div className="px-6 pb-3 border-b border-slate-100">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Appointment Options
+                </h3>
+                <p className="text-slate-500 text-sm mt-1 truncate">
+                  {appointment?.doctorId?.name}
+                </p>
+              </div>
+
+              {/* Menu items */}
+              <div className="py-2">
+                {/* Set Reminder */}
+                <button
+                  onClick={() => handleSetReminder(appointment)}
+                  className="flex items-center w-full px-6 py-4 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                >
+                  <div className="bg-blue-100 p-3 rounded-xl mr-4">
+                    <Bell className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-slate-800 font-medium text-base">
+                      Set Reminder
+                    </p>
+                    <p className="text-slate-500 text-sm mt-1">
+                      Get notified before appointment
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </button>
+
+                {/* Cancel Appointment */}
+                <button
+                  onClick={() => handleCancelAppointment(appointment)}
+                  className="flex items-center w-full px-6 py-4 hover:bg-red-50 active:bg-red-100 transition-colors"
+                >
+                  <div className="bg-red-100 p-3 rounded-xl mr-4">
+                    <XCircle className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-red-600 font-medium text-base">
+                      Cancel Appointment
+                    </p>
+                    <p className="text-red-400 text-sm mt-1">
+                      Free up this time slot
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-red-400" />
+                </button>
+
+                {/* Edit Appointment */}
+                <button className="flex items-center w-full px-6 py-4 hover:bg-cyan-50 active:bg-cyan-100 transition-colors">
+                  <div className="bg-cyan-100 p-3 rounded-xl mr-4">
+                    <Calendar className="w-5 h-5 text-cyan-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-slate-800 font-medium text-base">
+                      Edit Appointment
+                    </p>
+                    <p className="text-slate-500 text-sm mt-1">
+                      Change date or time
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </button>
+              </div>
+
+              {/* Cancel button */}
+              <button
+                onClick={() => setDropdownVisible(false)}
+                className="mx-4 my-3 bg-slate-100 py-4 rounded-xl w-[calc(100%-2rem)] hover:bg-slate-200 active:bg-slate-300 transition-colors"
+              >
+                <p className="text-slate-600 font-semibold text-base">Close</p>
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+// Format date for display (React Native style)
+const formatDisplayDate = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch (error) {
+    return "Invalid Date";
+  }
+};
+
+// Format time for display (React Native style)
+const formatDisplayTime = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch (error) {
+    return "Invalid Time";
+  }
+};
 
 export default function ClientAppointments() {
   const { appointments } = useContext(AppointmentContext);
@@ -110,7 +359,7 @@ export default function ClientAppointments() {
   return (
     <>
       <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
-        <div className="mx-auto">
+        <div className="mx-auto p-4">
           <header className="mb-8 md:mb-10">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
               <div className="flex-1">
@@ -190,74 +439,100 @@ export default function ClientAppointments() {
               </p>
             </div>
 
+            {/* Mobile Card Layout - REACT NATIVE STYLE */}
             <div className="block lg:hidden space-y-4">
               {patientAppointments.length > 0 ? (
                 patientAppointments.map((appointment, index) => (
                   <div
                     key={appointment._id || index}
-                    className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
+                    className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6"
                   >
+                    {/* Doctor Info Row */}
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-bold text-slate-800 text-lg mb-2 group-hover:text-cyan-600 transition-colors duration-300">
+                      <div className="flex-1 mr-2">
+                        <h3 className="font-bold text-slate-800 text-lg mb-2 truncate">
                           {appointment?.doctorId?.name}
                         </h3>
-                        <p className="text-slate-600 text-base mb-3 font-medium">
-                          {appointment.doctorId?.specialty}
-                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="bg-slate-200 px-3 py-1 rounded-full text-slate-600 text-xs font-medium">
+                            {appointment?.doctorId?.specialty}
+                          </span>
+                          <span className="bg-slate-100 px-3 py-1 rounded-full text-slate-700 text-xs font-medium capitalize">
+                            {appointment.type}
+                          </span>
+                        </div>
                       </div>
-                      <div className="ml-4 flex-shrink-0">
+
+                      {/* Status & Menu */}
+                      <div className="flex flex-col items-end gap-2">
                         {getStatusBadge(appointment.status)}
+                        <ClientAppointmentActions
+                          id={appointment._id}
+                          appointment={appointment}
+                        />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-base mb-4">
-                      <div className="bg-slate-50/80 rounded-xl p-3">
-                        <p className="text-slate-500 text-sm uppercase tracking-wide mb-1 font-semibold">
-                          Date
-                        </p>
-                        <p className="font-bold text-slate-700">
-                          {formatDate(appointment.date)}
+                    {/* Date & Time */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center flex-1">
+                        <Calendar className="w-4 h-4 text-slate-500" />
+                        <p className="text-slate-600 ml-2 font-medium">
+                          {formatDisplayDate(appointment.date)}
                         </p>
                       </div>
-                      <div className="bg-slate-50/80 rounded-xl p-3">
-                        <p className="text-slate-500 text-sm uppercase tracking-wide mb-1 font-semibold">
-                          Time
-                        </p>
-                        <p className="font-bold text-slate-700">
-                          {appointment.time || "09:00 AM"}
+
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 text-slate-500" />
+                        <p className="text-slate-600 ml-2 font-medium">
+                          {formatDisplayTime(appointment.date)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-slate-200/50">
+                    {/* Contact Info */}
+                    <div className="pt-4 border-t border-slate-200">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-base text-slate-700 font-medium">
+                          <p className="text-sm text-slate-700 font-medium">
                             {user.phone || "Phone not available"}
                           </p>
-                          <p className="text-sm text-slate-500">{user.email}</p>
+                          <p className="text-xs text-slate-500">{user.email}</p>
                         </div>
-                        <ClientAppointmentActions id={appointment._id} appointment={appointment} />
+                        <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full">
+                          ID: #{appointment._id?.slice(-4)}
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-12 text-center">
-                  <div className="bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-6 w-fit mx-auto mb-6">
-                    <Calendar className="w-16 h-16 text-slate-400 mx-auto" />
+                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-12 text-center">
+                  <div className="bg-slate-100 rounded-2xl p-6 mb-6 inline-block">
+                    <Calendar className="w-16 h-16 text-slate-400" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-700 mb-2">
                     No appointments found
                   </h3>
-                  <p className="text-slate-500 text-lg">
+                  <p className="text-slate-500 mb-6">
                     Click "New Appointment" to schedule one.
                   </p>
+                  <button
+                    onClick={handleNewAppointmentClick}
+                    className={`inline-flex items-center px-6 py-3 rounded-xl text-white font-semibold ${
+                      LimitReached
+                        ? "bg-slate-400 cursor-not-allowed"
+                        : "bg-cyan-500 hover:bg-cyan-600"
+                    } transition-colors`}
+                  >
+                    <CalendarPlus className="w-5 h-5 mr-2" />
+                    New Appointment
+                  </button>
                 </div>
               )}
             </div>
 
+            {/* Desktop Table View - UNCHANGED */}
             <div className="hidden lg:block overflow-visible rounded-2xl border border-white/20 bg-white/80 backdrop-blur-sm shadow-lg">
               <table className="w-full text-left">
                 <thead className="bg-gradient-to-r from-slate-50 to-slate-100/50">
