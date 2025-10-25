@@ -4,11 +4,15 @@ import {
   Calendar as CalendarIcon,
 } from "lucide-react";
 import { useState, useMemo, useContext } from "react";
-import { AppointmentContext } from "../../context/AppointmentContext";
-import { AuthContext } from "../../context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
+import { AppointmentContext } from "../../../context/AppointmentContext";
+import { AuthContext } from "../../../context/AuthContext";
+import ClinicCalendarSideBar from "./components/ClinicCalendarSideBar";
 
 export default function ClinicCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { appointments } = useContext(AppointmentContext);
   const { user } = useContext(AuthContext);
@@ -16,7 +20,9 @@ export default function ClinicCalendar() {
   const clinicAppointments = useMemo(() => {
     if (!appointments || !user) return [];
     return appointments.filter(
-      (appointment) => appointment.clinicId?._id === user._id
+      (appointment) =>
+        appointment.clinicId?._id === user._id &&
+        appointment.status === "scheduled"
     );
   }, [appointments, user]);
 
@@ -68,6 +74,24 @@ export default function ClinicCalendar() {
       );
     });
   };
+
+  const handleDateClick = (date) => {
+    const dateAppointments = appointmentsForDate(date);
+    if (dateAppointments.length > 0) {
+      setSelectedDate(date);
+      setIsSidebarOpen(true);
+    }
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+    setSelectedDate(null);
+  };
+
+  const selectedDateAppointments = useMemo(() => {
+    if (!selectedDate) return [];
+    return appointmentsForDate(selectedDate);
+  }, [selectedDate, clinicAppointments]);
 
   return (
     <div className="w-full">
@@ -127,20 +151,28 @@ export default function ClinicCalendar() {
             ))}
             {daysInMonth.map((day, index) => {
               const dayAppointments = appointmentsForDate(day);
+              const isSelected =
+                selectedDate &&
+                selectedDate.toDateString() === day.toDateString();
 
               return (
                 <div
                   key={index}
-                  className={`relative border-2 rounded-xl p-3 h-36 flex flex-col transition-all duration-200 hover:shadow-lg ${
-                    new Date().toDateString() === day.toDateString()
+                  onClick={() => handleDateClick(day)}
+                  className={`relative border-2 rounded-xl p-3 h-36 flex flex-col transition-all duration-200 cursor-pointer ${
+                    isSelected
+                      ? "bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300 shadow-lg"
+                      : new Date().toDateString() === day.toDateString()
                       ? "bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-300 shadow-lg"
-                      : "bg-white border-slate-200 hover:border-slate-300"
+                      : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-lg"
                   }`}
                 >
                   {/* Date */}
                   <span
                     className={`font-bold text-lg mb-1 ${
-                      new Date().toDateString() === day.toDateString()
+                      isSelected
+                        ? "text-blue-700"
+                        : new Date().toDateString() === day.toDateString()
                         ? "text-cyan-700"
                         : "text-slate-800"
                     }`}
@@ -150,35 +182,40 @@ export default function ClinicCalendar() {
 
                   {/* Appointment count badge */}
                   {dayAppointments.length > 0 && (
-                    <div className="absolute top-2 right-2 bg-cyan-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <div
+                      className={`absolute top-2 right-2 text-white text-xs font-bold px-2 py-1 rounded-full ${
+                        isSelected ? "bg-blue-500" : "bg-cyan-500"
+                      }`}
+                    >
                       {dayAppointments.length}
                     </div>
                   )}
 
                   {/* Appointments list */}
                   <div className="flex-1 overflow-y-auto space-y-2 pr-1 hide-scroll mt-2">
-                    {dayAppointments.map((appointment, i) => (
+                    {dayAppointments.slice(0, 2).map((appointment, i) => (
                       <div
                         key={i}
-                        className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm hover:shadow-md transition-all duration-200 text-sm leading-relaxed"
+                        className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm text-sm leading-relaxed"
                       >
-                        <div className="font-medium text-slate-800 text-xs mb-2 truncate flex items-center">
-                          <div className="w-2 h-2 bg-cyan-500 rounded-full mr-2 flex-shrink-0"></div>
+                        <div className="font-medium text-slate-800 text-xs mb-1 truncate flex items-center">
+                          <div
+                            className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${
+                              isSelected ? "bg-blue-500" : "bg-cyan-500"
+                            }`}
+                          ></div>
                           {appointment.patientId?.name}
                         </div>
-                        <div className="text-cyan-600 text-xs font-semibold mb-1 truncate">
+                        <div className="text-cyan-600 text-xs font-semibold truncate">
                           Dr. {appointment.doctorId?.name}
                         </div>
-                        {appointment.time && (
-                          <div className="text-slate-500 text-xs font-medium">
-                            {new Date(appointment.time).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </div>
-                        )}
                       </div>
                     ))}
+                    {dayAppointments.length > 2 && (
+                      <div className="text-xs text-slate-500 text-center bg-slate-50 rounded-lg py-1">
+                        +{dayAppointments.length - 2} more
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -186,6 +223,17 @@ export default function ClinicCalendar() {
           </div>
         </div>
       </div>
+
+      {/* Sidebar for selected date appointments */}
+      <AnimatePresence>
+        {isSidebarOpen && selectedDate && (
+          <ClinicCalendarSideBar
+            closeSidebar={() => setIsSidebarOpen(false)}
+            selectedDateAppointments={selectedDateAppointments}
+            selectedDate={selectedDate}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -12,7 +12,7 @@ import ClinicSettings from "../page/ClinicPages/ClinicSettings/ClinicSettings";
 import PendingAppointments from "../page/ClinicPages/ClinicPendingAppointments/ClinicPendingAppointments";
 import ClinicDoctorProfile from "../page/ClinicPages/DoctorProfile/ClinicDoctorProfile";
 import ClinicPatientProfile from "../page/ClinicPages/PatientProfile/ClinicPatientProfile";
-import ClinicCalendar from "../page/ClinicPages/ClinicCalendar";
+import ClinicCalendar from "../page/ClinicPages/ClinicCalendar/ClinicCalendar";
 import InvoicesPage from "../page/ClinicPages/ClinicInvoicePage/InvoicesPage"; // Import the new page
 import ClinicNotifications from "../page/ClinicPages/ClinicNotifications/ClinicNotifications";
 
