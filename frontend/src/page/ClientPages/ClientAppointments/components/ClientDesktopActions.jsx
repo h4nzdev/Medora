@@ -2,7 +2,7 @@ import { MoreHorizontal } from "lucide-react";
 import React, { useState } from "react";
 import { handleDelete } from "./actionFunctions";
 
-const ClientAppointmentActions = ({ id, appointment }) => {
+const ClientDesktopActions = ({ id, appointment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,4 +45,4 @@ const ClientAppointmentActions = ({ id, appointment }) => {
   );
 };
 
-export default ClientAppointmentActions;
+export default ClientDesktopActions;
