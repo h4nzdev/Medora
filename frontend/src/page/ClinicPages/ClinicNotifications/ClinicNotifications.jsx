@@ -22,6 +22,8 @@ const ClinicNotifications = () => {
   const [filterType, setFilterType] = useState("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  console.log(notifications);
+
   const filteredNotifications = useMemo(() => {
     return notifications
       .filter((notification) => {
@@ -72,7 +74,8 @@ const ClinicNotifications = () => {
                 Clinic Notifications
               </h1>
               <p className="text-slate-600 mt-3 text-lg sm:text-xl leading-relaxed">
-                Stay updated with appointments, patient updates, and clinic alerts.
+                Stay updated with appointments, patient updates, and clinic
+                alerts.
               </p>
             </div>
           </div>

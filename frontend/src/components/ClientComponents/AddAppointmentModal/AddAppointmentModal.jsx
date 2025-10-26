@@ -84,45 +84,6 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
     setIsPaymentModalOpen(true);
   };
 
-  const sendNotificationToClinic = async (appointmentData, doctorData) => {
-    try {
-      console.log("Sending notification to clinic...");
-      console.log("Clinic ID:", user.clinicId?._id);
-      console.log("Appointment data:", appointmentData);
-      console.log("Doctor data:", doctorData);
-
-      // Create notification for the clinic
-      const notificationResult = await createNotification({
-        recipientId: user.clinicId?._id, // Clinic ID
-        recipientType: "Clinic",
-        message: `New appointment booked by ${user.name} with Dr. ${
-          doctorData?.name || "Unknown Doctor"
-        } on ${new Date(appointmentData.date).toLocaleDateString()} at ${
-          appointmentData.time
-        }`,
-        type: "appointment",
-        metadata: {
-          appointmentId: appointmentData._id,
-          patientId: user._id,
-          patientName: user.name,
-          doctorId: appointmentData.doctorId,
-          doctorName: doctorData?.name,
-          date: appointmentData.date,
-          time: appointmentData.time,
-          type: appointmentData.type,
-          bookingType: appointmentData.bookingType,
-        },
-      });
-
-      console.log("Notification sent successfully:", notificationResult);
-      return notificationResult;
-    } catch (error) {
-      console.error("Failed to send notification to clinic:", error);
-      console.error("Error details:", error.response?.data || error.message);
-      // Don't show error to user as this doesn't affect the main booking flow
-    }
-  };
-
   const handlePaymentSubmit = async (paymentData) => {
     console.log("🎯 handlePaymentSubmit called with:", paymentData);
     setIsLoading(true);
@@ -153,7 +114,7 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
         hasData: !!res.data,
         hasId: !!(res.data && res.data._id),
         appointmentId: res.data?._id,
-        fullResponse: res.data
+        fullResponse: res.data,
       });
 
       // 🔥 ADD THIS - Send notification to clinic after successful booking
@@ -202,13 +163,13 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
       } else {
         console.log("❌ No appointment ID in response");
         console.log("🔄 Attempting notification anyway...");
-        
+
         // Try to send notification even without appointment ID
         try {
           const selectedDoctor = doctors.find(
             (doc) => doc._id === formData.doctorId
           );
-          
+
           await createNotification({
             recipientId: user.clinicId?._id,
             recipientType: "Clinic",

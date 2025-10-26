@@ -11,12 +11,19 @@ import {
   MoreHorizontal,
   FileText,
   X,
-  Receipt
+  Receipt,
 } from "lucide-react";
 
 const ClientMobileNav = () => {
   const path = useLocation();
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  // Hide entire nav when on AI Chat page
+  const isChatPage = path.pathname === "/client/chats";
+
+  if (isChatPage) {
+    return null; // Don't render anything on chat page
+  }
 
   const leftMenuItems = [
     { icon: Home, link: "/client/dashboard", label: "Home" },
@@ -25,22 +32,32 @@ const ClientMobileNav = () => {
 
   const rightMenuItems = [
     { icon: MessageSquare, link: "/client/chats", label: "AI Chat" },
-    { icon: MoreHorizontal, action: () => setShowMoreMenu(!showMoreMenu), label: "More" },
+    {
+      icon: MoreHorizontal,
+      action: () => setShowMoreMenu(!showMoreMenu),
+      label: "More",
+    },
   ];
 
   const moreMenuItems = [
-    { icon: FileText, link: "/client/medical-records", label: "Medical Records" },
+    {
+      icon: FileText,
+      link: "/client/medical-records",
+      label: "Medical Records",
+    },
     { icon: Bell, link: "/client/reminders", label: "Reminders" },
     { icon: Receipt, link: "/client/invoices", label: "Invoices" },
   ];
 
-  const isMoreMenuActive = moreMenuItems.some(item => path.pathname === item.link);
+  const isMoreMenuActive = moreMenuItems.some(
+    (item) => path.pathname === item.link
+  );
 
   return (
     <>
       {/* Backdrop for more menu */}
       {showMoreMenu && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 md:hidden"
           onClick={() => setShowMoreMenu(false)}
         />
@@ -69,7 +86,7 @@ const ClientMobileNav = () => {
               </Link>
             ))}
           </div>
-          
+
           {/* Arrow pointing down */}
           <div className="absolute -bottom-2 right-6 w-4 h-4 bg-white/95 border-r border-b border-slate-200/50 transform rotate-45"></div>
         </div>
@@ -162,8 +179,10 @@ const ClientMobileNav = () => {
           <div className="flex flex-1 justify-around">
             {rightMenuItems.map((item, index) => {
               const isMoreButton = item.action;
-              const isActive = isMoreButton ? (showMoreMenu || isMoreMenuActive) : path.pathname === item.link;
-              
+              const isActive = isMoreButton
+                ? showMoreMenu || isMoreMenuActive
+                : path.pathname === item.link;
+
               if (isMoreButton) {
                 return (
                   <button
@@ -183,9 +202,17 @@ const ClientMobileNav = () => {
                       }`}
                     >
                       {showMoreMenu ? (
-                        <X className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${isActive ? "drop-shadow-sm" : ""}`} />
+                        <X
+                          className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${
+                            isActive ? "drop-shadow-sm" : ""
+                          }`}
+                        />
                       ) : (
-                        <item.icon className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${isActive ? "drop-shadow-sm" : ""}`} />
+                        <item.icon
+                          className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${
+                            isActive ? "drop-shadow-sm" : ""
+                          }`}
+                        />
                       )}
                       {isActive && (
                         <div className="absolute -inset-1 bg-blue-100 rounded-full -z-10 animate-pulse"></div>
@@ -226,7 +253,7 @@ const ClientMobileNav = () => {
                   >
                     <item.icon
                       className={`w-5 h-5 sm:w-6 sm:h-6 transition-all duration-300 ${
-                        path.pathname === item.link ? "drop-shadow-sm" : ""}
+                        path.pathname === item.link ? "drop-shadow-sm" : ""
                       }`}
                     />
                     {path.pathname === item.link && (

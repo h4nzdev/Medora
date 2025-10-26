@@ -18,12 +18,14 @@ import {
   BookOpen,
   Calendar,
   MapPin,
+  ArrowLeft, // Added back arrow icon
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom"; // Added for navigation
 
 const ClientChat = () => {
   const [message, setMessage] = useState("");
@@ -40,6 +42,7 @@ const ClientChat = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [quickActions, setQuickActions] = useState(true);
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate(); // For back navigation
 
   // Enhanced sample questions with categories
   const sampleQuestions = {
@@ -301,17 +304,30 @@ const ClientChat = () => {
     toast.success(`Thank you for your feedback!`);
   };
 
+  // Back button handler
+  const handleBack = () => {
+    navigate(-1); // Go back to previous page
+  };
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatHistory, loading, showEmergency]);
 
   return (
     <div className="w-full h-full flex flex-col min-h-screen bg-gradient-to-br from-slate-50 to-cyan-50/30">
-      {/* Enhanced Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 p-3 sm:p-4 lg:p-6 sticky top-18 z-10 mb-10">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          {/* Left Section - Logo & Title */}
+      {/* Enhanced Header with Back Button */}
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/60 p-3 sm:p-4 lg:p-6 sticky top-16 left-0 right-0 z-10">
+        <div className="flex items-center justify-between mx-auto">
+          <button
+            onClick={handleBack}
+            className="flex-shrink-0 p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-xl transition-all duration-200 lg:hidden block"
+          >
+            <ArrowLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+          </button>
+          {/* Left Section - Back Button & Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-1 min-w-0">
+            {/* Back Button */}
+
             <div className="relative flex-shrink-0">
               <div className="bg-gradient-to-br from-cyan-500 to-blue-500 p-1.5 sm:p-2 lg:p-3 rounded-xl sm:rounded-2xl shadow-lg">
                 <Bot className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
@@ -381,7 +397,7 @@ const ClientChat = () => {
 
       {/* Enhanced Emergency Banner */}
       {showEmergency && emergencyData && (
-        <div className="sticky top-20 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 lg:p-6 shadow-lg z-10 animate-pulse">
+        <div className="sticky top-16 sm:top-20 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 lg:p-6 shadow-lg z-10 animate-pulse">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4 flex-1">
@@ -417,9 +433,11 @@ const ClientChat = () => {
         </div>
       )}
 
-      {/* Enhanced Chat Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto">
+      {/* Enhanced Chat Area - Fixed top spacing */}
+      <div className="flex-1 overflow-y-auto lg:pb-32 pb-12">
+        {" "}
+        {/* Reduced top padding */}
+        <div className="mx-auto px-">
           {chatHistory.map((chat, index) => (
             <div
               key={index}
@@ -428,7 +446,7 @@ const ClientChat = () => {
               }`}
             >
               <div
-                className={`max-w-[90%] lg:max-w-2xl rounded-2xl p-4 lg:p-6 relative group ${
+                className={`max-w-[90%] lg:max-w-2xl rounded-2xl p-4 lg:p-6 relative group my-4 ${
                   chat.role === "user"
                     ? "bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg"
                     : chat.emergency
@@ -444,7 +462,7 @@ const ClientChat = () => {
                     {chat.role === "bot" ? (
                       <>
                         <div
-                          className={`p-2 rounded-xl ${
+                          className={`p-1 rounded-xl ${
                             chat.emergency
                               ? "bg-red-100 text-red-600"
                               : chat.type === "welcome"
@@ -464,7 +482,7 @@ const ClientChat = () => {
                       </>
                     ) : (
                       <>
-                        <div className="p-2 rounded-xl bg-white/20">
+                        <div className="p-1 rounded-xl bg-white/20">
                           <User className="h-4 w-4" />
                         </div>
                         <span className="font-semibold text-sm text-white/90">
@@ -657,9 +675,9 @@ const ClientChat = () => {
         </div>
       </div>
 
-      {/* Enhanced Input Area */}
-      <div className="bg-white/80 backdrop-blur-sm border-t border-slate-200/60 p-4 lg:p-6 sticky bottom-0">
-        <div className="max-w-4xl mx-auto">
+      {/* Enhanced Input Area - Fixed to bottom with safe area */}
+      <div className="bg-white/95 backdrop-blur-sm border-t border-slate-200/60 p-4 lg:p-6 fixed bottom-0 left-0 right-0 safe-area-inset- lg:pl-75">
+        <div className="mx-auto">
           <div className="flex space-x-3 lg:space-x-4">
             <div className="flex-1 relative">
               <input
