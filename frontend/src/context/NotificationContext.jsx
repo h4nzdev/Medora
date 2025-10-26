@@ -80,7 +80,7 @@ export const NotificationProvider = ({ children }) => {
           });
         }
 
-        // 📌 Show notification toast ONLY if notifications are enabled
+        // In your NotificationContext useEffect
         if (settings.notifications) {
           newOnes.forEach((notification) => {
             console.log("🚀 Showing toast for:", notification.message);
@@ -92,7 +92,7 @@ export const NotificationProvider = ({ children }) => {
               pauseOnHover: true,
               draggable: true,
               progress: undefined,
-              toastId: `notification-${notification._id}`, // Unique ID for each
+              toastId: `notification-${notification._id}`,
             });
           });
         }

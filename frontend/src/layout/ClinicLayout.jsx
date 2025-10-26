@@ -5,15 +5,26 @@ import ClinicSidebar from "../components/ClinicComponents/ClinicSidebar";
 import useResponsive from "../hooks/useResponsive";
 import MobileClinicView from "../page/ClinicPages/MobileClinicView";
 import { AuthContext } from "../context/AuthContext";
-import { containerVariants, floatingVariants, itemVariants, logoVariants, ringVariants } from "../animations/splashscreen";
+import {
+  containerVariants,
+  floatingVariants,
+  itemVariants,
+  logoVariants,
+  ringVariants,
+} from "../animations/splashscreen";
+import { useNotification } from "../context/NotificationContext"; // 👈 ADD THIS IMPORT
 
 const ClinicLayout = ({ children }) => {
   const isMobile = useResponsive();
   const { user } = useContext(AuthContext);
   const [showSplash, setShowSplash] = useState(true);
+  const { setShowSplashNotif } = useNotification(); // 👈 ADD THIS
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 3000);
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      setShowSplashNotif(false); // 👈 ADD THIS LINE - CRITICAL!
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 

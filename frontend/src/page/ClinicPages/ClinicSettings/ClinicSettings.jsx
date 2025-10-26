@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   FileText,
   Bell,
@@ -17,6 +17,7 @@ import { useSettings } from "../../../context/SettingsContext";
 import ChangePasswordModal from "../../../components/ClinicComponents/ChangePasswordModal/ChangePasswordModal";
 import PrivacyPolicy from "../../../components/PrivacyPolicy";
 import TermsOfService from "../../../components/TermsOfService";
+import { useNavigate } from "react-router-dom";
 
 const ClinicSettings = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -25,6 +26,8 @@ const ClinicSettings = () => {
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [billingHistory, setBillingHistory] = useState([]);
+  const navigate = useNavigate();
 
   const { user } = useContext(AuthContext);
   const { settings, toggleNotifications, toggleSound } = useSettings();
@@ -48,6 +51,15 @@ const ClinicSettings = () => {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (user && user._id) {
+      const storedHistory = localStorage.getItem(`billingHistory_${user._id}`);
+      if (storedHistory) {
+        setBillingHistory(JSON.parse(storedHistory));
+      }
+    }
+  }, [user]);
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pb-6">
@@ -154,7 +166,10 @@ const ClinicSettings = () => {
                 </p>
               </button>
 
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+              <button
+                onClick={() => navigate("/clinic/doctors")}
+                className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-slate-800">
                     Manage Staff
@@ -289,57 +304,61 @@ const ClinicSettings = () => {
           </div>
 
           {/* Billing & Subscription */}
+          {/* In your Settings page - Simplified Billing Section */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
-            <div className="flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                 <CreditCard className="w-6 h-6 text-green-600" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-slate-800">
-                  Billing & Subscription
+                  Subscription & Billing
                 </h2>
                 <p className="text-slate-500">
-                  Manage your clinic's subscription plan
+                  Manage your clinic's subscription plan and payments
                 </p>
               </div>
             </div>
 
             <div className="space-y-3">
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
+              {/* Simple Current Plan Display */}
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">
-                    Current Plan
-                  </span>
-                  <span className="text-slate-500 text-sm">Professional</span>
+                  <div>
+                    <p className="font-medium text-slate-800 capitalize">
+                      {user?.subscriptionPlan || "Free"} Plan
+                    </p>
+                    <p className="text-slate-600 text-sm">
+                      Active • Manage your subscription
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => navigate("/clinic/subscriptions")} // Or your subscription route
+                    className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors text-sm font-medium"
+                  >
+                    Manage Plan
+                  </button>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">
-                  View your current subscription details
-                </p>
-              </button>
+              </div>
 
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">
-                    Payment Methods
-                  </span>
-                  <span className="text-slate-400">→</span>
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div className="p-3 bg-slate-50 rounded-lg">
+                  <div className="text-lg font-bold text-slate-800">
+                    {
+                      billingHistory.filter((item) => item.status === "Paid")
+                        .length
+                    }
+                  </div>
+                  <div className="text-slate-600 text-xs">Payments</div>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">
-                  Manage your payment information
-                </p>
-              </button>
-
-              <button className="w-full text-left p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-slate-800">
-                    Billing History
-                  </span>
-                  <span className="text-slate-400">→</span>
+                <div className="p-3 bg-slate-50 rounded-lg">
+                  <div className="text-lg font-bold text-slate-800">
+                    {new Date().toLocaleDateString()}
+                  </div>
+                  <div className="text-slate-600 text-xs">Since</div>
                 </div>
-                <p className="text-slate-600 text-sm mt-1">
-                  View your past invoices and payments
-                </p>
-              </button>
+              </div>
             </div>
           </div>
 
@@ -360,7 +379,10 @@ const ClinicSettings = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div
+                onClick={() => setShowPrivacyPolicy(true)}
+                className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+              >
                 <h3 className="font-medium text-slate-800 mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-slate-600" />
                   Privacy Policy
@@ -369,15 +391,15 @@ const ClinicSettings = () => {
                   Our privacy policy outlines how we collect, use, and protect
                   your clinic and patient information.
                 </p>
-                <button
-                  onClick={() => setShowPrivacyPolicy(true)}
-                  className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors"
-                >
+                <button className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors">
                   Read full policy →
                 </button>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div
+                onClick={() => setShowTerms(true)}
+                className="p-4 bg-slate-50 rounded-lg border border-slate-200"
+              >
                 <h3 className="font-medium text-slate-800 mb-2 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-slate-600" />
                   Terms of Service
@@ -386,10 +408,7 @@ const ClinicSettings = () => {
                   By using our healthcare platform, you agree to these terms
                   which explain your rights and responsibilities.
                 </p>
-                <button
-                  onClick={() => setShowTerms(true)}
-                  className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors"
-                >
+                <button className="text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors">
                   Read full terms →
                 </button>
               </div>
