@@ -8,6 +8,8 @@ import {
   AlertTriangle,
   XCircle,
   Bell,
+  Edit3,
+  RotateCcw,
   ChevronRight,
 } from "lucide-react";
 import { useContext, useState } from "react";
@@ -27,37 +29,10 @@ import ClientDesktopActions from "./components/ClientDesktopActions.jsx";
 
 // New Actions Component with React Native Style Modal
 const ClientAppointmentActions = ({ id, appointment }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleDelete = async (id, setIsLoading, setIsOpen) => {
-    setIsLoading(true);
-    // Your delete logic here
-    console.log("Deleting appointment:", id);
-    setIsLoading(false);
-    setIsOpen(false);
-  };
-
-  const handleSetReminder = (appointment) => {
-    setDropdownVisible(false);
-    console.log("Setting reminder for:", appointment);
-    toast.success("Reminder set for appointment!");
-  };
-
-  const handleCancelAppointment = async (appointment) => {
-    setDropdownVisible(false);
-    try {
-      console.log(`🔄 Cancelling appointment: ${appointment._id}`);
-      // Add your cancel appointment API call here
-      toast.success("Appointment cancelled successfully");
-    } catch (error) {
-      console.error("❌ Error cancelling appointment:", error);
-      toast.error("Failed to cancel appointment");
-    }
-  };
-
-  // Modal animations
+  // Add these animation variants at the top of your file, after imports
   const modalBackdropVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -90,6 +65,24 @@ const ClientAppointmentActions = ({ id, appointment }) => {
         ease: "easeIn",
       },
     },
+  };
+
+  // Import the new action functions
+  const actionFunctions = {
+    handleSetReminder: () => {
+      setDropdownVisible(false);
+      console.log("Setting reminder for:", appointment);
+      toast.success("🔔 Reminder set for appointment!");
+    },
+    handleEditAppointment: () =>
+      handleEditAppointment(appointment, setIsLoading, setDropdownVisible),
+    handleRescheduleAppointment: () =>
+      handleRescheduleAppointment(
+        appointment,
+        setIsLoading,
+        setDropdownVisible
+      ),
+    handleDelete: () => handleDelete(id, setIsLoading, setDropdownVisible),
   };
 
   return (
@@ -140,10 +133,10 @@ const ClientAppointmentActions = ({ id, appointment }) => {
               <div className="py-2">
                 {/* Set Reminder */}
                 <button
-                  onClick={() => handleSetReminder(appointment)}
-                  className="flex items-center w-full px-6 py-4 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                  onClick={actionFunctions.handleSetReminder}
+                  className="flex items-center w-full px-6 py-4 hover:bg-slate-50 active:bg-slate-100 transition-colors group"
                 >
-                  <div className="bg-blue-100 p-3 rounded-xl mr-4">
+                  <div className="bg-blue-100 p-3 rounded-xl mr-4 group-hover:scale-110 transition-transform">
                     <Bell className="w-5 h-5 text-blue-500" />
                   </div>
                   <div className="flex-1 text-left">
@@ -157,39 +150,64 @@ const ClientAppointmentActions = ({ id, appointment }) => {
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </button>
 
-                {/* Cancel Appointment */}
-                <button
-                  onClick={() => handleCancelAppointment(appointment)}
-                  className="flex items-center w-full px-6 py-4 hover:bg-red-50 active:bg-red-100 transition-colors"
-                >
-                  <div className="bg-red-100 p-3 rounded-xl mr-4">
-                    <XCircle className="w-5 h-5 text-red-500" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-red-600 font-medium text-base">
-                      Cancel Appointment
-                    </p>
-                    <p className="text-red-400 text-sm mt-1">
-                      Free up this time slot
-                    </p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-red-400" />
-                </button>
-
                 {/* Edit Appointment */}
-                <button className="flex items-center w-full px-6 py-4 hover:bg-cyan-50 active:bg-cyan-100 transition-colors">
-                  <div className="bg-cyan-100 p-3 rounded-xl mr-4">
-                    <Calendar className="w-5 h-5 text-cyan-500" />
+                <button
+                  onClick={actionFunctions.handleEditAppointment}
+                  disabled={isLoading}
+                  className="flex items-center w-full px-6 py-4 hover:bg-cyan-50 active:bg-cyan-100 transition-colors group"
+                >
+                  <div className="bg-cyan-100 p-3 rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                    <Edit3 className="w-5 h-5 text-cyan-500" />
                   </div>
                   <div className="flex-1 text-left">
                     <p className="text-slate-800 font-medium text-base">
-                      Edit Appointment
+                      {isLoading ? "Updating..." : "Edit Details"}
+                    </p>
+                    <p className="text-slate-500 text-sm mt-1">
+                      Change appointment type
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </button>
+
+                {/* Reschedule Appointment */}
+                <button
+                  onClick={actionFunctions.handleRescheduleAppointment}
+                  disabled={isLoading}
+                  className="flex items-center w-full px-6 py-4 hover:bg-purple-50 active:bg-purple-100 transition-colors group"
+                >
+                  <div className="bg-purple-100 p-3 rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                    <RotateCcw className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-slate-800 font-medium text-base">
+                      {isLoading ? "Rescheduling..." : "Reschedule"}
                     </p>
                     <p className="text-slate-500 text-sm mt-1">
                       Change date or time
                     </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
+                </button>
+
+                {/* Cancel Appointment */}
+                <button
+                  onClick={actionFunctions.handleDelete}
+                  disabled={isLoading}
+                  className="flex items-center w-full px-6 py-4 hover:bg-red-50 active:bg-red-100 transition-colors group"
+                >
+                  <div className="bg-red-100 p-3 rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                    <XCircle className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-red-600 font-medium text-base">
+                      {isLoading ? "Cancelling..." : "Cancel Appointment"}
+                    </p>
+                    <p className="text-red-400 text-sm mt-1">
+                      Free up this time slot
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-red-400" />
                 </button>
               </div>
 

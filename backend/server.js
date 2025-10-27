@@ -14,6 +14,7 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import invoiceRouter from "./routes/invoiceRoutes.js";
 import feedbackRouter from "./routes/feedbackRoutes.js";
+import { startAutoCancelCron } from "./utils/autoCancellAppointments.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
@@ -48,6 +49,9 @@ app.use(
     credentials: true,
   })
 );
+
+// Start the cron job when server starts
+startAutoCancelCron();
 
 // --- Socket.io connection ---
 io.on("connection", (socket) => {

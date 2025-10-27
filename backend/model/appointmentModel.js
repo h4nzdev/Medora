@@ -43,7 +43,44 @@ const AppointmentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  // Add these new fields for better tracking
+  cancellationReason: {
+    type: String,
+  },
+  autoCancelled: {
+    type: Boolean,
+    default: false,
+  },
 });
+
+// Add the static method here
+AppointmentSchema.statics.cancelExpiredAppointments = async function () {
+  const now = new Date();
+
+  const result = await this.updateMany(
+    {
+      status: { $in: ["pending", "accepted", "scheduled"] }, // Include 'accepted' status
+      date: { $lt: now }, // Appointment date is in the past
+    },
+    {
+      status: "cancelled",
+      cancellationReason: "Automatically cancelled - appointment date passed",
+      autoCancelled: true,
+    }
+  );
+
+  return result;
+};
+
+// Optional: Add an instance method to check if appointment is expired
+AppointmentSchema.methods.isExpired = function () {
+  const appointmentDate = new Date(this.date);
+  const now = new Date();
+  return (
+    now > appointmentDate &&
+    ["pending", "accepted", "scheduled"].includes(this.status)
+  );
+};
 
 const Appointment = mongoose.model(
   "Appointment",

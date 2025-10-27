@@ -5,7 +5,10 @@ const API_URL = `${import.meta.env.VITE_API_URL}/appointment`; // Your backend's
 // Create a new appointment
 export const createAppointment = async (appointmentData) => {
   try {
-    const response = await axios.post(`${API_URL}/add-appointment`, appointmentData);
+    const response = await axios.post(
+      `${API_URL}/add-appointment`,
+      appointmentData
+    );
     return response.data;
   } catch (error) {
     console.error("Error creating appointment:", error);
@@ -74,7 +77,24 @@ export const getAppointmentsByPatient = async (patientId) => {
     const response = await axios.get(`${API_URL}/patient/${patientId}`);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching appointments for patient ${patientId}:`, error);
+    console.error(
+      `Error fetching appointments for patient ${patientId}:`,
+      error
+    );
     throw error;
   }
 };
+
+// services/appointmentService.js - Add this function
+export const cancelExpiredAppointments = async () => {
+  try {
+    const response = await axios.patch(`${API_URL}/cancel-expired`);
+    return response.data;
+  } catch (error) {
+    console.error("Error cancelling expired appointments:", error);
+    throw error;
+  }
+};
+
+// Call this when app loads or periodically
+// cancelExpiredAppointments();

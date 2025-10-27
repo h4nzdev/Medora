@@ -12,14 +12,14 @@ const plans = [
     name: "free",
     price: "₱0",
     priceDetails: "/month",
-    features: ["Up to 25 patients", "Basic scheduling", "Email support"],
+    features: ["Up to 20 patients", "Basic scheduling", "Email support"],
   },
   {
     name: "basic",
     price: "₱199",
     priceDetails: "/month",
     features: [
-      "Up to 100 patients",
+      "Up to 20 patients",
       "Advanced scheduling",
       "Priority support",
       "Basic analytics",
@@ -88,7 +88,9 @@ export default function ClinicSubscriptions() {
       toast.success(res.data.message);
       setUser({ ...user, subscriptionPlan: plan });
 
-      const planDetails = plans.find(p => p.name.toLowerCase() === plan.toLowerCase());
+      const planDetails = plans.find(
+        (p) => p.name.toLowerCase() === plan.toLowerCase()
+      );
 
       const newTransaction = {
         date: new Date().toISOString().split("T")[0],
@@ -99,14 +101,18 @@ export default function ClinicSubscriptions() {
       const updatedHistory = [...billingHistory, newTransaction];
       setBillingHistory(updatedHistory);
       if (user && user._id) {
-        localStorage.setItem(`billingHistory_${user._id}`, JSON.stringify(updatedHistory));
+        localStorage.setItem(
+          `billingHistory_${user._id}`,
+          JSON.stringify(updatedHistory)
+        );
       }
-
     } catch (error) {
       console.error("Error updating subscription:", error);
       toast.error("Failed to update subscription.");
 
-      const planDetails = plans.find(p => p.name.toLowerCase() === (selectedPlan || plan).toLowerCase());
+      const planDetails = plans.find(
+        (p) => p.name.toLowerCase() === (selectedPlan || plan).toLowerCase()
+      );
       const newTransaction = {
         date: new Date().toISOString().split("T")[0],
         amount: planDetails ? planDetails.price : "₱0",
@@ -115,7 +121,10 @@ export default function ClinicSubscriptions() {
       const updatedHistory = [...billingHistory, newTransaction];
       setBillingHistory(updatedHistory);
       if (user && user._id) {
-        localStorage.setItem(`billingHistory_${user._id}`, JSON.stringify(updatedHistory));
+        localStorage.setItem(
+          `billingHistory_${user._id}`,
+          JSON.stringify(updatedHistory)
+        );
       }
     } finally {
       setIsLoading(false);
@@ -240,11 +249,24 @@ export default function ClinicSubscriptions() {
             <tbody>
               {billingHistory.length > 0 ? (
                 billingHistory.map((item, index) => (
-                  <tr key={index} className="border-t border-slate-200 hover:bg-slate-50 transition-colors">
+                  <tr
+                    key={index}
+                    className="border-t border-slate-200 hover:bg-slate-50 transition-colors"
+                  >
                     <td className="py-3 px-4">{item.date}</td>
                     <td className="py-3 px-4">{item.amount}</td>
-                    <td className={`py-3 px-4 flex items-center gap-2 ${item.status === 'Paid' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {item.status === 'Paid' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                    <td
+                      className={`py-3 px-4 flex items-center gap-2 ${
+                        item.status === "Paid"
+                          ? "text-emerald-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {item.status === "Paid" ? (
+                        <CheckCircle className="w-5 h-5" />
+                      ) : (
+                        <XCircle className="w-5 h-5" />
+                      )}
                       {item.status}
                     </td>
                     <td className="py-3 px-4 text-right">
@@ -260,9 +282,9 @@ export default function ClinicSubscriptions() {
                 ))
               ) : (
                 <tr className="border-t border-slate-200">
-                    <td colSpan="4" className="text-center py-8 text-slate-500">
-                        No billing history found.
-                    </td>
+                  <td colSpan="4" className="text-center py-8 text-slate-500">
+                    No billing history found.
+                  </td>
                 </tr>
               )}
             </tbody>

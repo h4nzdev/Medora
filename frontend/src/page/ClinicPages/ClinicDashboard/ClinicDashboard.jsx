@@ -54,7 +54,7 @@ export default function ClinicDashboard() {
     if (user?.subscriptionPlan === "free") {
       return 10;
     } else if (user?.subscriptionPlan === "basic") {
-      return 100;
+      return 20;
     }
     return "Unlimited";
   };

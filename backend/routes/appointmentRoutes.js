@@ -6,7 +6,8 @@ import {
   updateAppointment,
   deleteAppointment,
   respondToAppointment,
-  getAppointmentsByPatientId
+  getAppointmentsByPatientId,
+  cancelExpiredAppointments,
 } from "../controller/appointmentController.js";
 
 const appointmentRouter = express.Router();
@@ -31,5 +32,7 @@ appointmentRouter.patch("/respond/:id", respondToAppointment);
 
 //
 appointmentRouter.get("/patient/:patientId", getAppointmentsByPatientId);
+
+appointmentRouter.patch("/cancel-expired", cancelExpiredAppointments);
 
 export default appointmentRouter;

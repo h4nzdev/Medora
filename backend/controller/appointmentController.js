@@ -221,3 +221,20 @@ export const getAppointmentsByPatientId = async (req, res) => {
     });
   }
 };
+
+// Add this function to your appointmentController.js
+export const cancelExpiredAppointments = async (req, res) => {
+  try {
+    const result = await Appointment.cancelExpiredAppointments();
+    
+    res.status(200).json({
+      message: `Cancelled ${result.modifiedCount} expired appointments`,
+      cancelledCount: result.modifiedCount
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      message: "Error cancelling expired appointments", 
+      error: error.message 
+    });
+  }
+};

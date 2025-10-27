@@ -12,6 +12,7 @@ import {
   Calendar1,
   ChevronRight,
   Bell,
+  User,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
@@ -30,6 +31,11 @@ export default function ClinicSidebar() {
       icon: LayoutDashboard,
       label: "Dashboard",
       link: "/clinic/dashboard",
+    },
+    {
+      icon: User,
+      label: "Profile",
+      link: "/clinic/profile",
     },
     {
       icon: Calendar1,
