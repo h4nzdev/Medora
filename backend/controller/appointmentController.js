@@ -6,7 +6,8 @@ import Doctor from "../model/doctorModel.js";
 // Create appointment
 export const addAppointment = async (req, res) => {
   try {
-    const { clinicId, doctorId, patientId, date, time, type, bookingType } = req.body;
+    const { clinicId, doctorId, patientId, date, time, type, bookingType } =
+      req.body;
 
     // check if clinic exists
     const clinic = await Clinic.findById(clinicId);
@@ -16,18 +17,12 @@ export const addAppointment = async (req, res) => {
 
     // Check subscription plan and appointment limits
     const appointmentCount = await Appointment.countDocuments({ clinicId });
-    if (
-      clinic.subscriptionPlan === "free" &&
-      appointmentCount >= 10
-    ) {
+    if (clinic.subscriptionPlan === "free" && appointmentCount >= 10) {
       return res.status(403).json({
         message:
           "This clinic has reached its appointment limit for the free plan.",
       });
-    } else if (
-      clinic.subscriptionPlan === "basic" &&
-      appointmentCount >= 20
-    ) {
+    } else if (clinic.subscriptionPlan === "basic" && appointmentCount >= 20) {
       return res.status(403).json({
         message:
           "This clinic has reached its appointment limit for the basic plan.",
@@ -54,6 +49,7 @@ export const addAppointment = async (req, res) => {
       date,
       time,
       type,
+      reason,
       bookingType,
       status: "pending", // default status
     });
@@ -226,15 +222,15 @@ export const getAppointmentsByPatientId = async (req, res) => {
 export const cancelExpiredAppointments = async (req, res) => {
   try {
     const result = await Appointment.cancelExpiredAppointments();
-    
+
     res.status(200).json({
       message: `Cancelled ${result.modifiedCount} expired appointments`,
-      cancelledCount: result.modifiedCount
+      cancelledCount: result.modifiedCount,
     });
   } catch (error) {
-    res.status(500).json({ 
-      message: "Error cancelling expired appointments", 
-      error: error.message 
+    res.status(500).json({
+      message: "Error cancelling expired appointments",
+      error: error.message,
     });
   }
 };

@@ -14,6 +14,7 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import invoiceRouter from "./routes/invoiceRoutes.js";
 import feedbackRouter from "./routes/feedbackRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 import { startAutoCancelCron } from "./utils/autoCancellAppointments.js";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -79,6 +80,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/invoices", invoiceRouter);
 app.use("/api/notification", notificationRouter);
 app.use("/api/feedback", feedbackRouter);
+app.use("/api/admin", adminRouter);
 
 httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on PORT : 3000`);

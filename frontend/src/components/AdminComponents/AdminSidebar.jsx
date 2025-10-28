@@ -50,7 +50,7 @@ export default function AdminSidebar() {
 
   return (
     <div className="fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex flex-col">
-      <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
+      <div className="flex items-center space-x-3 p-6 border-b  flex-shrink-0">
         <img src={logo} alt="medoralogo" className="w-12 h-12" />
         <div>
           <h1 className="text-lg font-bold text-slate-800">Medora</h1>

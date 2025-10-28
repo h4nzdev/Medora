@@ -27,7 +27,7 @@ const AdminRoutes = () => {
           }
         />
         <Route
-          path="admin/patients"
+          path="/admin/patients"
           element={
             <AdminLayout>
               <AdminPatients />
@@ -35,7 +35,7 @@ const AdminRoutes = () => {
           }
         />
         <Route
-          path="admin/feedback"
+          path="/admin/feedback"
           element={
             <AdminLayout>
               <AdminFeedBack />

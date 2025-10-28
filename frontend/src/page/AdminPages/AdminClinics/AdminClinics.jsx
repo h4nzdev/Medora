@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -19,104 +19,57 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
+import { getAllClinics } from "../../../services/clinic_services/clinicService";
 
 const AdminClinics = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [clinics, setClinics] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Static clinic data based on Medora structure
-  const clinics = [
-    {
-      _id: "1",
-      clinicName: "MedPlus Medical Center",
-      contactPerson: "Dr. Sarah Lim",
-      email: "sarah.lim@medplus.com",
-      phone: "+63 912 345 6789",
-      address: "123 Medical Plaza, Quezon City",
-      subscriptionPlan: "pro",
-      dailyPatientLimit: 50,
-      currentPatientCount: 38,
-      status: "active",
-      doctors: 12,
-      patients: 245,
-      appointments: 156,
-      revenue: 1250000,
-      rating: 4.8,
-      joinDate: "2024-01-15",
-    },
-    {
-      _id: "2",
-      clinicName: "City Health Clinic",
-      contactPerson: "Dr. Michael Tan",
-      email: "m.tan@cityhealth.com",
-      phone: "+63 917 654 3210",
-      address: "456 Health Ave, Makati",
-      subscriptionPlan: "basic",
-      dailyPatientLimit: 30,
-      currentPatientCount: 22,
-      status: "active",
-      doctors: 8,
-      patients: 189,
-      appointments: 98,
-      revenue: 850000,
-      rating: 4.5,
-      joinDate: "2024-02-10",
-    },
-    {
-      _id: "3",
-      clinicName: "Family Care Clinic",
-      contactPerson: "Dr. Maria Santos",
-      email: "maria.santos@familycare.com",
-      phone: "+63 918 777 8888",
-      address: "789 Care Street, Mandaluyong",
-      subscriptionPlan: "free",
-      dailyPatientLimit: 20,
-      currentPatientCount: 15,
-      status: "active",
-      doctors: 5,
-      patients: 134,
-      appointments: 67,
-      revenue: 450000,
-      rating: 4.2,
-      joinDate: "2024-03-05",
-    },
-    {
-      _id: "4",
-      clinicName: "Wellness Center Manila",
-      contactPerson: "Dr. James Cruz",
-      email: "j.cruz@wellnessmanila.com",
-      phone: "+63 919 555 6666",
-      address: "321 Wellness Blvd, Manila",
-      subscriptionPlan: "pro",
-      dailyPatientLimit: 50,
-      currentPatientCount: 42,
-      status: "pending",
-      doctors: 15,
-      patients: 312,
-      appointments: 201,
-      revenue: 1680000,
-      rating: 4.9,
-      joinDate: "2024-01-28",
-    },
-    {
-      _id: "5",
-      clinicName: "Metro Dental Clinic",
-      contactPerson: "Dr. Anna Reyes",
-      email: "anna.reyes@metrodental.com",
-      phone: "+63 920 444 3333",
-      address: "654 Dental Tower, Taguig",
-      subscriptionPlan: "basic",
-      dailyPatientLimit: 25,
-      currentPatientCount: 18,
-      status: "suspended",
-      doctors: 6,
-      patients: 167,
-      appointments: 89,
-      revenue: 720000,
-      rating: 4.3,
-      joinDate: "2024-02-20",
-    },
-  ];
+  const fetchClinics = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllClinics();
+      console.log("📊 Raw clinic data:", response); // Debug log
+      setClinics(response);
+    } catch (error) {
+      console.error("Error fetching clinics:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClinics();
+  }, []);
+
+  // Helper to get status (fallback to 'active' if not provided)
+  const getClinicStatus = (clinic) => {
+    return clinic.status || "active";
+  };
+
+  // Helper to get subscription plan (fallback to 'free')
+  const getClinicPlan = (clinic) => {
+    return clinic.subscriptionPlan || "free";
+  };
+
+  // Helper to get join date (fallback to createdAt or current date)
+  const getJoinDate = (clinic) => {
+    return clinic.createdAt || clinic.joinDate || new Date().toISOString();
+  };
+
+  // Mock statistics for demo (you can replace with real data later)
+  const getClinicStats = (clinic) => {
+    return {
+      doctors: clinic.doctorsCount || Math.floor(Math.random() * 10) + 1,
+      patients: clinic.patientsCount || Math.floor(Math.random() * 50) + 10,
+      appointments:
+        clinic.appointmentsCount || Math.floor(Math.random() * 100) + 20,
+      revenue: clinic.revenue || Math.floor(Math.random() * 50000) + 10000,
+      rating: clinic.rating || (Math.random() * 2 + 3).toFixed(1), // 3.0 - 5.0
+    };
+  };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
@@ -134,7 +87,7 @@ const AdminClinics = () => {
       },
     };
 
-    const config = statusConfig[status] || statusConfig.pending;
+    const config = statusConfig[status] || statusConfig.active;
     const Icon = config.icon;
 
     return (
@@ -176,23 +129,34 @@ const AdminClinics = () => {
 
   const filteredClinics = clinics.filter((clinic) => {
     const matchesSearch =
-      clinic.clinicName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      clinic.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      clinic.email.toLowerCase().includes(searchTerm.toLowerCase());
+      clinic.clinicName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clinic.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      clinic.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || clinic.status === statusFilter;
+      statusFilter === "all" || getClinicStatus(clinic) === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   const stats = {
     total: clinics.length,
-    active: clinics.filter((c) => c.status === "active").length,
-    pending: clinics.filter((c) => c.status === "pending").length,
-    pro: clinics.filter((c) => c.subscriptionPlan === "pro").length,
-    basic: clinics.filter((c) => c.subscriptionPlan === "basic").length,
-    free: clinics.filter((c) => c.subscriptionPlan === "free").length,
+    active: clinics.filter((c) => getClinicStatus(c) === "active").length,
+    pending: clinics.filter((c) => getClinicStatus(c) === "pending").length,
+    pro: clinics.filter((c) => getClinicPlan(c) === "pro").length,
+    basic: clinics.filter((c) => getClinicPlan(c) === "basic").length,
+    free: clinics.filter((c) => getClinicPlan(c) === "free").length,
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
+          <p className="text-slate-600 mt-4">Loading clinics...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -316,138 +280,144 @@ const AdminClinics = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {filteredClinics.map((clinic) => (
-                  <tr
-                    key={clinic._id}
-                    className="hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
-                          <Building className="w-6 h-6 text-white" />
+                {filteredClinics.map((clinic) => {
+                  const status = getClinicStatus(clinic);
+                  const plan = getClinicPlan(clinic);
+                  const joinDate = getJoinDate(clinic);
+                  const stats = getClinicStats(clinic);
+
+                  return (
+                    <tr
+                      key={clinic._id}
+                      className="hover:bg-slate-50 transition-colors"
+                    >
+                      <td className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
+                            <Building className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-slate-800">
+                              {clinic.clinicName || "Unnamed Clinic"}
+                            </h3>
+                            <p className="text-slate-600 text-sm flex items-center gap-1 mt-1">
+                              <MapPin className="w-4 h-4" />
+                              {clinic.address || "No address provided"}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Star className="w-4 h-4 text-amber-500 fill-current" />
+                              <span className="text-sm text-slate-700">
+                                {stats.rating}
+                              </span>
+                              <span className="text-slate-500">•</span>
+                              <span className="text-sm text-slate-600">
+                                Joined {new Date(joinDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-slate-800">
-                            {clinic.clinicName}
-                          </h3>
-                          <p className="text-slate-600 text-sm flex items-center gap-1 mt-1">
-                            <MapPin className="w-4 h-4" />
-                            {clinic.address}
+                      </td>
+
+                      <td className="p-6">
+                        <div className="space-y-2">
+                          <p className="font-medium text-slate-800">
+                            {clinic.contactPerson || "No contact person"}
                           </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Star className="w-4 h-4 text-amber-500 fill-current" />
-                            <span className="text-sm text-slate-700">
-                              {clinic.rating}
-                            </span>
-                            <span className="text-slate-500">•</span>
-                            <span className="text-sm text-slate-600">
-                              Joined{" "}
-                              {new Date(clinic.joinDate).toLocaleDateString()}
-                            </span>
+                          <div className="flex items-center gap-2 text-slate-600 text-sm">
+                            <Mail className="w-4 h-4" />
+                            {clinic.email || "No email"}
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-600 text-sm">
+                            <Phone className="w-4 h-4" />
+                            {clinic.phone || "No phone"}
                           </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="p-6">
-                      <div className="space-y-2">
-                        <p className="font-medium text-slate-800">
-                          {clinic.contactPerson}
-                        </p>
-                        <div className="flex items-center gap-2 text-slate-600 text-sm">
-                          <Mail className="w-4 h-4" />
-                          {clinic.email}
+                      <td className="p-6">
+                        <div className="space-y-2">
+                          {getPlanBadge(plan)}
+                          <div className="text-sm text-slate-600">
+                            Patients: {clinic.currentPatientCount || 0}/
+                            {clinic.dailyPatientLimit || 20}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-slate-600 text-sm">
-                          <Phone className="w-4 h-4" />
-                          {clinic.phone}
-                        </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="p-6">
-                      <div className="space-y-2">
-                        {getPlanBadge(clinic.subscriptionPlan)}
-                        <div className="text-sm text-slate-600">
-                          Limit: {clinic.currentPatientCount}/
-                          {clinic.dailyPatientLimit}
+                      <td className="p-6">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <div className="flex items-center gap-1 text-slate-600">
+                              <Users className="w-4 h-4" />
+                              Doctors
+                            </div>
+                            <div className="font-semibold text-slate-800">
+                              {stats.doctors}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 text-slate-600">
+                              <Users className="w-4 h-4" />
+                              Patients
+                            </div>
+                            <div className="font-semibold text-slate-800">
+                              {stats.patients}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 text-slate-600">
+                              <Calendar className="w-4 h-4" />
+                              Appointments
+                            </div>
+                            <div className="font-semibold text-slate-800">
+                              {stats.appointments}
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 text-slate-600">
+                              <DollarSign className="w-4 h-4" />
+                              Revenue
+                            </div>
+                            <div className="font-semibold text-slate-800">
+                              ₱{(stats.revenue / 1000).toFixed(0)}K
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="p-6">
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <div className="flex items-center gap-1 text-slate-600">
-                            <Users className="w-4 h-4" />
-                            Doctors
-                          </div>
-                          <div className="font-semibold text-slate-800">
-                            {clinic.doctors}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1 text-slate-600">
-                            <Users className="w-4 h-4" />
-                            Patients
-                          </div>
-                          <div className="font-semibold text-slate-800">
-                            {clinic.patients}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1 text-slate-600">
-                            <Calendar className="w-4 h-4" />
-                            Appointments
-                          </div>
-                          <div className="font-semibold text-slate-800">
-                            {clinic.appointments}
-                          </div>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1 text-slate-600">
-                            <DollarSign className="w-4 h-4" />
-                            Revenue
-                          </div>
-                          <div className="font-semibold text-slate-800">
-                            ₱{(clinic.revenue / 1000).toFixed(0)}K
-                          </div>
-                        </div>
-                      </div>
-                    </td>
+                      <td className="p-6">{getStatusBadge(status)}</td>
 
-                    <td className="p-6">{getStatusBadge(clinic.status)}</td>
-
-                    <td className="p-6">
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="w-5 h-5" />
-                        </button>
-                        <button
-                          className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Clinic"
-                        >
-                          <Edit className="w-5 h-5" />
-                        </button>
-                        <button
-                          className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete Clinic"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                        <button
-                          className="p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-                          title="More Options"
-                        >
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      <td className="p-6">
+                        <div className="flex items-center gap-2">
+                          <button
+                            className="p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          <button
+                            className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit Clinic"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete Clinic"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                          <button
+                            className="p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                            title="More Options"
+                          >
+                            <MoreVertical className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -460,7 +430,9 @@ const AdminClinics = () => {
                 No clinics found
               </h3>
               <p className="text-slate-500">
-                Try adjusting your search or filters
+                {clinics.length === 0
+                  ? "No clinics registered yet"
+                  : "Try adjusting your search or filters"}
               </p>
             </div>
           )}

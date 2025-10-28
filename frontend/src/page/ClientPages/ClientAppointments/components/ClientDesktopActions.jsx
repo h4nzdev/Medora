@@ -1,13 +1,5 @@
 // ClientDesktopActions.jsx
-import {
-  MoreHorizontal,
-  Calendar,
-  Clock,
-  Edit3,
-  RotateCcw,
-  XCircle,
-  Bell,
-} from "lucide-react";
+import { MoreHorizontal, Edit3, RotateCcw, XCircle, Bell } from "lucide-react";
 import React, { useState } from "react";
 import {
   handleDelete,
@@ -20,72 +12,86 @@ const ClientDesktopActions = ({ id, appointment }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Check status based on your schema enum
+  const isCompleted = appointment?.status === "completed";
+  const isCancelled = appointment?.status === "cancelled";
+  const isActive = !isCompleted && !isCancelled;
+
+  const actions = [
+    {
+      icon: Bell,
+      label: "Set Reminder",
+      loadingLabel: "Setting Reminder...",
+      onClick: () => handleSetReminder(appointment),
+      color: "blue",
+      enabled: isActive,
+    },
+    {
+      icon: Edit3,
+      label: "Edit Details",
+      loadingLabel: "Updating...",
+      onClick: () =>
+        handleEditAppointment(appointment, setIsLoading, setIsOpen),
+      color: "cyan",
+      enabled: isActive,
+    },
+    {
+      icon: RotateCcw,
+      label: "Reschedule",
+      loadingLabel: "Rescheduling...",
+      onClick: () =>
+        handleRescheduleAppointment(appointment, setIsLoading, setIsOpen),
+      color: "purple",
+      enabled: isActive,
+    },
+    {
+      icon: XCircle,
+      label: "Cancel",
+      loadingLabel: "Cancelling...",
+      onClick: () => handleDelete(id, setIsLoading, setIsOpen),
+      color: "red",
+      enabled: isActive,
+    },
+  ];
+
   return (
     <div className="relative">
       <button
-        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="p-3 hover:bg-gradient-to-br hover:from-slate-100 hover:to-slate-200 rounded-xl text-slate-600 hover:text-slate-800 transition-all duration-300 hover:scale-110 shadow-sm hover:shadow-md"
+        className="p-3 hover:bg-slate-100 rounded-xl text-slate-600 transition-all"
         aria-label="More options"
       >
-        <MoreHorizontal className="h-5 w-5 md:h-6 md:w-6" />
+        <MoreHorizontal className="w-5 h-5" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl z-50 border border-white/20 backdrop-blur-sm">
-          {/* Set Reminder */}
-          <button
-            onClick={() => {
-              handleSetReminder(appointment);
-              setIsOpen(false);
-            }}
-            className="flex items-center px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-50 hover:text-blue-700 w-full text-start border-b border-slate-200/50 transition-all duration-300 group"
-          >
-            <div className="p-2 bg-blue-100 rounded-lg mr-3 group-hover:scale-110 transition-transform">
-              <Bell className="w-4 h-4 text-blue-500" />
-            </div>
-            Set Reminder
-          </button>
-
-          {/* Edit Appointment */}
-          <button
-            onClick={() =>
-              handleEditAppointment(appointment, setIsLoading, setIsOpen)
-            }
-            disabled={isLoading}
-            className="flex items-center px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-cyan-50 hover:to-sky-50 hover:text-cyan-700 w-full text-start border-b border-slate-200/50 transition-all duration-300 group"
-          >
-            <div className="p-2 bg-cyan-100 rounded-lg mr-3 group-hover:scale-110 transition-transform">
-              <Edit3 className="w-4 h-4 text-cyan-500" />
-            </div>
-            {isLoading ? "Updating..." : "Edit Details"}
-          </button>
-
-          {/* Reschedule Appointment */}
-          <button
-            onClick={() =>
-              handleRescheduleAppointment(appointment, setIsLoading, setIsOpen)
-            }
-            disabled={isLoading}
-            className="flex items-center px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-50 hover:text-purple-700 w-full text-start border-b border-slate-200/50 transition-all duration-300 group"
-          >
-            <div className="p-2 bg-purple-100 rounded-lg mr-3 group-hover:scale-110 transition-transform">
-              <RotateCcw className="w-4 h-4 text-purple-500" />
-            </div>
-            {isLoading ? "Rescheduling..." : "Reschedule"}
-          </button>
-
-          {/* Cancel Appointment */}
-          <button
-            onClick={() => handleDelete(id, setIsLoading, setIsOpen)}
-            disabled={isLoading}
-            className="flex items-center px-4 py-3 text-base font-semibold text-slate-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-50 hover:text-red-700 w-full text-start transition-all duration-300 group"
-          >
-            <div className="p-2 bg-red-100 rounded-lg mr-3 group-hover:scale-110 transition-transform">
-              <XCircle className="w-4 h-4 text-red-500" />
-            </div>
-            {isLoading ? "Cancelling..." : "Cancel"}
-          </button>
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50 border border-slate-200">
+          {actions.map((action, index) =>
+            action.enabled ? (
+              <button
+                key={action.label}
+                onClick={() => {
+                  action.onClick();
+                  setIsOpen(false);
+                }}
+                disabled={isLoading}
+                className={`flex items-center w-full p-3 text-sm font-medium text-slate-700 hover:bg-slate-50 border-b border-slate-100 transition-colors ${
+                  index === actions.length - 1 ? "border-b-0" : ""
+                }`}
+              >
+                <action.icon className="w-4 h-4 text-slate-600 mr-3" />
+                {isLoading ? action.loadingLabel : action.label}
+              </button>
+            ) : (
+              <div
+                key={action.label}
+                className="flex items-center w-full p-3 text-sm font-medium text-slate-400 border-b border-slate-100 cursor-not-allowed"
+              >
+                <action.icon className="w-4 h-4 text-slate-300 mr-3" />
+                {action.label}
+              </div>
+            )
+          )}
         </div>
       )}
     </div>

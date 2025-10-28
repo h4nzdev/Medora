@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Users,
   Building,
@@ -11,7 +11,17 @@ import {
   Stethoscope,
   FileText,
   MessageSquare,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
+
+import {
+  getDashboardStats,
+  getAppointmentAnalytics,
+  getClinicSubscriptionBreakdown,
+  getRecentActivity,
+  getAllChats,
+} from "../../../services/admin_services/adminService";
 
 // Simple chart components
 const BarChart = ({ data, color = "bg-cyan-500" }) => (
@@ -31,8 +41,56 @@ const BarChart = ({ data, color = "bg-cyan-500" }) => (
 );
 
 const AdminDashboard = () => {
-  // Static data based on Medora project structure
-  const dashboardStats = {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardData, setDashboardData] = useState({
+    stats: null,
+    analytics: null,
+    subscriptions: null,
+    activity: null,
+  });
+
+  // Fetch real data on component mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [stats, analytics, subscriptions, activity, chats] =
+        await Promise.all([
+          getDashboardStats(),
+          getAppointmentAnalytics(),
+          getClinicSubscriptionBreakdown(),
+          getRecentActivity(),
+          getAllChats(),
+        ]);
+
+      console.log("🔍 DEBUG - Real Stats Data:", stats);
+      console.log("📊 Chats:", stats.totalChats);
+      console.log("📄 Medical Records:", stats.medicalRecords);
+      console.log("🧾 Invoices:", stats.invoicesGenerated);
+
+      setDashboardData({
+        stats,
+        analytics,
+        subscriptions,
+        activity,
+        chats,
+      });
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+      setError("Failed to load dashboard data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Use real data or fallback to mock data while loading
+  const stats = dashboardData.stats || {
     totalClinics: 24,
     totalPatients: 1248,
     totalDoctors: 156,
@@ -45,80 +103,37 @@ const AdminDashboard = () => {
     invoicesGenerated: 1893,
   };
 
-  const clinicPlans = {
-    free: 8,
-    basic: 12,
-    pro: 4,
-  };
+  const subscriptions = dashboardData.subscriptions;
 
-  const recentActivity = [
-    {
-      id: 1,
-      title: "New clinic registration - MedPlus Center",
-      description: "Quezon City • Free Plan",
-      time: "2 hours ago",
-      icon: Building,
-      type: "clinic",
-    },
-    {
-      id: 2,
-      title: "Doctor verification completed",
-      description: "Dr. Maria Santos - Cardiologist",
-      time: "4 hours ago",
-      icon: UserCheck,
-      type: "doctor",
-    },
-    {
-      id: 3,
-      title: "Monthly revenue milestone achieved",
-      description: "₱4.3M total monthly revenue",
-      time: "6 hours ago",
-      icon: DollarSign,
-      type: "revenue",
-    },
-    {
-      id: 4,
-      title: "AI chat usage spike",
-      description: "156 chat sessions today",
-      time: "8 hours ago",
-      icon: MessageSquare,
-      type: "chat",
-    },
-    {
-      id: 5,
-      title: "New medical records added",
-      description: "45 records from various clinics",
-      time: "1 day ago",
-      icon: FileText,
-      type: "records",
-    },
-  ];
+  const analytics = dashboardData.analytics;
+
+  const activity = dashboardData.activity;
 
   const quickStats = [
     {
       title: "Active Clinics",
-      value: dashboardStats.totalClinics,
+      value: stats.totalClinics,
       icon: Building,
       color: "bg-blue-500",
       description: "Registered healthcare facilities",
     },
     {
       title: "Total Patients",
-      value: dashboardStats.totalPatients.toLocaleString(),
+      value: stats.totalPatients.toLocaleString(),
       icon: Users,
       color: "bg-green-500",
       description: "Registered patients across all clinics",
     },
     {
       title: "Medical Doctors",
-      value: dashboardStats.totalDoctors,
+      value: stats.totalDoctors,
       icon: Stethoscope,
       color: "bg-purple-500",
       description: "Verified healthcare professionals",
     },
     {
       title: "AI Chat Sessions",
-      value: dashboardStats.totalChats,
+      value: stats.totalChats,
       icon: MessageSquare,
       color: "bg-cyan-500",
       description: "Total Gemini AI interactions",
@@ -145,6 +160,34 @@ const AdminDashboard = () => {
       {subtitle && <p className="text-slate-500 text-sm mt-2">{subtitle}</p>}
     </div>
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-cyan-600 animate-spin mx-auto mb-4" />
+          <p className="text-slate-600 text-lg">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 text-lg mb-4">{error}</p>
+          <button
+            onClick={fetchDashboardData}
+            className="bg-cyan-600 text-white px-6 py-2 rounded-lg hover:bg-cyan-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -178,14 +221,14 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Appointments"
-            value={dashboardStats.totalAppointments.toLocaleString()}
+            value={stats.totalAppointments.toLocaleString()}
             icon={Calendar}
             color="bg-gradient-to-br from-blue-500 to-blue-600"
             trend={12}
           />
           <StatCard
             title="Monthly Revenue"
-            value={`₱${(dashboardStats.monthlyRevenue / 1000000).toFixed(1)}M`}
+            value={`₱${(stats.monthlyRevenue / 1000000).toFixed(1)}M`}
             subtitle="From all clinics"
             icon={DollarSign}
             color="bg-gradient-to-br from-green-500 to-green-600"
@@ -193,14 +236,14 @@ const AdminDashboard = () => {
           />
           <StatCard
             title="Pending Approvals"
-            value={dashboardStats.pendingAppointments}
+            value={stats.pendingAppointments}
             icon={Activity}
             color="bg-gradient-to-br from-amber-500 to-amber-600"
             trend={-5}
           />
           <StatCard
             title="Completed Sessions"
-            value={dashboardStats.completedAppointments.toLocaleString()}
+            value={stats.completedAppointments.toLocaleString()}
             icon={UserCheck}
             color="bg-gradient-to-br from-purple-500 to-purple-600"
             trend={8}
@@ -215,14 +258,14 @@ const AdminDashboard = () => {
                 Weekly Appointments
               </h2>
               <div className="text-2xl font-bold text-slate-800">
-                {[45, 52, 48, 61, 58, 49, 42].reduce((a, b) => a + b, 0)}
+                {analytics.weekly.reduce((a, b) => a + b, 0)}
               </div>
             </div>
-            <BarChart data={[45, 52, 48, 61, 58, 49, 42]} color="bg-cyan-500" />
+            <BarChart data={analytics.weekly} color="bg-cyan-500" />
             <div className="flex justify-between mt-4 text-sm text-slate-600">
-              <span>Pending: {dashboardStats.pendingAppointments}</span>
-              <span>Completed: {dashboardStats.completedAppointments}</span>
-              <span>Total: {dashboardStats.totalAppointments}</span>
+              <span>Pending: {analytics.status.pending}</span>
+              <span>Completed: {analytics.status.completed}</span>
+              <span>Total: {stats.totalAppointments}</span>
             </div>
           </div>
 
@@ -238,7 +281,7 @@ const AdminDashboard = () => {
                     Free Plan
                   </span>
                   <span className="text-sm text-slate-600">
-                    {clinicPlans.free} clinics
+                    {subscriptions.free} clinics
                   </span>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2">
@@ -246,7 +289,7 @@ const AdminDashboard = () => {
                     className="bg-slate-400 h-2 rounded-full"
                     style={{
                       width: `${
-                        (clinicPlans.free / dashboardStats.totalClinics) * 100
+                        (subscriptions.free / stats.totalClinics) * 100
                       }%`,
                     }}
                   ></div>
@@ -258,7 +301,7 @@ const AdminDashboard = () => {
                     Basic Plan
                   </span>
                   <span className="text-sm text-slate-600">
-                    {clinicPlans.basic} clinics
+                    {subscriptions.basic} clinics
                   </span>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2">
@@ -266,7 +309,7 @@ const AdminDashboard = () => {
                     className="bg-blue-500 h-2 rounded-full"
                     style={{
                       width: `${
-                        (clinicPlans.basic / dashboardStats.totalClinics) * 100
+                        (subscriptions.basic / stats.totalClinics) * 100
                       }%`,
                     }}
                   ></div>
@@ -278,7 +321,7 @@ const AdminDashboard = () => {
                     Pro Plan
                   </span>
                   <span className="text-sm text-slate-600">
-                    {clinicPlans.pro} clinics
+                    {subscriptions.pro} clinics
                   </span>
                 </div>
                 <div className="w-full bg-slate-200 rounded-full h-2">
@@ -286,7 +329,7 @@ const AdminDashboard = () => {
                     className="bg-green-500 h-2 rounded-full"
                     style={{
                       width: `${
-                        (clinicPlans.pro / dashboardStats.totalClinics) * 100
+                        (subscriptions.pro / stats.totalClinics) * 100
                       }%`,
                     }}
                   ></div>
@@ -297,13 +340,13 @@ const AdminDashboard = () => {
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Total Clinics:</span>
                 <span className="font-semibold text-slate-800">
-                  {dashboardStats.totalClinics}
+                  {stats.totalClinics}
                 </span>
               </div>
               <div className="flex justify-between text-sm mt-1">
                 <span className="text-slate-600">Monthly Revenue:</span>
                 <span className="font-semibold text-slate-800">
-                  ₱{(dashboardStats.monthlyRevenue / 1000000).toFixed(1)}M
+                  ₱{(stats.monthlyRevenue / 1000000).toFixed(1)}M
                 </span>
               </div>
             </div>
@@ -351,7 +394,7 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-slate-800">
-                      {dashboardStats.medicalRecords.toLocaleString()}
+                      {stats.medicalRecords.toLocaleString()}
                     </p>
                     <p className="text-slate-600 text-sm">Medical Records</p>
                   </div>
@@ -364,7 +407,7 @@ const AdminDashboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-slate-800">
-                      {dashboardStats.invoicesGenerated.toLocaleString()}
+                      {stats.invoicesGenerated.toLocaleString()}
                     </p>
                     <p className="text-slate-600 text-sm">Invoices Generated</p>
                   </div>
@@ -379,24 +422,24 @@ const AdminDashboard = () => {
               Recent Activity
             </h2>
             <div className="space-y-4">
-              {recentActivity.map((activity) => (
+              {activity.map((activityItem) => (
                 <div
-                  key={activity.id}
+                  key={activityItem.id}
                   className="flex items-center space-x-3 p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition-colors"
                 >
                   <div className="p-2 bg-cyan-100 rounded-lg">
-                    <activity.icon className="w-4 h-4 text-cyan-600" />
+                    <activityItem.icon className="w-4 h-4 text-cyan-600" />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-slate-800 text-sm">
-                      {activity.title}
+                      {activityItem.title}
                     </p>
                     <p className="text-slate-500 text-xs">
-                      {activity.description}
+                      {activityItem.description}
                     </p>
                   </div>
                   <span className="text-slate-400 text-xs">
-                    {activity.time}
+                    {activityItem.time}
                   </span>
                 </div>
               ))}

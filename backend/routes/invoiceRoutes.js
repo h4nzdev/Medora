@@ -6,12 +6,16 @@ import {
   updateInvoice,
   deleteInvoice,
   getInvoicesByPatient,
+  getAllInvoices,
 } from "../controller/invoiceController.js";
 
 const invoiceRouter = express.Router();
 
 // Create a new invoice
 invoiceRouter.post("/", createInvoice);
+
+// Create a new invoice
+invoiceRouter.get("/", getAllInvoices);
 
 // Get a single invoice by ID
 invoiceRouter.get("/:id", getInvoiceById);

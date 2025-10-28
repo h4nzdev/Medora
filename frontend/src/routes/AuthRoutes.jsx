@@ -5,6 +5,7 @@ import ClientRegister from "../page/AuthPages/ClientAuth/ClientRegister";
 import ClinicLogin from "../page/AuthPages/ClinicAuth/ClinicLogin";
 import ClinicRegister from "../page/AuthPages/ClinicAuth/ClinicRegister";
 import LandingPage from "../page/LandingPage/LandingPage";
+import AdminLogin from "../page/AuthPages/AdminAuth/AdminLogin";
 
 const AuthRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AuthRoutes = () => {
         <Route path="/clinic/register" element={<ClinicRegister />} />
         <Route path="/client/login" element={<ClientLogin />} />
         <Route path="/client/register" element={<ClientRegister />} />
+        <Route path="/admin/secret/login" element={<AdminLogin />} />
       </Routes>
     </BrowserRouter>
   );

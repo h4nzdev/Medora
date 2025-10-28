@@ -35,6 +35,9 @@ const AppointmentSchema = new mongoose.Schema({
   type: {
     type: String, // reason for visit (e.g., "check-up", "follow-up")
   },
+  reason: {
+    type: String, // reason for visit (e.g., "check-up", "follow-up")
+  },
   bookingType: {
     type: String,
     enum: ["online", "walk-in"],
@@ -46,6 +49,10 @@ const AppointmentSchema = new mongoose.Schema({
   // Add these new fields for better tracking
   cancellationReason: {
     type: String,
+  },
+  isReschedule: {
+    type: Boolean,
+    default: false,
   },
   autoCancelled: {
     type: Boolean,

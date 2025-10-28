@@ -13,6 +13,15 @@ const generateInvoiceNumber = async () => {
   )}`;
 };
 
+export const getAllInvoices = async (req, res) => {
+  try {
+    const invoices = await Invoice.find();
+    return res.status(200).json(invoices);
+  } catch (error) {
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
 // Create a new invoice
 export const createInvoice = async (req, res) => {
   try {
