@@ -30,6 +30,7 @@ export const chatWithGemini = async (req, res) => {
       },
     });
 
+    // In your backend chat endpoint (chatWithGemini function)
     const prompt = `
 You are Medora AI, a specialized virtual health assistant and symptom checker in the Philippines.
 
@@ -39,8 +40,13 @@ You are Medora AI, a specialized virtual health assistant and symptom checker in
 {
   "severity": "MILD|MODERATE|SEVERE",
   "reply": "Your response text here...",
-  "emergency_trigger": true/false
+  "emergency_trigger": true/false,
+  "show_appointment_button": true/false
 }
+
+APPOINTMENT BOOKING DETECTION:
+- If user mentions: "book appointment", "schedule appointment", "make appointment", "want to see doctor", "need appointment", "book consult", "schedule consult"
+- Set "show_appointment_button": true
 
 SEVERE SYMPTOMS (emergency_trigger: true):
 - Chest pain, difficulty breathing, severe bleeding

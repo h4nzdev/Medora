@@ -18,7 +18,9 @@ import {
   BookOpen,
   Calendar,
   MapPin,
-  ArrowLeft, // Added back arrow icon
+  ArrowLeft,
+  Mic,
+  MicOff, // Added back arrow icon
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
@@ -26,6 +28,7 @@ import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom"; // Added for navigation
+import { useVoiceRecognition } from "../../../hooks/useVoiceRecognition";
 
 const ClientChat = () => {
   const [message, setMessage] = useState("");
@@ -42,7 +45,19 @@ const ClientChat = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [quickActions, setQuickActions] = useState(true);
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate(); // For back navigation
+  const navigate = useNavigate(); // For back
+
+  const [lastBotMessage, setLastBotMessage] = useState(null);
+
+  //Voice Recognition:
+  const {
+    isListening,
+    transcript,
+    isSupported,
+    startListening,
+    stopListening,
+    setTranscript,
+  } = useVoiceRecognition();
 
   // Enhanced sample questions with categories
   const sampleQuestions = {
@@ -79,6 +94,20 @@ const ClientChat = () => {
       }
     }
   };
+
+  //Vocie recognition transcript
+  useEffect(() => {
+    if (transcript) {
+      setMessage(transcript);
+    }
+  }, [transcript]);
+
+  useEffect(() => {
+    if (!isListening && transcript.trim()) {
+      // Optional: Auto-send when voice input completes
+      handleSendMessage();
+    }
+  }, [isListening, transcript]);
 
   useEffect(() => {
     const storedChatHistory = localStorage.getItem("chatHistory");
@@ -125,17 +154,72 @@ const ClientChat = () => {
   // Text-to-speech function
   const speakText = (text) => {
     if ("speechSynthesis" in window) {
+      // Stop any ongoing speech
+      window.speechSynthesis.cancel();
+
       const speech = new SpeechSynthesisUtterance();
       speech.text = text.replace(/[👋💡🚨📋📍🕒❤️⚡🎯]/g, "");
-      speech.rate = 0.9;
-      speech.pitch = 1;
-      speech.volume = 1;
+
+      // Voice settings - adjust these values:
+      speech.rate = 1.2; // Increased from 0.9 to 1.2 (faster)
+      speech.pitch = 1.1; // Slightly higher pitch for clarity
+      speech.volume = 1; // Maximum volume
+
+      // Optional: Try to get a better voice
+      const voices = window.speechSynthesis.getVoices();
+
+      // Prefer female voices (usually sound clearer for assistants)
+      const preferredVoice = voices.find(
+        (voice) =>
+          voice.name.includes("Female") ||
+          voice.name.includes("Google") ||
+          voice.name.includes("Samantha") ||
+          voice.name.includes("Karen") // Australian female voice
+      );
+
+      if (preferredVoice) {
+        speech.voice = preferredVoice;
+      }
 
       speech.onstart = () => setIsSpeaking(true);
       speech.onend = () => setIsSpeaking(false);
       speech.onerror = () => setIsSpeaking(false);
 
       window.speechSynthesis.speak(speech);
+    }
+  };
+
+  // Replace your current auto-speak useEffect with this:
+  useEffect(() => {
+    if (chatHistory.length > 0) {
+      const lastMessage = chatHistory[chatHistory.length - 1];
+
+      if (
+        lastMessage.role === "bot" &&
+        !lastMessage.type &&
+        !isSpeaking &&
+        !lastMessage.hasBeenSpoken
+      ) {
+        speakText(lastMessage.text);
+
+        // Mark this message as spoken to prevent re-speaking on refresh
+        setChatHistory((prev) => {
+          const newHistory = [...prev];
+          newHistory[newHistory.length - 1] = {
+            ...lastMessage,
+            hasBeenSpoken: true,
+          };
+          return newHistory;
+        });
+      }
+    }
+  }, [chatHistory, isSpeaking]);
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
     }
   };
 
@@ -202,6 +286,7 @@ const ClientChat = () => {
         text: response.data.reply,
         severity: response.data.severity,
         emergency: response.data.emergency_trigger,
+        showAppointmentButton: response.data.show_appointment_button || false, // Add this
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -209,6 +294,14 @@ const ClientChat = () => {
       };
 
       setChatHistory((prev) => [...prev, botMessage]);
+
+      // Show appointment button
+      if (response.data.show_appointment_button) {
+        setShowAppointmentButton(true);
+        setLastBotMessage(botMessage);
+      } else {
+        setShowAppointmentButton(false);
+      }
 
       // 3) Check for emergency and trigger emergency UI
       if (response.data.emergency_trigger) {
@@ -271,6 +364,25 @@ const ClientChat = () => {
       setChatHistory((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Add this function with your other handlers
+  const handleBookAppointment = () => {
+    // Navigate to your appointment booking page
+    navigate("/book-appointment"); // Adjust the route to match your app
+
+    // Optional: Pass some context about why they're booking
+    if (lastBotMessage) {
+      // You can store this in context or localStorage for the booking page
+      localStorage.setItem(
+        "appointmentContext",
+        JSON.stringify({
+          reason: message, // The original user message
+          botResponse: lastBotMessage.text,
+          timestamp: new Date().toISOString(),
+        })
+      );
     }
   };
 
@@ -378,9 +490,9 @@ const ClientChat = () => {
               className="p-1.5 sm:p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg sm:rounded-xl transition-all duration-200"
             >
               {isSpeaking ? (
-                <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
-              ) : (
                 <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              ) : (
+                <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </button>
 
@@ -397,8 +509,8 @@ const ClientChat = () => {
 
       {/* Enhanced Emergency Banner */}
       {showEmergency && emergencyData && (
-        <div className="sticky top-16 sm:top-20 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 lg:p-6 shadow-lg z-10 animate-pulse">
-          <div className="max-w-6xl mx-auto">
+        <div className="sticky top-16 sm:top-20 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 lg:p-6 shadow-lg z-10">
+          <div>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4 flex-1">
                 <div className="bg-white/20 p-3 rounded-2xl">
@@ -408,7 +520,7 @@ const ClientChat = () => {
                   <h3 className="font-bold text-lg mb-1">
                     🚨 Medical Emergency Detected
                   </h3>
-                  <p className="text-red-100 text-sm opacity-90">
+                  <p className="text-red-100 text-sm opacity-90 max-w-4xl">
                     {emergencyData.message}
                   </p>
                 </div>
@@ -504,7 +616,6 @@ const ClientChat = () => {
                     </span>
                   )}
                 </div>
-
                 {/* Message Content */}
                 <p className="text-sm lg:text-base leading-relaxed whitespace-pre-wrap">
                   {chat.text}
@@ -683,23 +794,47 @@ const ClientChat = () => {
               <input
                 type="text"
                 placeholder={
-                  !chatCredits.canChat
+                  !isSupported
+                    ? "Voice not supported in this browser"
+                    : !chatCredits.canChat
                     ? "Daily limit reached - try again tomorrow"
                     : showEmergency
                     ? "Emergency detected - use emergency buttons above"
-                    : "Ask about symptoms, health tips, or appointments..."
+                    : isListening
+                    ? "Listening... Speak now"
+                    : "Type or tap mic to speak..."
                 }
-                value={message}
+                value={isListening ? transcript : message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                disabled={!chatCredits.canChat || showEmergency}
+                disabled={!chatCredits.canChat || showEmergency || !isSupported}
                 className={`w-full px-4 lg:px-6 py-3 lg:py-4 text-sm lg:text-base border-2 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none transition-all duration-200 ${
-                  !chatCredits.canChat || showEmergency
+                  !chatCredits.canChat || showEmergency || !isSupported
                     ? "bg-slate-100 border-slate-300 text-slate-500 cursor-not-allowed"
+                    : isListening
+                    ? "bg-green-50 border-green-400 text-green-800"
                     : "bg-white border-slate-300 text-slate-800 hover:border-cyan-300"
                 }`}
               />
-              {message && (
+
+              {/* Voice listening indicator */}
+              {isListening && (
+                <div className="absolute right-14 top-1/2 transform -translate-y-1/2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <div
+                      className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+                      style={{ animationDelay: "0.4s" }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              {message && !isListening && (
                 <button
                   onClick={() => setMessage("")}
                   className="absolute right-14 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
@@ -708,6 +843,27 @@ const ClientChat = () => {
                 </button>
               )}
             </div>
+
+            {/* Voice Input Button */}
+            <button
+              onClick={toggleVoiceInput}
+              disabled={!isSupported || !chatCredits.canChat || showEmergency}
+              className={`px-4 py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center space-x-2 min-w-[60px] justify-center ${
+                !isSupported || !chatCredits.canChat || showEmergency
+                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  : isListening
+                  ? "bg-red-500 text-white hover:bg-red-600 shadow-lg"
+                  : "bg-cyan-500 text-white hover:bg-cyan-600 shadow-lg"
+              }`}
+            >
+              {isListening ? (
+                <MicOff className="h-4 w-4 lg:h-5 lg:w-5" />
+              ) : (
+                <Mic className="h-4 w-4 lg:h-5 lg:w-5" />
+              )}
+            </button>
+
+            {/* Send Button */}
             <button
               onClick={handleSendMessage}
               disabled={
@@ -726,7 +882,6 @@ const ClientChat = () => {
               <span className="hidden sm:inline">Send</span>
             </button>
           </div>
-
           {/* Quick Tips */}
           {chatCredits.canChat && !showEmergency && (
             <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
