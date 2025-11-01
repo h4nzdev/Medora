@@ -7,27 +7,24 @@ import {
   AlertTriangle,
   Phone,
   Stethoscope,
-  Heart,
   Zap,
   Sparkles,
   VolumeX,
   Volume2,
   ThumbsUp,
   ThumbsDown,
-  MoreHorizontal,
   BookOpen,
   Calendar,
-  MapPin,
   ArrowLeft,
   Mic,
-  MicOff, // Added back arrow icon
+  MicOff,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom"; // Added for navigation
+import { useNavigate } from "react-router-dom";
 import { useVoiceRecognition } from "../../../hooks/useVoiceRecognition";
 
 const ClientChat = () => {
@@ -45,11 +42,13 @@ const ClientChat = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [quickActions, setQuickActions] = useState(true);
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate(); // For back
+  const navigate = useNavigate();
 
   const [lastBotMessage, setLastBotMessage] = useState(null);
+  const [showAppointmentButton, setShowAppointmentButton] = useState(false); // Added missing state
+  const [isSending, setIsSending] = useState(false); // ADDED: Simple fix for duplicates
 
-  //Voice Recognition:
+  // Voice Recognition
   const {
     isListening,
     transcript,
@@ -95,7 +94,7 @@ const ClientChat = () => {
     }
   };
 
-  //Vocie recognition transcript
+  // Voice recognition transcript
   useEffect(() => {
     if (transcript) {
       setMessage(transcript);
@@ -103,8 +102,8 @@ const ClientChat = () => {
   }, [transcript]);
 
   useEffect(() => {
-    if (!isListening && transcript.trim()) {
-      // Optional: Auto-send when voice input completes
+    if (!isListening && transcript.trim() && !isSending) {
+      // ADDED: isSending check
       handleSendMessage();
     }
   }, [isListening, transcript]);
@@ -154,27 +153,21 @@ const ClientChat = () => {
   // Text-to-speech function
   const speakText = (text) => {
     if ("speechSynthesis" in window) {
-      // Stop any ongoing speech
       window.speechSynthesis.cancel();
 
       const speech = new SpeechSynthesisUtterance();
       speech.text = text.replace(/[👋💡🚨📋📍🕒❤️⚡🎯]/g, "");
 
-      // Voice settings - adjust these values:
-      speech.rate = 1.2; // Increased from 0.9 to 1.2 (faster)
-      speech.pitch = 1.1; // Slightly higher pitch for clarity
-      speech.volume = 1; // Maximum volume
+      speech.rate = 1.2;
+      speech.pitch = 1.1;
+      speech.volume = 1;
 
-      // Optional: Try to get a better voice
       const voices = window.speechSynthesis.getVoices();
-
-      // Prefer female voices (usually sound clearer for assistants)
       const preferredVoice = voices.find(
         (voice) =>
           voice.name.includes("Female") ||
           voice.name.includes("Google") ||
-          voice.name.includes("Samantha") ||
-          voice.name.includes("Karen") // Australian female voice
+          voice.name.includes("Samantha")
       );
 
       if (preferredVoice) {
@@ -189,7 +182,6 @@ const ClientChat = () => {
     }
   };
 
-  // Replace your current auto-speak useEffect with this:
   useEffect(() => {
     if (chatHistory.length > 0) {
       const lastMessage = chatHistory[chatHistory.length - 1];
@@ -202,7 +194,6 @@ const ClientChat = () => {
       ) {
         speakText(lastMessage.text);
 
-        // Mark this message as spoken to prevent re-speaking on refresh
         setChatHistory((prev) => {
           const newHistory = [...prev];
           newHistory[newHistory.length - 1] = {
@@ -228,8 +219,12 @@ const ClientChat = () => {
     setIsSpeaking(false);
   };
 
+  // FIXED: handleSendMessage with simple duplicate prevention
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    // SIMPLE FIX: Prevent multiple sends
+    if (isSending || !message.trim()) return;
+
+    setIsSending(true); // Set sending flag
 
     // Check if user can still chat
     if (!chatCredits.canChat) {
@@ -239,6 +234,7 @@ const ClientChat = () => {
         type: "limit_reached",
       };
       setChatHistory((prev) => [...prev, errorMessage]);
+      setIsSending(false);
       return;
     }
 
@@ -286,7 +282,7 @@ const ClientChat = () => {
         text: response.data.reply,
         severity: response.data.severity,
         emergency: response.data.emergency_trigger,
-        showAppointmentButton: response.data.show_appointment_button || false, // Add this
+        showAppointmentButton: response.data.show_appointment_button || false,
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -364,21 +360,19 @@ const ClientChat = () => {
       setChatHistory((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
+      setIsSending(false); // CLEAR: sending flag
     }
   };
 
   // Add this function with your other handlers
   const handleBookAppointment = () => {
-    // Navigate to your appointment booking page
-    navigate("/book-appointment"); // Adjust the route to match your app
+    navigate("/book-appointment");
 
-    // Optional: Pass some context about why they're booking
     if (lastBotMessage) {
-      // You can store this in context or localStorage for the booking page
       localStorage.setItem(
         "appointmentContext",
         JSON.stringify({
-          reason: message, // The original user message
+          reason: message,
           botResponse: lastBotMessage.text,
           timestamp: new Date().toISOString(),
         })
@@ -391,7 +385,6 @@ const ClientChat = () => {
     toast.info(
       "🚨 Connecting to emergency services... Please stay on the line."
     );
-    // Auto-dial emergency numbers
     window.location.href = "tel:911";
   };
 
@@ -418,7 +411,7 @@ const ClientChat = () => {
 
   // Back button handler
   const handleBack = () => {
-    navigate(-1); // Go back to previous page
+    navigate(-1);
   };
 
   useEffect(() => {
@@ -438,8 +431,6 @@ const ClientChat = () => {
           </button>
           {/* Left Section - Back Button & Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-1 min-w-0">
-            {/* Back Button */}
-
             <div className="relative flex-shrink-0">
               <div className="bg-gradient-to-br from-cyan-500 to-blue-500 p-1.5 sm:p-2 lg:p-3 rounded-xl sm:rounded-2xl shadow-lg">
                 <Bot className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
@@ -547,8 +538,6 @@ const ClientChat = () => {
 
       {/* Enhanced Chat Area - Fixed top spacing */}
       <div className="flex-1 overflow-y-auto lg:pb-32 pb-12">
-        {" "}
-        {/* Reduced top padding */}
         <div className="mx-auto px-">
           {chatHistory.map((chat, index) => (
             <div
@@ -863,23 +852,30 @@ const ClientChat = () => {
               )}
             </button>
 
-            {/* Send Button */}
+            {/* Send Button - UPDATED: Added isSending to disabled */}
             <button
               onClick={handleSendMessage}
               disabled={
                 loading ||
+                isSending || // ADDED: This prevents multiple clicks
                 !chatCredits.canChat ||
                 showEmergency ||
                 !message.trim()
               }
               className={`px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center space-x-2 min-w-[60px] justify-center ${
-                !chatCredits.canChat || showEmergency || !message.trim()
+                !chatCredits.canChat ||
+                showEmergency ||
+                !message.trim() ||
+                isSending
                   ? "bg-slate-300 text-slate-500 cursor-not-allowed"
                   : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 shadow-lg hover:shadow-xl transform hover:scale-105"
               }`}
             >
               <Send className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span className="hidden sm:inline">Send</span>
+              <span className="hidden sm:inline">
+                {isSending ? "Sending..." : "Send"}{" "}
+                {/* UPDATED: Show sending state */}
+              </span>
             </button>
           </div>
           {/* Quick Tips */}
