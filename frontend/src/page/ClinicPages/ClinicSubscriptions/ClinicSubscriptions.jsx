@@ -4,8 +4,12 @@ import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import { CreditCard, CheckCircle, XCircle } from "lucide-react";
 import PaymentModal from "../../../components/ClinicComponents/PaymentModal/PaymentModal";
-import axios from "axios";
 import { toast } from "sonner";
+// Import our new subscription service
+import {
+  createSubscription,
+  getClinicSubscription,
+} from "../../../services/subscription_services/subscriptionService";
 
 const plans = [
   {
@@ -41,21 +45,39 @@ const plans = [
 
 export default function ClinicSubscriptions() {
   const { user, setUser } = useContext(AuthContext);
-  const currentPlan = user?.subscriptionPlan || "Free";
+  // We'll now get current plan from subscription instead of user
+  const [currentSubscription, setCurrentSubscription] = useState(null);
+  const currentPlan = currentSubscription?.plan || "free";
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPaymentSetup, setIsPaymentSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [billingHistory, setBillingHistory] = useState([]);
 
+  // Fetch current subscription when component loads
   useEffect(() => {
     if (user && user._id) {
+      fetchCurrentSubscription();
+
+      // Keep your existing billing history logic
       const storedHistory = localStorage.getItem(`billingHistory_${user._id}`);
       if (storedHistory) {
         setBillingHistory(JSON.parse(storedHistory));
       }
     }
   }, [user]);
+
+  const fetchCurrentSubscription = async () => {
+    try {
+      const response = await getClinicSubscription(user._id);
+      if (response.success) {
+        setCurrentSubscription(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+      // If no subscription found, it's okay - clinic might be on free plan
+    }
+  };
 
   const handlePlanSelect = (plan) => {
     if (plan.toLowerCase() === currentPlan.toLowerCase()) {
@@ -69,47 +91,60 @@ export default function ClinicSubscriptions() {
     }
   };
 
-  const handlePaymentSubmit = (bankDetails) => {
+  const handlePaymentSubmit = async (bankDetails) => {
     console.log("Bank Details:", bankDetails); // Mock submission
     setIsModalOpen(false);
     setIsPaymentSetup(true);
-    updateSubscription(selectedPlan);
+    await updateSubscription(selectedPlan);
   };
 
   const updateSubscription = async (plan) => {
     setIsLoading(true);
     try {
-      const res = await axios.put(
-        `${import.meta.env.VITE_API_URL}/clinic/${user._id}/subscription`,
-        {
-          subscriptionPlan: plan,
-        }
-      );
-      toast.success(res.data.message);
-      setUser({ ...user, subscriptionPlan: plan });
-
       const planDetails = plans.find(
         (p) => p.name.toLowerCase() === plan.toLowerCase()
       );
+      const amount = planDetails
+        ? parseInt(planDetails.price.replace("₱", ""))
+        : 0;
 
-      const newTransaction = {
-        date: new Date().toISOString().split("T")[0],
-        amount: planDetails ? planDetails.price : "₱0",
-        status: "Paid",
-      };
+      // Use our new service to create subscription
+      const response = await createSubscription({
+        clinicId: user._id,
+        plan: plan.toLowerCase(),
+        amount: amount,
+      });
 
-      const updatedHistory = [...billingHistory, newTransaction];
-      setBillingHistory(updatedHistory);
-      if (user && user._id) {
-        localStorage.setItem(
-          `billingHistory_${user._id}`,
-          JSON.stringify(updatedHistory)
-        );
+      if (response.success) {
+        toast.success("Subscription updated successfully!");
+
+        // Update local state with new subscription
+        setCurrentSubscription(response.data);
+
+        // Update user context if needed (optional)
+        setUser({ ...user, subscriptionPlan: plan });
+
+        // Keep your existing billing history logic
+        const newTransaction = {
+          date: new Date().toISOString().split("T")[0],
+          amount: planDetails ? planDetails.price : "₱0",
+          status: "Paid",
+        };
+
+        const updatedHistory = [...billingHistory, newTransaction];
+        setBillingHistory(updatedHistory);
+        if (user && user._id) {
+          localStorage.setItem(
+            `billingHistory_${user._id}`,
+            JSON.stringify(updatedHistory)
+          );
+        }
       }
     } catch (error) {
       console.error("Error updating subscription:", error);
       toast.error("Failed to update subscription.");
 
+      // Keep your existing error handling for billing history
       const planDetails = plans.find(
         (p) => p.name.toLowerCase() === (selectedPlan || plan).toLowerCase()
       );
@@ -131,6 +166,7 @@ export default function ClinicSubscriptions() {
     }
   };
 
+  // The rest of your JSX remains exactly the same...
   return (
     <div className="w-full min-h-screen bg-slate-50">
       <PaymentModal

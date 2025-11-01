@@ -776,124 +776,161 @@ const ClientChat = () => {
       </div>
 
       {/* Enhanced Input Area - Fixed to bottom with safe area */}
-      <div className="bg-white/95 backdrop-blur-sm border-t border-slate-200/60 p-4 lg:p-6 fixed bottom-0 left-0 right-0 safe-area-inset- lg:pl-75">
-        <div className="mx-auto">
-          <div className="flex space-x-3 lg:space-x-4">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder={
-                  !isSupported
-                    ? "Voice not supported in this browser"
-                    : !chatCredits.canChat
-                    ? "Daily limit reached - try again tomorrow"
-                    : showEmergency
-                    ? "Emergency detected - use emergency buttons above"
-                    : isListening
-                    ? "Listening... Speak now"
-                    : "Type or tap mic to speak..."
-                }
-                value={isListening ? transcript : message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                disabled={!chatCredits.canChat || showEmergency || !isSupported}
-                className={`w-full px-4 lg:px-6 py-3 lg:py-4 text-sm lg:text-base border-2 rounded-2xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none transition-all duration-200 ${
-                  !chatCredits.canChat || showEmergency || !isSupported
-                    ? "bg-slate-100 border-slate-300 text-slate-500 cursor-not-allowed"
-                    : isListening
-                    ? "bg-green-50 border-green-400 text-green-800"
-                    : "bg-white border-slate-300 text-slate-800 hover:border-cyan-300"
-                }`}
-              />
+      <div className="bg-gradient-to-b from-white/98 to-white/95 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] fixed bottom-0 left-0 right-0 safe-area-inset lg:pl-64">
+        <div className="mx-auto px-4 py-4 lg:px-6 lg:py-5">
+          {/* Main Input Container */}
+          <div className="relative">
+            <div className="flex items-stretch gap-2 lg:gap-3">
+              {/* Text Input with Enhanced Styling */}
+              <div className="flex-1 relative group">
+                <input
+                  type="text"
+                  placeholder={
+                    !isSupported
+                      ? "Voice not supported in this browser"
+                      : !chatCredits.canChat
+                      ? "Daily limit reached - try again tomorrow"
+                      : showEmergency
+                      ? "Emergency detected - use emergency buttons above"
+                      : isListening
+                      ? "Listening... Speak now"
+                      : "Type or tap mic to speak..."
+                  }
+                  value={isListening ? transcript : message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                  disabled={
+                    !chatCredits.canChat || showEmergency || !isSupported
+                  }
+                  className={`w-full pl-5 pr-14 py-3.5 lg:pl-6 lg:pr-16 lg:py-4 text-sm lg:text-base font-medium rounded-2xl lg:rounded-3xl transition-all duration-300 placeholder:text-slate-400 ${
+                    !chatCredits.canChat || showEmergency || !isSupported
+                      ? "bg-slate-50 border-2 border-slate-200 text-slate-400 cursor-not-allowed"
+                      : isListening
+                      ? "bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 text-green-900 shadow-lg shadow-green-100/50 ring-4 ring-green-100/50"
+                      : "bg-white border-2 border-slate-200 text-slate-800 hover:border-cyan-300 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-100/50 shadow-sm hover:shadow-md focus:shadow-lg"
+                  } focus:outline-none`}
+                />
 
-              {/* Voice listening indicator */}
-              {isListening && (
-                <div className="absolute right-14 top-1/2 transform -translate-y-1/2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <div
-                      className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
-                      style={{ animationDelay: "0.2s" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
-                      style={{ animationDelay: "0.4s" }}
-                    ></div>
+                {/* Enhanced Voice Listening Indicator */}
+                {isListening && (
+                  <div className="absolute right-4 lg:right-5 top-1/2 -translate-y-1/2">
+                    <div className="flex items-center gap-1">
+                      <div className="flex gap-0.5">
+                        {[0, 0.15, 0.3].map((delay, i) => (
+                          <div
+                            key={i}
+                            className="w-1 lg:w-1.5 bg-green-500 rounded-full animate-pulse"
+                            style={{
+                              animationDelay: `${delay}s`,
+                              height: i === 1 ? "12px" : "8px",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {message && !isListening && (
-                <button
-                  onClick={() => setMessage("")}
-                  className="absolute right-14 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  ×
-                </button>
-              )}
+                {/* Clear Button */}
+                {message && !isListening && (
+                  <button
+                    onClick={() => setMessage("")}
+                    className="absolute right-4 lg:right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full w-6 h-6 flex items-center justify-center transition-all duration-200 text-xl font-light"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              {/* Voice Input Button - Enhanced */}
+              <button
+                onClick={toggleVoiceInput}
+                disabled={!isSupported || !chatCredits.canChat || showEmergency}
+                className={`relative overflow-hidden px-4 lg:px-5 py-3.5 lg:py-4 rounded-2xl lg:rounded-3xl font-semibold transition-all duration-300 flex items-center justify-center min-w-[56px] lg:min-w-[64px] group ${
+                  !isSupported || !chatCredits.canChat || showEmergency
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : isListening
+                    ? "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-200/50 hover:shadow-xl hover:shadow-red-200/60 hover:scale-105 active:scale-95"
+                    : "bg-gradient-to-br from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-200/50 hover:shadow-xl hover:shadow-cyan-200/60 hover:scale-105 active:scale-95"
+                }`}
+              >
+                {/* Animated background glow */}
+                {!(!isSupported || !chatCredits.canChat || showEmergency) && (
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-r ${
+                      isListening
+                        ? "from-red-400 to-red-500"
+                        : "from-cyan-400 to-cyan-500"
+                    } opacity-0 group-hover:opacity-20 transition-opacity duration-300`}
+                  />
+                )}
+
+                {isListening ? (
+                  <MicOff className="h-5 w-5 lg:h-6 lg:w-6 relative z-10 animate-pulse" />
+                ) : (
+                  <Mic className="h-5 w-5 lg:h-6 lg:w-6 relative z-10" />
+                )}
+              </button>
+
+              {/* Send Button - Enhanced */}
+              <button
+                onClick={handleSendMessage}
+                disabled={
+                  loading ||
+                  isSending ||
+                  !chatCredits.canChat ||
+                  showEmergency ||
+                  !message.trim()
+                }
+                className={`relative overflow-hidden px-5 lg:px-7 py-3.5 lg:py-4 rounded-2xl lg:rounded-3xl font-semibold transition-all duration-300 flex items-center gap-2 min-w-[56px] lg:min-w-[100px] justify-center group ${
+                  !chatCredits.canChat ||
+                  showEmergency ||
+                  !message.trim() ||
+                  isSending
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-200/50 hover:shadow-xl hover:shadow-cyan-300/60 hover:scale-105 active:scale-95"
+                }`}
+              >
+                {/* Animated shimmer effect */}
+                {!(
+                  !chatCredits.canChat ||
+                  showEmergency ||
+                  !message.trim() ||
+                  isSending
+                ) && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                )}
+
+                <Send
+                  className={`h-4 w-4 lg:h-5 lg:w-5 relative z-10 ${
+                    isSending ? "animate-pulse" : ""
+                  }`}
+                />
+                <span className="hidden sm:inline relative z-10 font-semibold">
+                  {isSending ? "Sending..." : "Send"}
+                </span>
+              </button>
             </div>
-
-            {/* Voice Input Button */}
-            <button
-              onClick={toggleVoiceInput}
-              disabled={!isSupported || !chatCredits.canChat || showEmergency}
-              className={`px-4 py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center space-x-2 min-w-[60px] justify-center ${
-                !isSupported || !chatCredits.canChat || showEmergency
-                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                  : isListening
-                  ? "bg-red-500 text-white hover:bg-red-600 shadow-lg"
-                  : "bg-cyan-500 text-white hover:bg-cyan-600 shadow-lg"
-              }`}
-            >
-              {isListening ? (
-                <MicOff className="h-4 w-4 lg:h-5 lg:w-5" />
-              ) : (
-                <Mic className="h-4 w-4 lg:h-5 lg:w-5" />
-              )}
-            </button>
-
-            {/* Send Button - UPDATED: Added isSending to disabled */}
-            <button
-              onClick={handleSendMessage}
-              disabled={
-                loading ||
-                isSending || // ADDED: This prevents multiple clicks
-                !chatCredits.canChat ||
-                showEmergency ||
-                !message.trim()
-              }
-              className={`px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-semibold transition-all duration-200 flex items-center space-x-2 min-w-[60px] justify-center ${
-                !chatCredits.canChat ||
-                showEmergency ||
-                !message.trim() ||
-                isSending
-                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-                  : "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 shadow-lg hover:shadow-xl transform hover:scale-105"
-              }`}
-            >
-              <Send className="h-4 w-4 lg:h-5 lg:w-5" />
-              <span className="hidden sm:inline">
-                {isSending ? "Sending..." : "Send"}{" "}
-                {/* UPDATED: Show sending state */}
-              </span>
-            </button>
           </div>
-          {/* Quick Tips */}
+
+          {/* Quick Tips Section - Enhanced */}
           {chatCredits.canChat && !showEmergency && (
-            <div className="flex items-center justify-between mt-3 text-xs text-slate-500">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Shield className="h-3 w-3" />
-                  <span>Secure & Private</span>
+            <div className="flex items-center justify-between mt-3.5 lg:mt-4 px-1">
+              <div className="flex items-center gap-3 lg:gap-4">
+                <div className="flex items-center gap-1.5 text-xs lg:text-sm text-slate-500 hover:text-slate-700 transition-colors duration-200 group">
+                  <Shield className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-slate-400 group-hover:text-cyan-500 transition-colors duration-200" />
+                  <span className="font-medium">Secure & Private</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Sparkles className="h-3 w-3" />
-                  <span>AI-Powered</span>
+                <div className="flex items-center gap-1.5 text-xs lg:text-sm text-slate-500 hover:text-slate-700 transition-colors duration-200 group">
+                  <Sparkles className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-slate-400 group-hover:text-amber-500 transition-colors duration-200" />
+                  <span className="font-medium">AI-Powered</span>
                 </div>
               </div>
               <div className="text-right">
                 {chatCredits.credits > 0 && (
-                  <span>{chatCredits.credits} messages left today</span>
+                  <span className="text-xs lg:text-sm font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+                    {chatCredits.credits} left today
+                  </span>
                 )}
               </div>
             </div>

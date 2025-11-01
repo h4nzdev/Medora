@@ -338,6 +338,66 @@ const formatTimeAgo = (dateString) => {
   return `${Math.floor(diffInHours / 24)} days ago`;
 };
 
+// GET SUBSCRIPTION PROFIT - SUPER SIMPLE!
+export const getSubscriptionProfit = async () => {
+  try {
+    console.log("💰 Calculating profit from subscriptions...");
+
+    // Get ALL subscriptions from your new subscription collection
+    const response = await axios.get(`${BASE_URL}/api/subscription`);
+    const subscriptions = response.data.data || []; // Adjust based on your response structure
+
+    console.log("📊 Subscriptions found:", subscriptions.length);
+
+    // Calculate totals - SUPER SIMPLE MATH!
+    const totalProfit = subscriptions
+      .filter((sub) => sub.plan !== "free") // Only count paid plans
+      .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+    const monthlyProfit = subscriptions
+      .filter((sub) => {
+        if (sub.plan === "free") return false;
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        return new Date(sub.startDate) >= oneMonthAgo;
+      })
+      .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+    // Count basic vs pro revenue
+    const basicRevenue = subscriptions
+      .filter((sub) => sub.plan === "basic")
+      .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+    const proRevenue = subscriptions
+      .filter((sub) => sub.plan === "pro")
+      .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+    console.log("💰 Profit calculated:", {
+      totalProfit,
+      monthlyProfit,
+      basicRevenue,
+      proRevenue,
+    });
+
+    return {
+      totalProfit,
+      monthlyProfit,
+      subscriptionBreakdown: {
+        basic: basicRevenue,
+        pro: proRevenue,
+      },
+    };
+  } catch (error) {
+    console.error("❌ Error calculating profit:", error);
+    // Return zeros if error
+    return {
+      totalProfit: 0,
+      monthlyProfit: 0,
+      subscriptionBreakdown: { basic: 0, pro: 0 },
+    };
+  }
+};
+
 // ========== MOCK FALLBACK DATA ==========
 
 const getMockStats = () => ({

@@ -15,17 +15,43 @@ import {
   User,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react"; // Added useEffect
 import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { toast } from "sonner";
 import logo from "../../assets/medoralogo2.png";
+// Import our subscription service
+import { getClinicSubscription } from "../../services/subscription_services/subscriptionService";
 
 export default function ClinicSidebar() {
   const { user, logout } = useContext(AuthContext);
   const [openDropdowns, setOpenDropdowns] = useState([]);
+  const [currentSubscription, setCurrentSubscription] = useState(null);
 
+  // Fetch current subscription when component loads
+  useEffect(() => {
+    if (user && user._id) {
+      fetchCurrentSubscription();
+    }
+  }, [user]);
+
+  const fetchCurrentSubscription = async () => {
+    try {
+      const response = await getClinicSubscription(user._id);
+      if (response.success) {
+        setCurrentSubscription(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching subscription:", error);
+      // If no subscription found, it's okay - clinic might be on free plan
+    }
+  };
+
+  // Get current plan from subscription or default to "free"
+  const currentPlan = currentSubscription?.plan || "free";
+
+  // ... rest of your menuItems array remains exactly the same ...
   const menuItems = [
     {
       icon: LayoutDashboard,
@@ -158,7 +184,8 @@ export default function ClinicSidebar() {
           <h1 className="text-lg font-bold text-slate-800">
             Medora{" "}
             <span className="relative font-medium text-slate-600 capitalize">
-              {user.subscriptionPlan}
+              {currentPlan}{" "}
+              {/* Changed from user.subscriptionPlan to currentPlan */}
               <span className="absolute top-0 -right-3 h-3 w-3 bg-green-500 rounded-full"></span>
             </span>
           </h1>
