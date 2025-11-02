@@ -16,6 +16,7 @@ import ClinicCalendar from "../page/ClinicPages/ClinicCalendar/ClinicCalendar";
 import InvoicesPage from "../page/ClinicPages/ClinicInvoicePage/InvoicesPage"; // Import the new page
 import ClinicNotifications from "../page/ClinicPages/ClinicNotifications/ClinicNotifications";
 import ClinicProfile from "../page/ClinicPages/ClinicProfile/ClinicProfile";
+import ClinicAppointmentForm from "../page/ClinicPages/ClinicAppointmentForm/ClinicAppointmentForm";
 
 const ClinicRoutes = () => {
   return (
@@ -139,6 +140,14 @@ const ClinicRoutes = () => {
           element={
             <ClinicLayout>
               <ClinicPatientProfile />
+            </ClinicLayout>
+          }
+        />
+        <Route
+          path="/clinic/add-appointment"
+          element={
+            <ClinicLayout>
+              <ClinicAppointmentForm />
             </ClinicLayout>
           }
         />

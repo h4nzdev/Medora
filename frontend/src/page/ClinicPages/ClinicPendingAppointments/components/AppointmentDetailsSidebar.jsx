@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  RotateCcw,
 } from "lucide-react";
 import { formatDate, useTime } from "../../../../utils/date";
 
@@ -24,6 +25,10 @@ const AppointmentDetailsSidebar = ({
   onReject,
   loadingStates,
 }) => {
+  // Check if this is a reschedule request
+  const isReschedule = appointment?.isReschedule;
+  const rescheduleReason = appointment?.cancellationReason;
+
   return (
     <AnimatePresence>
       {isOpen && appointment && (
@@ -45,11 +50,23 @@ const AppointmentDetailsSidebar = ({
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
           >
-            {/* Header */}
+            {/* Header with Reschedule Badge */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-semibold text-slate-800">
-                Appointment Details
-              </h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Appointment Details
+                </h2>
+                {isReschedule && (
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center gap-1 bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-medium"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>Reschedule</span>
+                  </motion.div>
+                )}
+              </div>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -60,6 +77,39 @@ const AppointmentDetailsSidebar = ({
 
             {/* Content */}
             <div className="p-6 space-y-6 overflow-y-auto h-[calc(100vh-140px)]">
+              {/* RESCHEDULE ALERT - Minimal but eye-catching */}
+              {isReschedule && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-orange-50 border border-orange-200 rounded-xl p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="bg-orange-100 p-2 rounded-lg">
+                      <RotateCcw className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-orange-800 text-sm mb-1">
+                        Reschedule Request
+                      </h4>
+                      <p className="text-orange-700 text-sm mb-2">
+                        Patient requested a new time slot
+                      </p>
+                      {rescheduleReason && (
+                        <div className="bg-white rounded-lg p-2 border border-orange-100">
+                          <p className="text-xs text-orange-600 font-medium mb-1">
+                            Reason:
+                          </p>
+                          <p className="text-xs text-orange-700">
+                            {rescheduleReason}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Patient Information */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
@@ -93,9 +143,7 @@ const AppointmentDetailsSidebar = ({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-slate-600">
                     <Calendar className="w-4 h-4" />
-                    <span>
-                      {formatDate(appointment.date)}
-                    </span>
+                    <span>{formatDate(appointment.date)}</span>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600">
                     <Clock className="w-4 h-4" />
@@ -127,37 +175,6 @@ const AppointmentDetailsSidebar = ({
                   {appointment.type}
                 </span>
               </div>
-
-              {/* Status */}
-              <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                  Current Status
-                </h3>
-                <span
-                  className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${
-                    appointment.status === "pending"
-                      ? "text-amber-700 bg-amber-50 border border-amber-200"
-                      : "text-slate-700 bg-slate-100"
-                  }`}
-                >
-                  {appointment.status === "pending" && (
-                    <Clock className="w-4 h-4" />
-                  )}
-                  <span className="capitalize">{appointment.status}</span>
-                </span>
-              </div>
-
-              {/* Notes/Additional Information - if available */}
-              {appointment.notes && (
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                    Additional Notes
-                  </h3>
-                  <p className="text-slate-600 bg-slate-50 p-3 rounded-lg">
-                    {appointment.notes}
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Footer with Actions */}
@@ -174,21 +191,36 @@ const AppointmentDetailsSidebar = ({
                   <>
                     <button
                       onClick={() => onApprove(appointment._id)}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-colors ${
+                        isReschedule
+                          ? "bg-green-500 text-white hover:bg-green-600"
+                          : "bg-green-500 text-white hover:bg-green-600"
+                      }`}
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Approve
+                      {isReschedule ? "Approve New Time" : "Approve"}
                     </button>
                     <button
                       onClick={() => onReject(appointment._id)}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                      className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-colors ${
+                        isReschedule
+                          ? "bg-orange-500 text-white hover:bg-orange-600"
+                          : "bg-red-500 text-white hover:bg-red-600"
+                      }`}
                     >
                       <XCircle className="w-4 h-4" />
-                      Reject
+                      {isReschedule ? "Keep Original" : "Reject"}
                     </button>
                   </>
                 )}
               </div>
+
+              {/* Micro UX Enhancement */}
+              {isReschedule && (
+                <p className="text-xs text-slate-500 text-center mt-2">
+                  Approve new time or keep original schedule
+                </p>
+              )}
             </div>
           </motion.div>
         </>

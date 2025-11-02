@@ -1,14 +1,27 @@
 // ClientDesktopActions.jsx
-import { MoreHorizontal, Edit3, RotateCcw, XCircle, Bell } from "lucide-react";
+import {
+  MoreHorizontal,
+  Edit3,
+  RotateCcw,
+  XCircle,
+  Bell,
+  Trash2,
+} from "lucide-react";
 import React, { useState } from "react";
 import {
-  handleDelete,
+  handleCancelAppointment, // CHANGED from handleDelete
   handleRescheduleAppointment,
   handleEditAppointment,
   handleSetReminder,
+  handleDeleteAppointment, // ADD THIS
 } from "./actionFunctions";
 
-const ClientDesktopActions = ({ id, appointment }) => {
+const ClientDesktopActions = ({
+  id,
+  appointment,
+  setRescheduleModalOpen, // ADD THIS PROP
+  setSelectedAppointment,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,17 +53,31 @@ const ClientDesktopActions = ({ id, appointment }) => {
       label: "Reschedule",
       loadingLabel: "Rescheduling...",
       onClick: () =>
-        handleRescheduleAppointment(appointment, setIsLoading, setIsOpen),
+        handleRescheduleAppointment(
+          appointment,
+          setIsLoading,
+          setIsOpen,
+          setRescheduleModalOpen, // PASS THE MODAL CONTROLS
+          setSelectedAppointment // PASS THE APPOINTMENT SETTER
+        ),
       color: "purple",
       enabled: isActive,
     },
     {
       icon: XCircle,
-      label: "Cancel",
+      label: "Cancel", // This just marks as cancelled
       loadingLabel: "Cancelling...",
-      onClick: () => handleDelete(id, setIsLoading, setIsOpen),
-      color: "red",
+      onClick: () => handleCancelAppointment(id, setIsLoading, setIsOpen), // CHANGED function
+      color: "orange",
       enabled: isActive,
+    },
+    {
+      icon: Trash2, // NEW: Different icon for delete
+      label: "Delete", // This actually deletes
+      loadingLabel: "Deleting...",
+      onClick: () => handleDeleteAppointment(id, setIsLoading, setIsOpen), // NEW function
+      color: "red",
+      enabled: true, // Allow delete even for completed/cancelled appointments
     },
   ];
 
@@ -77,9 +104,17 @@ const ClientDesktopActions = ({ id, appointment }) => {
                 disabled={isLoading}
                 className={`flex items-center w-full p-3 text-sm font-medium text-slate-700 hover:bg-slate-50 border-b border-slate-100 transition-colors ${
                   index === actions.length - 1 ? "border-b-0" : ""
+                } ${
+                  action.color === "red"
+                    ? "text-red-600 hover:text-red-700 hover:bg-red-50"
+                    : ""
                 }`}
               >
-                <action.icon className="w-4 h-4 text-slate-600 mr-3" />
+                <action.icon
+                  className={`w-4 h-4 mr-3 ${
+                    action.color === "red" ? "text-red-500" : "text-slate-600"
+                  }`}
+                />
                 {isLoading ? action.loadingLabel : action.label}
               </button>
             ) : (

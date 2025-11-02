@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { toast } from "sonner";
 import logo from "../../assets/medoralogo1.png";
+import { getInitials } from "../../utils/getInitials";
 
 export default function AdminSidebar() {
   const { user, initials, logout } = useContext(AuthContext);
@@ -78,7 +79,9 @@ export default function AdminSidebar() {
       <div className="flex-shrink-0 p-4 border-t bg-white">
         <div className="flex items-center space-x-3 p-3 mb-3">
           <div className="w-10 h-10 bg-cyan-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">{initials}</span>
+            <span className="text-white font-semibold text-sm">
+              {getInitials(user.admin_name)}
+            </span>
           </div>
           <div>
             <h3 className="turnicate max-w-[150px] font-semibold text-slate-800">

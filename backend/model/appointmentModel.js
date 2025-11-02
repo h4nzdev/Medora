@@ -35,9 +35,6 @@ const AppointmentSchema = new mongoose.Schema({
   type: {
     type: String, // reason for visit (e.g., "check-up", "follow-up")
   },
-  reason: {
-    type: String, // reason for visit (e.g., "check-up", "follow-up")
-  },
   bookingType: {
     type: String,
     enum: ["online", "walk-in"],

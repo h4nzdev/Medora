@@ -49,7 +49,6 @@ export const addAppointment = async (req, res) => {
       date,
       time,
       type,
-      reason,
       bookingType,
       status: "pending", // default status
     });
@@ -107,11 +106,11 @@ export const getAppointmentById = async (req, res) => {
 // Update appointment (e.g., status or time)
 export const updateAppointment = async (req, res) => {
   try {
-    const { status, date, time } = req.body;
+    const { status, date, time, cancellationReason, isReschedule } = req.body;
 
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       req.params.id,
-      { status, date, time },
+      { status, date, time, cancellationReason, isReschedule },
       { new: true }
     );
 

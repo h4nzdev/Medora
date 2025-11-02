@@ -11,6 +11,7 @@ import {
   Edit3,
   RotateCcw,
   ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
@@ -26,9 +27,20 @@ import { formatDate, useDate, useTime } from "../../../utils/date.jsx";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import ClientDesktopActions from "./components/ClientDesktopActions.jsx";
+import RescheduleAppointmentModal from "../../../components/ClientComponents/RescheduleAppointmentModal/RescheduleAppointmentModal.jsx";
+import {
+  handleCancelAppointment,
+  handleDeleteAppointment,
+  handleEditAppointment,
+} from "./components/actionFunctions.jsx";
 
 // New Actions Component with React Native Style Modal
-const ClientAppointmentActions = ({ id, appointment }) => {
+const ClientAppointmentActions = ({
+  id,
+  appointment,
+  setRescheduleModalOpen,
+  setSelectedAppointment,
+}) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -76,13 +88,15 @@ const ClientAppointmentActions = ({ id, appointment }) => {
     },
     handleEditAppointment: () =>
       handleEditAppointment(appointment, setIsLoading, setDropdownVisible),
-    handleRescheduleAppointment: () =>
-      handleRescheduleAppointment(
-        appointment,
-        setIsLoading,
-        setDropdownVisible
-      ),
-    handleDelete: () => handleDelete(id, setIsLoading, setDropdownVisible),
+    handleRescheduleAppointment: () => {
+      setDropdownVisible(false);
+      setSelectedAppointment(appointment);
+      setRescheduleModalOpen(true);
+    },
+    handleCancelAppointment: () =>
+      handleCancelAppointment(id, setIsLoading, setDropdownVisible),
+    handleDeleteAppointment: () =>
+      handleDeleteAppointment(id, setIsLoading, setDropdownVisible),
   };
 
   return (
@@ -190,21 +204,40 @@ const ClientAppointmentActions = ({ id, appointment }) => {
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </button>
 
-                {/* Cancel Appointment */}
                 <button
-                  onClick={actionFunctions.handleDelete}
+                  onClick={actionFunctions.handleCancelAppointment}
+                  disabled={isLoading}
+                  className="flex items-center w-full px-6 py-4 hover:bg-orange-50 active:bg-orange-100 transition-colors group"
+                >
+                  <div className="bg-orange-100 p-3 rounded-xl mr-4 group-hover:scale-110 transition-transform">
+                    <XCircle className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-orange-600 font-medium text-base">
+                      {isLoading ? "Cancelling..." : "Cancel Appointment"}
+                    </p>
+                    <p className="text-orange-400 text-sm mt-1">
+                      Mark as cancelled
+                    </p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-orange-400" />
+                </button>
+
+                {/* Delete Appointment - NEW */}
+                <button
+                  onClick={actionFunctions.handleDeleteAppointment}
                   disabled={isLoading}
                   className="flex items-center w-full px-6 py-4 hover:bg-red-50 active:bg-red-100 transition-colors group"
                 >
                   <div className="bg-red-100 p-3 rounded-xl mr-4 group-hover:scale-110 transition-transform">
-                    <XCircle className="w-5 h-5 text-red-500" />
+                    <Trash2 className="w-5 h-5 text-red-500" />
                   </div>
                   <div className="flex-1 text-left">
                     <p className="text-red-600 font-medium text-base">
-                      {isLoading ? "Cancelling..." : "Cancel Appointment"}
+                      {isLoading ? "Deleting..." : "Delete Permanently"}
                     </p>
                     <p className="text-red-400 text-sm mt-1">
-                      Free up this time slot
+                      Remove from system
                     </p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-red-400" />
@@ -259,6 +292,9 @@ export default function ClientAppointments() {
   const { user } = useContext(AuthContext);
   const { clinics } = useContext(ClinicContext);
   const navigate = useNavigate();
+
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
 
   // Plan limits
   const planLimits = {
@@ -453,6 +489,8 @@ export default function ClientAppointments() {
                         <ClientAppointmentActions
                           id={appointment._id}
                           appointment={appointment}
+                          setRescheduleModalOpen={setRescheduleModalOpen}
+                          setSelectedAppointment={setSelectedAppointment}
                         />
                       </div>
                     </div>
@@ -597,6 +635,8 @@ export default function ClientAppointments() {
                           <ClientDesktopActions
                             id={appointment._id}
                             appointment={appointment}
+                            setRescheduleModalOpen={setRescheduleModalOpen}
+                            setSelectedAppointment={setSelectedAppointment}
                           />
                         </td>
                       </tr>
@@ -621,6 +661,11 @@ export default function ClientAppointments() {
             </div>
           </section>
         </div>
+        <RescheduleAppointmentModal
+          isOpen={rescheduleModalOpen}
+          onClose={() => setRescheduleModalOpen(false)}
+          appointment={selectedAppointment}
+        />
       </div>
     </>
   );

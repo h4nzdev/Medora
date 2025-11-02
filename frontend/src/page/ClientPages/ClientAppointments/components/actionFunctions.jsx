@@ -27,100 +27,16 @@ export const handleSetReminder = async (appointment) => {
   toast.success("🔔 Reminder set!");
 };
 
-export const handleDelete = async (id, setIsLoading, setIsOpen) => {
-  const { value: result } = await Swal.fire({
-    title: "Cancel Appointment?",
-    text: "This action cannot be undone.",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, cancel",
-    cancelButtonText: "Keep appointment",
-    confirmButtonColor: "#dc2626",
-  });
-
-  if (result.isConfirmed) {
-    setIsLoading(true);
-    try {
-      await deleteAppointment(id);
-      toast.success("Appointment cancelled!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to cancel appointment");
-    } finally {
-      setIsLoading(false);
-      setIsOpen(false);
-    }
-  }
-};
-
 export const handleRescheduleAppointment = async (
   appointment,
   setIsLoading,
-  setIsOpen
+  setIsOpen,
+  setRescheduleModalOpen, // ADD THIS - to control the new modal
+  setSelectedAppointment
 ) => {
-  const { value: formValues } = await Swal.fire({
-    title: "Reschedule Appointment",
-    html: `
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">New Date & Time</label>
-          <input 
-            id="new-datetime" 
-            type="datetime-local" 
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            min="${new Date().toISOString().slice(0, 16)}"
-            required
-          >
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Reason</label>
-          <select id="reschedule-reason" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            <option value="">Select reason...</option>
-            <option value="Schedule conflict">Schedule conflict</option>
-            <option value="Emergency">Emergency</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-    `,
-    showCancelButton: true,
-    confirmButtonText: "Reschedule",
-    cancelButtonText: "Cancel",
-    confirmButtonColor: "#06b6d4",
-    preConfirm: () => {
-      const datetime = document.getElementById("new-datetime").value;
-      const reason = document.getElementById("reschedule-reason").value;
-
-      if (!datetime) {
-        Swal.showValidationMessage("Please select date and time");
-        return false;
-      }
-      if (!reason) {
-        Swal.showValidationMessage("Please select a reason");
-        return false;
-      }
-
-      return { datetime, reason };
-    },
-  });
-
-  if (formValues) {
-    setIsLoading(true);
-    try {
-      await updateAppointment(appointment._id, {
-        date: formValues.datetime,
-        status: "pending",
-        reason: formValues.reason,
-      });
-      toast.success("Reschedule request sent!");
-    } catch (error) {
-      console.error("Reschedule error:", error);
-      toast.error("Failed to reschedule");
-    } finally {
-      setIsLoading(false);
-      setIsOpen(false);
-    }
-  }
+  setIsOpen(false); // Close the dropdown menu
+  setSelectedAppointment(appointment); // Set the appointment for the modal
+  setRescheduleModalOpen(true);
 };
 
 export const handleEditAppointment = async (
@@ -181,6 +97,69 @@ export const handleEditAppointment = async (
     } catch (error) {
       console.error("Edit error:", error);
       toast.error("Failed to update appointment");
+    } finally {
+      setIsLoading(false);
+      setIsOpen(false);
+    }
+  }
+};
+
+export const handleCancelAppointment = async (id, setIsLoading, setIsOpen) => {
+  const { value: result } = await Swal.fire({
+    title: "Cancel Appointment?",
+    text: "This will mark the appointment as cancelled.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, cancel",
+    cancelButtonText: "Keep appointment",
+    confirmButtonColor: "#dc2626",
+  });
+
+  if (result.isConfirmed) {
+    setIsLoading(true);
+    try {
+      // Update status to cancelled instead of deleting
+      await updateAppointment(id, {
+        status: "cancelled",
+      });
+      toast.success("Appointment cancelled!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to cancel appointment");
+    } finally {
+      setIsLoading(false);
+      setIsOpen(false);
+    }
+  }
+};
+
+// ADD THIS - For actual deletion
+// In your handleDeleteAppointment function, add console logs:
+export const handleDeleteAppointment = async (id, setIsLoading, setIsOpen) => {
+  console.log("Delete function called with ID:", id); // ADD THIS
+
+  const result = await Swal.fire({
+    title: "Delete Appointment?",
+    text: "This will permanently remove the appointment from the system. This action cannot be undone!",
+    icon: "error",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete permanently",
+    cancelButtonText: "Keep appointment",
+    confirmButtonColor: "#dc2626",
+    background: "#fee2e2",
+  });
+
+  if (result.isConfirmed) {
+    setIsLoading(true);
+    try {
+      console.log("Attempting to delete appointment..."); // ADD THIS
+      // Actually delete from database
+      await deleteAppointment(id);
+      console.log("Appointment deleted successfully"); // ADD THIS
+      toast.error("Appointment permanently deleted!");
+    } catch (error) {
+      console.error("Delete error:", error); // ADD MORE DETAILS
+      toast.error("Failed to delete appointment");
     } finally {
       setIsLoading(false);
       setIsOpen(false);

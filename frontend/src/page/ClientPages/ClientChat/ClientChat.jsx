@@ -501,36 +501,37 @@ const ClientChat = () => {
       {/* Enhanced Emergency Banner */}
       {showEmergency && emergencyData && (
         <div className="sticky top-16 sm:top-20 bg-gradient-to-r from-red-500 to-red-600 text-white p-4 lg:p-6 shadow-lg z-10">
-          <div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 flex-1">
-                <div className="bg-white/20 p-3 rounded-2xl">
-                  <AlertTriangle className="h-6 w-6" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg mb-1">
-                    🚨 Medical Emergency Detected
-                  </h3>
-                  <p className="text-red-100 text-sm opacity-90 max-w-4xl">
-                    {emergencyData.message}
-                  </p>
-                </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Content Section */}
+            <div className="flex items-start sm:items-center gap-4 flex-1">
+              <div className="bg-white/20 p-2 sm:p-3 rounded-2xl flex-shrink-0">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={handleEmergencyContact}
-                  className="bg-white text-red-600 px-4 py-2 rounded-xl font-semibold hover:bg-red-50 transition-colors flex items-center space-x-2"
-                >
-                  <Phone className="h-4 w-4" />
-                  <span>Call 911</span>
-                </button>
-                <button
-                  onClick={handleClinicContact}
-                  className="bg-red-700 text-white px-4 py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors"
-                >
-                  Contact Clinic
-                </button>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-base sm:text-lg mb-1">
+                  🚨 Medical Emergency Detected
+                </h3>
+                <p className="text-red-100 text-xs sm:text-sm opacity-90 line-clamp-2">
+                  {emergencyData.message}
+                </p>
               </div>
+            </div>
+
+            {/* Buttons Section */}
+            <div className="flex flex-col xs:flex-row gap-2 sm:gap-2 sm:flex-nowrap flex-shrink-0">
+              <button
+                onClick={handleEmergencyContact}
+                className="bg-white text-red-600 px-3 sm:px-4 py-2 rounded-xl font-semibold hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
+              >
+                <Phone className="h-4 w-4" />
+                <span>Call 911</span>
+              </button>
+              <button
+                onClick={handleClinicContact}
+                className="bg-red-700 text-white px-3 sm:px-4 py-2 rounded-xl font-semibold hover:bg-red-800 transition-colors text-sm sm:text-base"
+              >
+                Contact Clinic
+              </button>
             </div>
           </div>
         </div>

@@ -36,18 +36,11 @@ export const NotificationProvider = ({ children }) => {
           const recipientType = getRecipientType();
           if (!recipientType) return;
 
-          console.log("🔔 Fetching notifications for:", {
-            userId: user._id,
-            recipientType,
-            userRole: user.role,
-          });
-
           const fetchedNotifications = await getUserNotifications(
             user._id,
             recipientType
           );
 
-          console.log("📥 Fetched notifications:", fetchedNotifications);
           setNotifications(fetchedNotifications);
         } catch (error) {
           console.error("Failed to fetch notifications.", error);
@@ -67,8 +60,6 @@ export const NotificationProvider = ({ children }) => {
       const newOnes = notifications.filter(
         (notification) => !shownNotificationIds.has(notification._id)
       );
-
-      console.log("🎯 New notifications to show:", newOnes);
 
       if (newOnes.length > 0) {
         // 🔔 Play ringtone ONLY if sound is enabled

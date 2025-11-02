@@ -119,6 +119,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
       }
 
       fetchAppointments();
+      setIsSidebarOpen(false);
     } catch (error) {
       toast.error("Failed to update appointment status.");
       console.error("Error responding:", error);
@@ -187,7 +188,9 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
                 <p className="font-medium text-slate-700">
                   {formatDate(appointment.date)}
                 </p>
-                <p className="text-sm text-slate-500">{useTime(appointment.date)}</p>
+                <p className="text-sm text-slate-500">
+                  {useTime(appointment.date)}
+                </p>
               </td>
               <td className="px-4">
                 <span className="inline-block bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-sm capitalize">

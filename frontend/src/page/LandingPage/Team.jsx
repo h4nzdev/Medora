@@ -36,7 +36,7 @@ const Team = () => {
               </div>
             </div>
             <h4 className="text-2xl font-bold text-slate-800 mb-2">
-              Ayham Khalsam
+              Ayham Kalsam
             </h4>
             <p className="text-cyan-600 font-semibold">Chief Medical Officer</p>
           </div>

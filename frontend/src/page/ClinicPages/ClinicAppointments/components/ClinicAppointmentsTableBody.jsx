@@ -10,15 +10,29 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useDate, useTime } from "../../../../utils/date";
 import { Video, Building } from "lucide-react";
+import AppointmentSidebar from "./AppointmentSidebar";
 
 const ClinicAppointmentsTableBody = ({ appointments }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // SEPARATE STATES for different purposes
+  const [appointmentForMedicalRecord, setAppointmentForMedicalRecord] =
+    useState(null);
+  const [appointmentForSidebar, setAppointmentForSidebar] = useState(null);
+
+  const [loadingStates, setLoadingStates] = useState({});
 
   const handleComplete = (appointmentId) => {
     const appointment = appointments.find((app) => app._id === appointmentId);
-    setSelectedAppointment(appointment);
+    setAppointmentForMedicalRecord(appointment); // Use separate state
     setIsModalOpen(true);
+  };
+
+  const handleViewDetails = (appointmentId) => {
+    const appointment = appointments.find((app) => app._id === appointmentId);
+    setAppointmentForSidebar(appointment); // Use separate state
+    setSidebarOpen(true);
   };
 
   const handleCancel = (appointmentId) => {
@@ -57,7 +71,12 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedAppointment(null);
+    setAppointmentForMedicalRecord(null); // Clear separate state
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+    setAppointmentForSidebar(null); // Clear separate state
   };
 
   return (
@@ -100,14 +119,22 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
                     {appointment.type}
                   </span>
                 </td>
-                 <td className="px-4">
-              <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-md text-sm capitalize ${
-                appointment.bookingType === "online" ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-              }`}>
-                {appointment.bookingType === "online" ? <Video className="w-4 h-4" /> : <Building className="w-4 h-4" />}
-                {appointment.bookingType}
-              </span>
-            </td>
+                <td className="px-4">
+                  <span
+                    className={`inline-flex items-center gap-2 px-2 py-1 rounded-md text-sm capitalize ${
+                      appointment.bookingType === "online"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {appointment.bookingType === "online" ? (
+                      <Video className="w-4 h-4" />
+                    ) : (
+                      <Building className="w-4 h-4" />
+                    )}
+                    {appointment.bookingType}
+                  </span>
+                </td>
                 <td className="px-4">
                   <span
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-sm w-fit ${getStatusBadge(
@@ -126,13 +153,15 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
                     {appointment.patientId.email}
                   </p>
                 </td>
-                <td className="px-4 text-right">
+                <td className="px-6 text-right">
                   <AppointmentActions
                     appointmentId={appointment._id}
-                    status={appointment.status}
                     onComplete={handleComplete}
                     onCancel={handleCancel}
                     onDelete={handleDelete}
+                    onView={handleViewDetails}
+                    status={appointment.status}
+                    isLoading={loadingStates[appointment._id]}
                   />
                 </td>
               </tr>
@@ -140,16 +169,25 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
           </>
         )}
       </tbody>
-      {selectedAppointment && (
+
+      {/* Medical Record Modal - uses appointmentForMedicalRecord */}
+      {appointmentForMedicalRecord && (
         <AddMedicalRecordModal
           isOpen={isModalOpen}
           onClose={closeModal}
-          patientId={selectedAppointment.patientId._id}
-          clinicId={selectedAppointment.clinicId._id}
-          doctorId={selectedAppointment.doctorId._id}
-          appointmentId={selectedAppointment._id}
+          patientId={appointmentForMedicalRecord.patientId._id}
+          clinicId={appointmentForMedicalRecord.clinicId._id}
+          doctorId={appointmentForMedicalRecord.doctorId._id}
+          appointmentId={appointmentForMedicalRecord._id}
         />
       )}
+
+      {/* Sidebar - uses appointmentForSidebar */}
+      <AppointmentSidebar
+        isOpen={sidebarOpen}
+        onClose={closeSidebar}
+        appointment={appointmentForSidebar}
+      />
     </>
   );
 };
