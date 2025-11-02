@@ -4,7 +4,9 @@ import Doctor from "../model/doctorModel.js";
 // Get all clinics
 export const getAllClinics = async (req, res) => {
   try {
-    const clinics = await Clinic.find().populate("doctors"); // include doctors info
+    const clinics = await Clinic.find()
+      .select("-password") // ← ADD THIS
+      .populate("doctors");
     res.json(clinics);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -12,9 +14,12 @@ export const getAllClinics = async (req, res) => {
 };
 
 // Get one clinic by ID
+// Get one clinic by ID - FIXED
 export const getClinicById = async (req, res) => {
   try {
-    const clinic = await Clinic.findById(req.params.id).populate("doctors");
+    const clinic = await Clinic.findById(req.params.id)
+      .select("-password") // ← ADD THIS
+      .populate("doctors");
     if (!clinic) return res.status(404).json({ error: "Clinic not found" });
     res.json(clinic);
   } catch (err) {
@@ -22,12 +27,12 @@ export const getClinicById = async (req, res) => {
   }
 };
 
-// Update clinic info
 export const updateClinic = async (req, res) => {
   try {
     const clinic = await Clinic.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-    });
+    }).select("-password"); // ← ADD THIS
+
     if (!clinic) return res.status(404).json({ error: "Clinic not found" });
     req.io.emit("clinic_updated");
     res.json({ message: "Clinic updated", clinic });
@@ -62,7 +67,9 @@ export const addDoctorToClinic = async (req, res) => {
       clinicId,
       { $push: { doctors: doctor._id } },
       { new: true }
-    ).populate("doctors");
+    )
+      .select("-password") // ← ADD THIS
+      .populate("doctors");
 
     if (!clinic) return res.status(404).json({ error: "Clinic not found" });
 
@@ -76,15 +83,14 @@ export const addDoctorToClinic = async (req, res) => {
 // Update clinic subscription plan
 export const updateSubscriptionPlan = async (req, res) => {
   try {
-    const { id } = req.params; // clinic id from the URL
-    const { subscriptionPlan } = req.body; // new plan from the request body
+    const { id } = req.params;
+    const { subscriptionPlan } = req.body;
 
-    // find clinic and update subscriptionPlan field
     const clinic = await Clinic.findByIdAndUpdate(
       id,
       { subscriptionPlan: subscriptionPlan },
       { new: true }
-    );
+    ).select("-password"); // ← ADD THIS
 
     if (!clinic) {
       return res.status(404).json({ error: "Clinic not found" });

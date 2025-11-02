@@ -35,6 +35,7 @@ export const sendVerification = async (req, res) => {
 };
 
 // Login patient with sessions
+// Login patient with sessions - FIXED VERSION
 export const loginClient = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -51,7 +52,14 @@ export const loginClient = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    res.json({ message: "Login successful", patient: patient });
+    // Create patient object without password
+    const patientWithoutPassword = patient.toObject();
+    delete patientWithoutPassword.password;
+
+    res.json({
+      message: "Login successful",
+      patient: patientWithoutPassword,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }

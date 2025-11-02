@@ -31,6 +31,7 @@ export const sendVerification = async (req, res) => {
 };
 
 // Login clinic with sessions
+// Login clinic with sessions - FIXED VERSION
 export const loginClinic = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -47,7 +48,14 @@ export const loginClinic = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    res.json({ message: "Login successful", clinic: clinic });
+    // ✅ FIX: Remove password from response
+    const clinicWithoutPassword = { ...clinic._doc };
+    delete clinicWithoutPassword.password;
+
+    res.json({
+      message: "Login successful",
+      clinic: clinicWithoutPassword,
+    });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }

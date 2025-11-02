@@ -207,9 +207,7 @@ const ClientLogin = () => {
             <div className="flex items-center justify-center mb-4">
               <img src={logo} className="w-12 h-12" alt="Medora Logo" />
               <div className="ml-3 text-left">
-                <h1 className="text-2xl font-bold text-slate-800">
-                  Medora
-                </h1>
+                <h1 className="text-2xl font-bold text-slate-800">Medora</h1>
                 <p className="text-cyan-600 text-sm font-medium">
                   Patient Portal
                 </p>
@@ -289,6 +287,7 @@ const ClientLogin = () => {
               <div className="relative">
                 <input
                   value={formData.email}
+                  autoCorrect="on"
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }

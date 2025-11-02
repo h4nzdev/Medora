@@ -1,13 +1,12 @@
 import Patient from "../model/patientsModel.js";
 import bcrypt from "bcrypt";
 
-// Add new patient (Register)
+/// Add new patient - FIXED
 export const addPatient = async (req, res) => {
   try {
     const { clinicId, name, age, gender, phone, email, address, password } =
       req.body;
 
-    // check if patient already exists by email or phone
     const existingPatient = await Patient.findOne({
       $or: [{ email }, { phone }],
     });
@@ -17,7 +16,6 @@ export const addPatient = async (req, res) => {
         .json({ message: "Patient already exists with this email or phone" });
     }
 
-    // hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newPatient = new Patient({
@@ -32,9 +30,14 @@ export const addPatient = async (req, res) => {
     });
 
     await newPatient.save();
+
+    // Remove password from response
+    const patientWithoutPassword = { ...newPatient._doc };
+    delete patientWithoutPassword.password;
+
     res.status(201).json({
       message: "Patient registered successfully",
-      patient: newPatient,
+      patient: patientWithoutPassword,
     });
   } catch (error) {
     res
@@ -43,10 +46,12 @@ export const addPatient = async (req, res) => {
   }
 };
 
-// Get all patients
+// Get all patients - FIXED
 export const getPatients = async (req, res) => {
   try {
-    const patients = await Patient.find().populate("clinicId", "name plan"); // populate clinic details
+    const patients = await Patient.find()
+      .select("-password") // ← ADD THIS
+      .populate("clinicId", "name plan");
     res.status(200).json(patients);
   } catch (error) {
     res
@@ -55,13 +60,12 @@ export const getPatients = async (req, res) => {
   }
 };
 
-// Get single patient by ID
+// Get single patient by ID - FIXED
 export const getPatientById = async (req, res) => {
   try {
-    const patient = await Patient.findById(req.params.id).populate(
-      "clinicId",
-      "name plan"
-    );
+    const patient = await Patient.findById(req.params.id)
+      .select("-password") // ← ADD THIS
+      .populate("clinicId", "name plan");
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
@@ -73,13 +77,11 @@ export const getPatientById = async (req, res) => {
   }
 };
 
-// Update patient info
-// Update patient
+/// Update patient - FIXED
 export const updatePatient = async (req, res) => {
   try {
     const { name, age, gender, phone, email, address, password } = req.body;
 
-    // Find the patient first to ensure they exist
     const patient = await Patient.findById(req.params.id);
     if (!patient) return res.status(404).json({ message: "Patient not found" });
 
@@ -89,7 +91,6 @@ export const updatePatient = async (req, res) => {
       updateData.password = await bcrypt.hash(password, 10);
     }
 
-    // Update the patient
     const updatedPatient = await Patient.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -97,7 +98,9 @@ export const updatePatient = async (req, res) => {
         new: true,
         runValidators: true,
       }
-    ).populate("clinicId", "name plan clinicName"); // Add clinicName to the populated fields
+    )
+      .select("-password") // ← ADD THIS
+      .populate("clinicId", "name plan clinicName");
 
     if (!updatedPatient)
       return res
@@ -130,16 +133,14 @@ export const deletePatient = async (req, res) => {
   }
 };
 
-// Get patients by clinic ID
+// Get patients by clinic ID - FIXED
 export const getPatientsByClinic = async (req, res) => {
   try {
     const { clinicId } = req.params;
 
-    // find patients with this clinicId
-    const patients = await Patient.find({ clinicId }).populate(
-      "clinicId",
-      "name plan"
-    );
+    const patients = await Patient.find({ clinicId })
+      .select("-password") // ← ADD THIS
+      .populate("clinicId", "name plan");
 
     if (!patients || patients.length === 0) {
       return res
