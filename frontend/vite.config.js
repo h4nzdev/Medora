@@ -11,13 +11,13 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: [
-        "favicon.ico", 
-        "apple-touch-icon.png", 
+        "favicon.ico",
+        "apple-touch-icon.png",
         "mask-icon.svg",
         "icon-192.png",
         "icon-512.png",
         "icon-maskable-192.png",
-        "icon-maskable-512.png"
+        "icon-maskable-512.png",
       ],
       manifest: {
         name: "Medora",
@@ -28,35 +28,16 @@ export default defineConfig({
         start_url: "/",
         display: "standalone",
         icons: [
-          // Regular icons (should be properly sized with transparent background)
-          {
-            src: "/medoralogo.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "/medoralogo.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-          {
-            src: "medoralogo.png",
-            sizes: "144x144",
-            type: "image/png",
-          },
-          {
-            src: "medoralogo.png",
-            sizes: "256x256",
-            type: "image/png",
-          },
-          // Apple touch icon (should have some background/padding)
+          { src: "/medoralogo.png", sizes: "192x192", type: "image/png" },
+          { src: "/medoralogo.png", sizes: "512x512", type: "image/png" },
+          { src: "medoralogo.png", sizes: "144x144", type: "image/png" },
+          { src: "medoralogo.png", sizes: "256x256", type: "image/png" },
           {
             src: "apple-touch-icon.png",
             sizes: "180x180",
             type: "image/png",
             purpose: "apple touch icon",
           },
-          // Maskable icons (need 20% safe area padding)
           {
             src: "icon-maskable-192.png",
             sizes: "192x192",
@@ -74,6 +55,8 @@ export default defineConfig({
         categories: ["health", "medical"],
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB limit
+
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
           {
@@ -93,4 +76,8 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    // Optional: remove the chunk size warning too
+    chunkSizeWarningLimit: 2000, // 2000 KB = 2 MB
+  },
 });
