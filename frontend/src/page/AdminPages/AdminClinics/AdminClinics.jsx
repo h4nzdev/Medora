@@ -19,20 +19,119 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
-import { getAllClinics } from "../../../services/clinic_services/clinicService";
+import {
+  deleteClinic,
+  getAllClinics,
+} from "../../../services/clinic_services/clinicService";
+import { getDoctorsByClinic } from "../../../services/doctor_services/doctorService";
+import { getPatientsByClinic } from "../../../services/patient_services/patientService";
+import { getInvoicesByClinic } from "../../../services/invoiceService";
+import ClinicDetailsSidebar from "./components/ClinicDetailsSidebar";
+import Swal from "sweetalert2";
 
 const AdminClinics = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [clinicStats, setClinicStats] = useState({}); // Store real stats for each clinic
 
+  const [selectedClinic, setSelectedClinic] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const handleViewDetails = (clinic) => {
+    setSelectedClinic(clinic);
+    setIsSidebarOpen(true);
+  };
+
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+    setSelectedClinic(null);
+  };
+
+  const handleDeleteClinic = async (clinic) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Delete ${clinic.clinicName}? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteClinic(clinic._id);
+        // Remove from local state
+        setClinics(clinics.filter((c) => c._id !== clinic._id));
+
+        Swal.fire(
+          "Deleted!",
+          `${clinic.clinicName} has been deleted.`,
+          "success"
+        );
+      } catch (error) {
+        Swal.fire("Error!", "Failed to delete clinic.", "error");
+        console.error(error);
+      }
+    }
+  };
+
+  // Fetch clinics and their real statistics
+  // Fetch clinics and their real statistics
   const fetchClinics = async () => {
     try {
       setLoading(true);
-      const response = await getAllClinics();
-      console.log("📊 Raw clinic data:", response); // Debug log
-      setClinics(response);
+      const clinicsData = await getAllClinics();
+      console.log("📊 Raw clinic data:", clinicsData);
+
+      // Fetch real statistics for each clinic
+      const clinicsWithStats = await Promise.all(
+        clinicsData.map(async (clinic) => {
+          try {
+            // Get real doctors count
+            const doctors = await getDoctorsByClinic(clinic._id);
+            const doctorsCount = doctors.length;
+
+            // Get real patients count
+            const patients = await getPatientsByClinic(clinic._id);
+            const patientsCount = patients.length;
+
+            // Get real revenue from invoices
+            const invoices = await getInvoicesByClinic(clinic._id);
+            const revenue = invoices.reduce((total, invoice) => {
+              return total + (invoice.totalAmount || 0);
+            }, 0);
+
+            return {
+              ...clinic,
+              realStats: {
+                doctors: doctorsCount,
+                patients: patientsCount,
+                revenue: revenue,
+                // Add other real stats as needed
+              },
+            };
+          } catch (error) {
+            console.error(
+              `Error fetching stats for clinic ${clinic._id}:`,
+              error
+            );
+            return {
+              ...clinic,
+              realStats: {
+                doctors: 0,
+                patients: 0,
+                revenue: 0,
+              },
+            };
+          }
+        })
+      );
+
+      setClinics(clinicsWithStats);
     } catch (error) {
       console.error("Error fetching clinics:", error);
     } finally {
@@ -44,30 +143,41 @@ const AdminClinics = () => {
     fetchClinics();
   }, []);
 
-  // Helper to get status (fallback to 'active' if not provided)
+  // Helper to get status (use real data from database)
   const getClinicStatus = (clinic) => {
     return clinic.status || "active";
   };
 
-  // Helper to get subscription plan (fallback to 'free')
+  // Helper to get subscription plan (use real data from database)
   const getClinicPlan = (clinic) => {
-    return clinic.subscriptionPlan || "free";
+    return clinic.plan || clinic.subscriptionPlan || "free";
   };
 
-  // Helper to get join date (fallback to createdAt or current date)
+  // Helper to get join date (use real data from database)
   const getJoinDate = (clinic) => {
     return clinic.createdAt || clinic.joinDate || new Date().toISOString();
   };
 
-  // Mock statistics for demo (you can replace with real data later)
+  // Get real statistics for clinic
   const getClinicStats = (clinic) => {
+    // Use real stats if available, otherwise use basic data from clinic
+    if (clinic.realStats) {
+      return {
+        doctors: clinic.realStats.doctors,
+        patients: clinic.realStats.patients,
+        appointments: clinic.appointmentsCount || 0, // You can add real appointments later
+        revenue: clinic.realStats.revenue,
+        rating: clinic.rating || 4.0, // Use real rating if available
+      };
+    }
+
+    // Fallback to clinic data
     return {
-      doctors: clinic.doctorsCount || Math.floor(Math.random() * 10) + 1,
-      patients: clinic.patientsCount || Math.floor(Math.random() * 50) + 10,
-      appointments:
-        clinic.appointmentsCount || Math.floor(Math.random() * 100) + 20,
-      revenue: clinic.revenue || Math.floor(Math.random() * 50000) + 10000,
-      rating: clinic.rating || (Math.random() * 2 + 3).toFixed(1), // 3.0 - 5.0
+      doctors: clinic.doctorsCount || 0,
+      patients: clinic.patientsCount || 0,
+      appointments: clinic.appointmentsCount || 0,
+      revenue: clinic.revenue || 0,
+      rating: clinic.rating || 4.0,
     };
   };
 
@@ -138,6 +248,7 @@ const AdminClinics = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Calculate real statistics from database
   const stats = {
     total: clinics.length,
     active: clinics.filter((c) => getClinicStatus(c) === "active").length,
@@ -179,7 +290,7 @@ const AdminClinics = () => {
           </div>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Overview - Using Real Data */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
             <div className="text-2xl font-bold text-slate-800">
@@ -253,7 +364,7 @@ const AdminClinics = () => {
           </div>
         </div>
 
-        {/* Clinics Table */}
+        {/* Clinics Table - Using Real Data */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -293,8 +404,18 @@ const AdminClinics = () => {
                     >
                       <td className="p-6">
                         <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
-                            <Building className="w-6 h-6 text-white" />
+                          <div className="relative">
+                            {clinic.clinicPicture ? (
+                              <img
+                                src={clinic.clinicPicture}
+                                alt={clinic.clinicName}
+                                className="w-14 h-14 rounded-xl object-cover border-2 border-cyan-600"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center border-2 border-cyan-600">
+                                <Building className="w-8 h-8 text-white" />
+                              </div>
+                            )}
                           </div>
                           <div>
                             <h3 className="font-semibold text-slate-800">
@@ -339,7 +460,7 @@ const AdminClinics = () => {
                           {getPlanBadge(plan)}
                           <div className="text-sm text-slate-600">
                             Patients: {clinic.currentPatientCount || 0}/
-                            {clinic.dailyPatientLimit || 20}
+                            {clinic.dailyPatientLimit || "Unlimited"}
                           </div>
                         </div>
                       </td>
@@ -379,7 +500,7 @@ const AdminClinics = () => {
                               Revenue
                             </div>
                             <div className="font-semibold text-slate-800">
-                              ₱{(stats.revenue / 1000).toFixed(0)}K
+                              ₱{stats.revenue.toLocaleString()}
                             </div>
                           </div>
                         </div>
@@ -390,6 +511,7 @@ const AdminClinics = () => {
                       <td className="p-6">
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => handleViewDetails(clinic)}
                             className="p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
                             title="View Details"
                           >
@@ -402,6 +524,7 @@ const AdminClinics = () => {
                             <Edit className="w-5 h-5" />
                           </button>
                           <button
+                            onClick={() => handleDeleteClinic(clinic)} // Pass the whole clinic object, not just clinic._id
                             className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete Clinic"
                           >
@@ -438,6 +561,12 @@ const AdminClinics = () => {
           )}
         </div>
       </div>
+      <ClinicDetailsSidebar
+        clinic={selectedClinic}
+        isOpen={isSidebarOpen}
+        onClose={handleCloseSidebar}
+        stats={stats}
+      />
     </div>
   );
 };

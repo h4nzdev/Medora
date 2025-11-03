@@ -21,14 +21,21 @@ import {
   getAllPatients,
   deletePatient,
 } from "../../../services/patient_services/patientService";
+import { getAllClinics } from "../../../services/clinic_services/clinicService";
+import { getAppointmentsByPatient } from "../../../services/appointmentService";
+import { getMedicalRecordsByPatient } from "../../../services/medicalrecords_services/recordsServices";
+import PatientDetailsSidebar from "./components/PatientDetailsSidebar";
 
 const AdminPatients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [clinicFilter, setClinicFilter] = useState("all");
   const [patients, setPatients] = useState([]);
+  const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Safe mock data as fallback
   const getMockPatients = () => [
@@ -68,30 +75,53 @@ const AdminPatients = () => {
     },
   ];
 
-  // Safe data fetching
+  // Fetch all data
   useEffect(() => {
-    const fetchPatients = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const patientsData = await getAllPatients();
 
-        // Validate response data
+        // Fetch patients and clinics in parallel
+        const [patientsData, clinicsData] = await Promise.all([
+          getAllPatients(),
+          getAllClinics(),
+        ]);
+
+        // Validate patients data
         if (Array.isArray(patientsData)) {
-          setPatients(patientsData);
+          // For each patient, find their clinic name
+          const patientsWithClinicNames = patientsData.map((patient) => {
+            const clinic = clinicsData.find((c) => c._id === patient.clinicId);
+            return {
+              ...patient,
+              clinic: clinic ? clinic.clinicName : "Unknown Clinic",
+              // Add mock data for demonstration (you'll replace this with real data)
+              lastAppointment: patient.lastAppointment || "2024-10-14",
+              nextAppointment: patient.nextAppointment || "2024-11-15",
+              totalAppointments: patient.totalAppointments || 0,
+              status: patient.status || "active",
+              medicalRecords: patient.medicalRecords || 0,
+              joinDate: patient.createdAt || "2024-01-15",
+            };
+          });
+
+          setPatients(patientsWithClinicNames);
+          setClinics(clinicsData);
         } else {
-          throw new Error("Invalid data format received");
+          throw new Error("Invalid patients data format");
         }
       } catch (err) {
-        console.error("Error fetching patients:", err);
-        setError("Failed to load patients. Using demo data.");
+        console.error("Error fetching data:", err);
+        setError("Failed to load data. Using demo data.");
         setPatients(getMockPatients());
+        setClinics([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPatients();
+    fetchData();
   }, []);
 
   // Safe delete handler
@@ -114,25 +144,58 @@ const AdminPatients = () => {
     }
   };
 
+  const handleViewPatient = (patient) => {
+    setSelectedPatient(patient);
+    setIsSidebarOpen(true);
+  };
+
+  // Close sidebar
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+    setSelectedPatient(null);
+  };
+
   // Safe data access helpers
   const safeString = (str) => (str || "").toString().toLowerCase();
   const safeArray = (arr) => (Array.isArray(arr) ? arr : []);
 
-  // Extract unique clinics safely
-  const clinics = useMemo(() => {
+  // Extract unique clinics safely from actual clinics data
+  const clinicOptions = useMemo(() => {
     try {
-      const clinicSet = new Set();
-      safeArray(patients).forEach((patient) => {
-        if (patient?.clinic) {
-          clinicSet.add(patient.clinic);
-        }
-      });
-      return Array.from(clinicSet).sort();
+      return safeArray(clinics).map((clinic) => ({
+        value: clinic._id,
+        label: clinic.clinicName,
+      }));
     } catch (err) {
-      console.error("Error extracting clinics:", err);
+      console.error("Error processing clinics:", err);
       return [];
     }
-  }, [patients]);
+  }, [clinics]);
+
+  // Get clinic name by ID - FIXED VERSION
+  const getClinicName = (clinicId) => {
+    console.log("=== DEBUG getClinicName ===");
+    console.log("clinicId received:", clinicId);
+
+    if (!clinicId) return "Unknown Clinic";
+
+    // Handle the case where clinicId is an object with _id property
+    let actualClinicId;
+    if (typeof clinicId === "object" && clinicId._id) {
+      actualClinicId = clinicId._id;
+    } else {
+      actualClinicId = clinicId;
+    }
+
+    console.log("Actual clinicId to use:", actualClinicId);
+
+    const clinic = clinics.find(
+      (c) => c._id.toString() === actualClinicId.toString()
+    );
+
+    console.log("Found clinic:", clinic);
+    return clinic ? clinic.clinicName : "Unknown Clinic";
+  };
 
   // Safe status badge
   const getStatusBadge = (status) => {
@@ -187,7 +250,7 @@ const AdminPatients = () => {
     );
   };
 
-  // Safe patient filtering
+  // Safe patient filtering - now using clinicId
   const filteredPatients = useMemo(() => {
     try {
       return safeArray(patients).filter((patient) => {
@@ -198,13 +261,13 @@ const AdminPatients = () => {
           safeString(patient.name).includes(searchLower) ||
           safeString(patient.email).includes(searchLower) ||
           safeString(patient.phone).includes(searchLower) ||
-          safeString(patient.clinic).includes(searchLower);
+          safeString(getClinicName(patient.clinicId)).includes(searchLower);
 
         const matchesStatus =
           statusFilter === "all" || patient.status === statusFilter;
 
         const matchesClinic =
-          clinicFilter === "all" || patient.clinic === clinicFilter;
+          clinicFilter === "all" || patient.clinicId === clinicFilter;
 
         return matchesSearch && matchesStatus && matchesClinic;
       });
@@ -212,14 +275,14 @@ const AdminPatients = () => {
       console.error("Error filtering patients:", err);
       return [];
     }
-  }, [patients, searchTerm, statusFilter, clinicFilter]);
+  }, [patients, searchTerm, statusFilter, clinicFilter, clinics]);
 
   // Safe stats calculation
   const stats = useMemo(() => {
     try {
       const filtered = safeArray(patients).filter((patient) => {
         if (!patient) return false;
-        return clinicFilter === "all" || patient.clinic === clinicFilter;
+        return clinicFilter === "all" || patient.clinicId === clinicFilter;
       });
 
       const defaultStats = {
@@ -306,7 +369,7 @@ const AdminPatients = () => {
                 {clinicFilter !== "all" && (
                   <span className="text-cyan-600 font-medium">
                     {" "}
-                    • Filtered by: {clinicFilter}
+                    • Filtered by: {getClinicName(clinicFilter)}
                   </span>
                 )}
               </p>
@@ -387,9 +450,9 @@ const AdminPatients = () => {
                 className="px-3 sm:px-4 py-2 sm:py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               >
                 <option value="all">All Clinics</option>
-                {clinics.map((clinic) => (
-                  <option key={clinic} value={clinic}>
-                    {clinic}
+                {clinicOptions.map((clinic) => (
+                  <option key={clinic.value} value={clinic.value}>
+                    {clinic.label}
                   </option>
                 ))}
               </select>
@@ -452,8 +515,18 @@ const AdminPatients = () => {
                     {/* Patient Information */}
                     <td className="p-4 sm:p-6">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                        <div className="relative">
+                          {patient.patientPicture ? (
+                            <img
+                              src={patient.patientPicture}
+                              alt={patient.name}
+                              className="w-14 h-14 rounded-xl object-cover border-2 border-cyan-600"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center border-2 border-cyan-600">
+                              <User className="w-8 h-8 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-semibold text-slate-800 truncate">
@@ -511,7 +584,7 @@ const AdminPatients = () => {
                         <div className="flex items-center gap-2 text-slate-700">
                           <Building className="w-4 h-4 flex-shrink-0" />
                           <span className="text-sm font-medium truncate">
-                            {getPatientField(patient, "clinic", "No clinic")}
+                            {getClinicName(patient.clinicId)}
                           </span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-sm">
@@ -578,6 +651,7 @@ const AdminPatients = () => {
                     <td className="p-4 sm:p-6">
                       <div className="flex items-center gap-1 sm:gap-2">
                         <button
+                          onClick={() => handleViewPatient(patient)}
                           className="p-1 sm:p-2 text-slate-600 hover:text-cyan-600 hover:bg-cyan-50 rounded-lg transition-colors"
                           title="View Medical Records"
                         >
@@ -621,15 +695,15 @@ const AdminPatients = () => {
         </div>
 
         {/* Clinic Summary */}
-        {clinicFilter === "all" && clinics.length > 0 && (
+        {clinicFilter === "all" && clinicOptions.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 mt-6">
             <h2 className="text-xl font-semibold text-slate-800 mb-4">
               Patients by Clinic
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {clinics.map((clinic) => {
+              {clinicOptions.map((clinic) => {
                 const clinicPatients = safeArray(patients).filter(
-                  (p) => p?.clinic === clinic
+                  (p) => p?.clinicId === clinic.value
                 );
                 const activePatients = clinicPatients.filter(
                   (p) => p?.status === "active"
@@ -637,13 +711,13 @@ const AdminPatients = () => {
 
                 return (
                   <div
-                    key={clinic}
+                    key={clinic.value}
                     className="bg-slate-50 rounded-xl p-4 border border-slate-200"
                   >
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="font-semibold text-slate-800 text-sm truncate">
-                          {clinic}
+                          {clinic.label}
                         </h3>
                         <p className="text-slate-600 text-xs mt-1">
                           {clinicPatients.length} patients
@@ -657,7 +731,7 @@ const AdminPatients = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => setClinicFilter(clinic)}
+                      onClick={() => setClinicFilter(clinic.value)}
                       className="w-full mt-3 text-cyan-600 text-sm font-medium hover:text-cyan-700 transition-colors"
                     >
                       View patients →
@@ -669,6 +743,11 @@ const AdminPatients = () => {
           </div>
         )}
       </div>
+      <PatientDetailsSidebar
+        patient={selectedPatient}
+        isOpen={isSidebarOpen}
+        onClose={handleCloseSidebar}
+      />
     </div>
   );
 };
