@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../../../context/AuthContext";
+import { useState, useRef, useEffect, useContext } from "react";
+import { AuthContext } from "../../../context/AuthContext";
 import {
   chatWithClinicAI,
   isClinicUser,
@@ -12,7 +12,7 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const { user } = useAuth();
+  const { user } = useContext(AuthContext);
 
   // Sample welcome message when chat opens
   useEffect(() => {
