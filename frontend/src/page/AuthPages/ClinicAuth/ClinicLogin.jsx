@@ -32,6 +32,7 @@ export default function ClinicLogin() {
   });
 
   const handleLogin = async (e) => {
+    axios.defaults.withCredentials = true;
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);

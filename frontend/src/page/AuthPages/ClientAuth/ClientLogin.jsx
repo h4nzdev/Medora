@@ -70,6 +70,7 @@ const ClientLogin = () => {
   }, [location.search, clinics]);
 
   const handleLogin = async (e) => {
+    axios.defaults.withCredentials = true;
     setIsLoading(true);
     e.preventDefault();
     if (!selectedClinic) {

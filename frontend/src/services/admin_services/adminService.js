@@ -2,6 +2,8 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
+axios.defaults.withCredentials = true;
+
 // Admin Auth (this one works!)
 export const adminLogin = async (credentials) => {
   try {
