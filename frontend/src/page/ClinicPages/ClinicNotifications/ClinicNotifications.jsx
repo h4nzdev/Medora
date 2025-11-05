@@ -37,6 +37,9 @@ const ClinicNotifications = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedSystemNotification, setSelectedSystemNotification] =
+    useState(null);
+  const [showSystemModal, setShowSystemModal] = useState(false);
 
   const filteredNotifications = useMemo(() => {
     return notifications
@@ -122,24 +125,18 @@ const ClinicNotifications = () => {
     }
   };
 
+  const handleViewSystemFeedback = (notification) => {
+    if (notification.type === "system") {
+      setSelectedSystemNotification(notification);
+      setShowSystemModal(true);
+    }
+  };
+
   const hasUnreadNotifications = notifications.some(
     (notification) => !notification.isRead
   );
 
   const hasNotifications = notifications.length > 0;
-
-  // Enhanced notification grouping by date
-  const groupedNotifications = useMemo(() => {
-    const groups = {};
-    filteredNotifications.forEach((notification) => {
-      const date = new Date(notification.createdAt).toLocaleDateString();
-      if (!groups[date]) {
-        groups[date] = [];
-      }
-      groups[date].push(notification);
-    });
-    return groups;
-  }, [filteredNotifications]);
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pb-6">
@@ -373,112 +370,105 @@ const ClinicNotifications = () => {
 
             {/* Notifications List */}
             <div className="space-y-4">
-              {Object.entries(groupedNotifications).length > 0 ? (
-                Object.entries(groupedNotifications).map(
-                  ([date, dayNotifications]) => (
-                    <div key={date} className="space-y-4">
-                      {/* Date Header */}
-                      <div className="flex items-center gap-3">
-                        <div className="h-px bg-slate-200 flex-1"></div>
-                        <span className="text-sm font-medium text-slate-500 bg-white px-3 py-1 rounded-lg border border-slate-200">
-                          {date === new Date().toLocaleDateString()
-                            ? "Today"
-                            : date ===
-                              new Date(
-                                Date.now() - 86400000
-                              ).toLocaleDateString()
-                            ? "Yesterday"
-                            : date}
-                        </span>
-                        <div className="h-px bg-slate-200 flex-1"></div>
-                      </div>
+              {filteredNotifications.length > 0 ? (
+                filteredNotifications.map((notification) => {
+                  const actionLink = getActionLink(notification);
 
-                      {/* Notifications */}
-                      {dayNotifications.map((notification) => {
-                        const actionLink = getActionLink(notification);
+                  return (
+                    <div
+                      key={notification._id}
+                      className={`bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow ${
+                        !notification.isRead
+                          ? "border-l-4 border-l-cyan-500 bg-cyan-50/50"
+                          : ""
+                      } ${
+                        notification.type === "system" ? "cursor-pointer" : ""
+                      }`}
+                      onClick={() =>
+                        notification.type === "system" &&
+                        handleViewSystemFeedback(notification)
+                      }
+                    >
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={`p-3 rounded-lg ${getNotificationColor(
+                            notification.type
+                          )} flex-shrink-0`}
+                        >
+                          {getNotificationIcon(notification.type)}
+                        </div>
 
-                        return (
-                          <div
-                            key={notification._id}
-                            className={`bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow ${
-                              !notification.isRead
-                                ? "border-l-4 border-l-cyan-500 bg-cyan-50/50"
-                                : ""
-                            }`}
-                          >
-                            <div className="flex items-start gap-4">
-                              <div
-                                className={`p-3 rounded-lg ${getNotificationColor(
-                                  notification.type
-                                )} flex-shrink-0`}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4 mb-3">
+                            <h3 className="font-semibold text-slate-800 text-lg leading-relaxed">
+                              {notification.message}
+                              {notification.type === "system" && (
+                                <span className="ml-2 text-sm text-slate-500 font-normal">
+                                  (Click to view details)
+                                </span>
+                              )}
+                            </h3>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {!notification.isRead && (
+                                <span
+                                  className="w-2 h-2 bg-cyan-500 rounded-full"
+                                  title="Unread"
+                                ></span>
+                              )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteNotification(notification._id);
+                                }}
+                                className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                title="Delete notification"
                               >
-                                {getNotificationIcon(notification.type)}
-                              </div>
-
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-4 mb-3">
-                                  <h3 className="font-semibold text-slate-800 text-lg leading-relaxed">
-                                    {notification.message}
-                                  </h3>
-                                  <div className="flex items-center gap-2 flex-shrink-0">
-                                    {!notification.isRead && (
-                                      <span
-                                        className="w-2 h-2 bg-cyan-500 rounded-full"
-                                        title="Unread"
-                                      ></span>
-                                    )}
-                                    <button
-                                      onClick={() =>
-                                        handleDeleteNotification(
-                                          notification._id
-                                        )
-                                      }
-                                      className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                                      title="Delete notification"
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Simple Action Link */}
-                                <button
-                                  onClick={() => navigate(actionLink.path)}
-                                  className={`px-4 py-2 ${actionLink.color} text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
-                                >
-                                  {actionLink.label}
-                                  <ArrowRight className="w-4 h-4" />
-                                </button>
-
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
-                                  <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
-                                    <Clock className="w-4 h-4" />
-                                    {formatDate(notification.createdAt)},{" "}
-                                    {useTime(notification.createdAt)}
-                                  </p>
-
-                                  <div className="flex items-center gap-2">
-                                    {!notification.isRead && (
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          markAsRead(notification._id)
-                                        }
-                                        className="px-3 py-1.5 bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium hover:bg-cyan-200 transition-colors"
-                                      >
-                                        Mark as Read
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
-                        );
-                      })}
+
+                          {/* Action Link - Don't show for system notifications */}
+                          {notification.type !== "system" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(actionLink.path);
+                              }}
+                              className={`px-4 py-2 ${actionLink.color} text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2`}
+                            >
+                              {actionLink.label}
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          )}
+
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
+                            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              {formatDate(notification.createdAt)},{" "}
+                              {useTime(notification.createdAt)}
+                            </p>
+
+                            <div className="flex items-center gap-2">
+                              {!notification.isRead && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markAsRead(notification._id);
+                                  }}
+                                  className="px-3 py-1.5 bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium hover:bg-cyan-200 transition-colors"
+                                >
+                                  Mark as Read
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  )
-                )
+                  );
+                })
               ) : (
                 <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                   <div className="bg-slate-100 rounded-xl p-6 w-fit mx-auto mb-6">
@@ -496,6 +486,47 @@ const ClinicNotifications = () => {
           </section>
         </div>
       </div>
+
+      {/* System Feedback Modal */}
+      {showSystemModal && selectedSystemNotification && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">
+              System Update Details
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">
+                  Message
+                </label>
+                <p className="text-slate-800 bg-slate-50 p-3 rounded-lg whitespace-pre-line">
+                  {selectedSystemNotification.systemMessage}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">
+                  Date
+                </label>
+                <p className="text-slate-800">
+                  {formatDate(selectedSystemNotification.createdAt)},{" "}
+                  {useTime(selectedSystemNotification.createdAt)}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                onClick={() => {
+                  setShowSystemModal(false);
+                  setSelectedSystemNotification(null);
+                }}
+                className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

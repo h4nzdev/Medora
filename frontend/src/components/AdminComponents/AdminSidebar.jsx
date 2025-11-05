@@ -3,7 +3,7 @@ import {
   LogOut,
   User,
   Building,
-  IndentDecrease,
+  Info,
   MessageSquare,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -23,6 +23,7 @@ export default function AdminSidebar() {
     { icon: Building, label: "Clinics", link: "/admin/clinics" },
     { icon: User, label: "Patients", link: "/admin/patients" },
     { icon: MessageSquare, label: "FeedBacks", link: "/admin/feedback" },
+    { icon: Info, label: "System Updates", link: "/admin/system-updates" },
   ];
 
   const path = useLocation();
@@ -39,7 +40,7 @@ export default function AdminSidebar() {
     }).then((result) => {
       if (result.isConfirmed) {
         logout();
-        navigate("/admin/login");
+        navigate("/admin/secret/login");
         toast.success("Logged out successfully!");
       }
     });

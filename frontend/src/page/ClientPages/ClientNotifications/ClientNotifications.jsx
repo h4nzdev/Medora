@@ -31,6 +31,9 @@ const ClientNotifications = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedSystemNotification, setSelectedSystemNotification] =
+    useState(null);
+  const [showSystemModal, setShowSystemModal] = useState(false);
 
   const filteredNotifications = useMemo(() => {
     return notifications
@@ -89,6 +92,13 @@ const ClientNotifications = () => {
       )
     ) {
       deleteAllNotifications();
+    }
+  };
+
+  const handleViewSystemFeedback = (notification) => {
+    if (notification.type === "system") {
+      setSelectedSystemNotification(notification);
+      setShowSystemModal(true);
     }
   };
 
@@ -304,7 +314,13 @@ const ClientNotifications = () => {
                     key={notification._id}
                     className={`bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group ${
                       !notification.isRead ? "border-l-4 border-l-cyan-500" : ""
+                    } ${
+                      notification.type === "system" ? "cursor-pointer" : ""
                     }`}
+                    onClick={() =>
+                      notification.type === "system" &&
+                      handleViewSystemFeedback(notification)
+                    }
                   >
                     <div className="flex items-start gap-4">
                       <div
@@ -319,6 +335,11 @@ const ClientNotifications = () => {
                         <div className="flex items-start justify-between gap-4 mb-2">
                           <h3 className="font-bold text-slate-800 text-lg group-hover:text-cyan-600 transition-colors duration-300">
                             {notification.message}
+                            {notification.type === "system" && (
+                              <span className="ml-2 text-sm text-slate-500 font-normal">
+                                (Click to view details)
+                              </span>
+                            )}
                           </h3>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             {!notification.isRead && (
@@ -326,9 +347,10 @@ const ClientNotifications = () => {
                             )}
                             {/* Delete Button */}
                             <button
-                              onClick={() =>
-                                handleDeleteNotification(notification._id)
-                              }
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteNotification(notification._id);
+                              }}
                               className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                               title="Delete notification"
                             >
@@ -347,7 +369,10 @@ const ClientNotifications = () => {
                             {!notification.isRead && (
                               <button
                                 type="button"
-                                onClick={() => markAsRead(notification._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead(notification._id);
+                                }}
                                 className="px-4 py-2 bg-cyan-50 text-cyan-700 rounded-lg text-sm font-medium hover:bg-cyan-100 transition-colors duration-200"
                               >
                                 Mark as Read
@@ -376,6 +401,47 @@ const ClientNotifications = () => {
           </section>
         </div>
       </div>
+
+      {/* System Feedback Modal */}
+      {showSystemModal && selectedSystemNotification && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-xl">
+            <h3 className="text-lg font-semibold text-slate-800 mb-4">
+              System Feedback Details
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">
+                  Message
+                </label>
+                <p className="text-slate-800 bg-slate-50 p-3 rounded-lg whitespace-pre-line">
+                  {selectedSystemNotification.systemMessage}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-600 mb-1">
+                  Date
+                </label>
+                <p className="text-slate-800">
+                  {formatDate(selectedSystemNotification.createdAt)},{" "}
+                  {useTime(selectedSystemNotification.createdAt)}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end mt-6">
+              <button
+                onClick={() => {
+                  setShowSystemModal(false);
+                  setSelectedSystemNotification(null);
+                }}
+                className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

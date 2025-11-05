@@ -34,8 +34,7 @@ export const sendVerification = async (req, res) => {
   }
 };
 
-// Login patient with sessions
-// Login patient with sessions - FIXED VERSION
+// Login patient with sessions - UPDATED TO SET SESSION
 export const loginClient = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -52,6 +51,15 @@ export const loginClient = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // ✅ SET SESSION - ADD THIS
+    req.session.user = {
+      _id: patient._id,
+      email: patient.email,
+      role: "Client",
+      name: patient.name,
+      clinicId: patient.clinicId,
+    };
+
     // Create patient object without password
     const patientWithoutPassword = patient.toObject();
     delete patientWithoutPassword.password;
@@ -63,6 +71,17 @@ export const loginClient = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
+};
+
+// Add patient logout function
+export const logoutPatient = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error logging out" });
+    }
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully" });
+  });
 };
 
 export const registerClient = async (req, res) => {

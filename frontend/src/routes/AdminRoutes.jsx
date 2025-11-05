@@ -5,6 +5,7 @@ import AdminDashboard from "../page/AdminPages/AdminDashboard/AdminDashboard";
 import AdminClinics from "../page/AdminPages/AdminClinics/AdminClinics";
 import AdminPatients from "../page/AdminPages/AdminPatients/AdminPatients";
 import AdminFeedBack from "../page/AdminPages/AdminFeedBack/AdminFeedBack";
+import AdminSystemUpdates from "../page/AdminPages/AdminSystemUpdates/AdminSystemUpdates";
 
 const AdminRoutes = () => {
   return (
@@ -39,6 +40,14 @@ const AdminRoutes = () => {
           element={
             <AdminLayout>
               <AdminFeedBack />
+            </AdminLayout>
+          }
+        />
+        <Route
+          path="/admin/system-updates"
+          element={
+            <AdminLayout>
+              <AdminSystemUpdates />
             </AdminLayout>
           }
         />

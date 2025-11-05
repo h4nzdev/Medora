@@ -3,13 +3,29 @@ import Notification from "../model/notificationModel.js";
 // ✅ Create a new notification
 export const createNotification = async (req, res) => {
   try {
-    const { recipientId, recipientType, message, type } = req.body;
-
-    const notification = await Notification.create({
+    const {
       recipientId,
       recipientType,
+      systemMessage,
       message,
       type,
+      relatedId,
+    } = req.body;
+
+    // For "all" recipientType, recipientId is not required
+    if (recipientType !== "all" && !recipientId) {
+      return res.status(400).json({
+        message: "recipientId is required for specific recipient types",
+      });
+    }
+
+    const notification = await Notification.create({
+      recipientId: recipientType === "all" ? undefined : recipientId,
+      recipientType,
+      message,
+      systemMessage,
+      type,
+      relatedId,
     });
 
     res.status(201).json(notification);
@@ -23,9 +39,12 @@ export const getUserNotifications = async (req, res) => {
   try {
     const { recipientId, recipientType } = req.params;
 
+    // For specific users/clinics, get their specific notifications + system-wide notifications
     const notifications = await Notification.find({
-      recipientId,
-      recipientType,
+      $or: [
+        { recipientId, recipientType }, // Their specific notifications
+        { recipientType: "all" }, // System-wide notifications for everyone
+      ],
     }).sort({ createdAt: -1 }); // newest first
 
     res.status(200).json(notifications);
@@ -62,8 +81,10 @@ export const markAllAsRead = async (req, res) => {
 
     const result = await Notification.updateMany(
       {
-        recipientId,
-        recipientType,
+        $or: [
+          { recipientId, recipientType }, // Their specific notifications
+          { recipientType: "all" }, // System-wide notifications
+        ],
         isRead: false,
       },
       {
@@ -108,8 +129,10 @@ export const deleteAllNotifications = async (req, res) => {
     const { recipientId, recipientType } = req.body;
 
     const result = await Notification.deleteMany({
-      recipientId,
-      recipientType,
+      $or: [
+        { recipientId, recipientType }, // Their specific notifications
+        { recipientType: "all" }, // System-wide notifications
+      ],
     });
 
     res.status(200).json({
@@ -120,5 +143,20 @@ export const deleteAllNotifications = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting all notifications", error });
+  }
+};
+
+// ✅ Get system-wide notifications (for admin view)
+export const getSystemNotifications = async (req, res) => {
+  try {
+    const systemNotifications = await Notification.find({
+      recipientType: "all",
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(systemNotifications);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching system notifications", error });
   }
 };

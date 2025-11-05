@@ -30,8 +30,7 @@ export const sendVerification = async (req, res) => {
   }
 };
 
-// Login clinic with sessions
-// Login clinic with sessions - FIXED VERSION
+// Login clinic with sessions - UPDATED TO SET SESSION
 export const loginClinic = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -48,7 +47,16 @@ export const loginClinic = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // ✅ FIX: Remove password from response
+    // ✅ SET SESSION - ADD THIS
+    req.session.user = {
+      _id: clinic._id,
+      email: clinic.email,
+      role: "Clinic", // Set role as Clinic
+      clinicName: clinic.clinicName,
+      contactPerson: clinic.contactPerson,
+    };
+
+    // FIX: Remove password from response
     const clinicWithoutPassword = { ...clinic._doc };
     delete clinicWithoutPassword.password;
 
@@ -59,6 +67,17 @@ export const loginClinic = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
+};
+
+// Add clinic logout function
+export const logoutClinic = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error logging out" });
+    }
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully" });
+  });
 };
 
 // Register a new clinic

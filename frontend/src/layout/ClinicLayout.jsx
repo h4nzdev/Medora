@@ -13,6 +13,7 @@ import {
   ringVariants,
 } from "../animations/splashscreen";
 import { useNotification } from "../context/NotificationContext"; // 👈 ADD THIS IMPORT
+import Chatbot from "../components/ClinicComponents/Chatbot/Chatbot";
 
 const ClinicLayout = ({ children }) => {
   const isMobile = useResponsive();
@@ -194,6 +195,7 @@ const ClinicLayout = ({ children }) => {
       <div className="flex-1 md:ml-64 lg:ml-64">
         <ClinicHeader />
         <main className="p-6 w-full">{children}</main>
+        <Chatbot />
       </div>
     </motion.div>
   );

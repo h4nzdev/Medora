@@ -24,6 +24,17 @@ export const getUserNotifications = async (recipientId, recipientType) => {
   }
 };
 
+// ✅ Get system-wide notifications (admin view)
+export const getSystemNotifications = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/system/all`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching system notifications:", error);
+    throw error.response?.data || error;
+  }
+};
+
 // ✅ Mark as read
 export const markNotificationAsRead = async (id) => {
   try {
@@ -42,7 +53,6 @@ export const markAllNotificationsAsRead = async (
 ) => {
   try {
     const res = await axios.put(`${API_URL}/mark-all-read`, {
-      // Changed from PATCH to PUT
       recipientId,
       recipientType,
     });

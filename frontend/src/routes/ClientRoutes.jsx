@@ -7,7 +7,7 @@ import ClientChat from "../page/ClientPages/ClientChat/ClientChat";
 import ClientMedicalRecords from "../page/ClientPages/ClientMedicalRecords/ClientMedicalRecords";
 import ClientReminders from "../page/ClientPages/ClientReminders/ClientReminders";
 import ClientProfile from "../page/ClientPages/ClientProfile/ClientProfile";
-import ClientSettings from "../page/ClientPages/ClientSettings/ClinicSettings";
+import ClientSettings from "../page/ClientPages/ClientSettings/ClientSettings";
 import ClientCalendar from "../page/ClientPages/ClientCalendar/ClientCalendar";
 import ClientTimeline from "../page/ClientPages/ClientTimeline/ClientTimeline";
 import DoctorsList from "../page/ClientPages/DoctorsList/DoctorsList";

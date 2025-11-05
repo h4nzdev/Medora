@@ -122,7 +122,6 @@ const ClientSettings = () => {
               </div>
             </div>
           </div>
-
           {/* Account Settings */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
@@ -170,7 +169,6 @@ const ClientSettings = () => {
               </button>
             </div>
           </div>
-
           {/* 📝 FEEDBACK SECTION - NEW! */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
@@ -215,15 +213,31 @@ const ClientSettings = () => {
                   rows="4"
                   className="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
                   required
+                  minLength="10"
+                  maxLength="1000"
                 />
+                <p className="text-xs text-slate-500 mt-1">
+                  {feedbackMessage.length}/1000 characters
+                </p>
               </div>
 
               <button
                 type="submit"
-                disabled={isSubmitting || !feedbackMessage.trim()}
-                className="w-full bg-cyan-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={
+                  isSubmitting ||
+                  !feedbackMessage.trim() ||
+                  feedbackMessage.length < 10
+                }
+                className="w-full bg-cyan-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-cyan-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {isSubmitting ? "Sending Feedback..." : "Send Feedback"}
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Sending Feedback...
+                  </>
+                ) : (
+                  "Send Feedback"
+                )}
               </button>
             </form>
 
@@ -232,7 +246,6 @@ const ClientSettings = () => {
               better!
             </p>
           </div>
-
           {/* App Settings */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
@@ -273,7 +286,6 @@ const ClientSettings = () => {
               </button>
             </div>
           </div>
-
           {/* Privacy and Terms Section */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-6">
@@ -326,7 +338,6 @@ const ClientSettings = () => {
               </div>
             </div>
           </div>
-
           {/* Support Section */}
           <div className="bg-white/70 rounded-xl shadow-md p-6 hover:shadow-xl transition-all">
             <div className="flex items-center gap-4 mb-4">

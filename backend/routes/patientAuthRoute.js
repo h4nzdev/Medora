@@ -5,12 +5,14 @@ import {
   sendPasswordChangeVerification,
   sendVerification,
   verifyAndChangePassword,
+  logoutPatient, // ADD THIS IMPORT
 } from "../controller/patientAuthController.js";
 import upload from "../middleware/multerConfig.js";
+import { authenticate, requirePatient } from "../middleware/authMiddleware.js"; // ADD THIS IMPORT
 
 const patientAuthRouter = express.Router();
 
-// 🟢 Patient login route
+// 🟢 Public Patient Routes (no authentication needed)
 patientAuthRouter.post("/login", loginClient);
 patientAuthRouter.post(
   "/register",
@@ -18,10 +20,18 @@ patientAuthRouter.post(
   registerClient
 );
 patientAuthRouter.post("/send-verification", sendVerification);
+
+// 🟢 Protected Patient Routes (require patient authentication)
+patientAuthRouter.post("/logout", authenticate, logoutPatient); // ADDED: authenticate middleware
 patientAuthRouter.post(
   "/send-password-verification",
+  authenticate, // ADDED: User must be logged in to change password
   sendPasswordChangeVerification
 );
-patientAuthRouter.post("/verify-change-password", verifyAndChangePassword);
+patientAuthRouter.post(
+  "/verify-change-password",
+  authenticate, // ADDED: User must be logged in to change password
+  verifyAndChangePassword
+);
 
 export default patientAuthRouter;

@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import Admin from "../model/adminModel.js";
 
-// Login admin
+// Login admin - UPDATED TO SET SESSION
 export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -18,10 +18,37 @@ export const loginAdmin = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    res.json({ message: "Login successful", admin: admin });
+    // ✅ SET SESSION - THIS IS CRITICAL
+    req.session.user = {
+      _id: admin._id,
+      email: admin.email,
+      role: "Admin", // Make sure this is set!
+      admin_name: admin.admin_name,
+    };
+
+    res.json({
+      message: "Login successful",
+      admin: {
+        _id: admin._id,
+        email: admin.email,
+        admin_name: admin.admin_name,
+        role: "Admin",
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
+};
+
+// Logout admin - ADD THIS NEW FUNCTION
+export const logoutAdmin = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Error logging out" });
+    }
+    res.clearCookie("connect.sid"); // Clear the session cookie
+    res.json({ message: "Logged out successfully" });
+  });
 };
 
 // Create admin (for direct post requests - no verification needed)

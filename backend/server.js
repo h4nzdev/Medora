@@ -1,7 +1,17 @@
 import express from "express";
-import { createServer } from "http"; // Import http
-import { Server } from "socket.io"; // Import socket.io
+import { createServer } from "http";
+import { Server } from "socket.io";
 import { configDB } from "./config/db.js";
+import { startAutoCancelCron } from "./utils/autoCancellAppointments.js";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Import your middleware files
+import { sessionConfig } from "./middleware/sessionMiddleware.js";
+import { corsConfig } from "./middleware/corsMiddleware.js";
+
+// Import routes
 import clinicRoutes from "./routes/clinicRoutes.js";
 import doctorRouter from "./routes/doctorRoutes.js";
 import patientRouter from "./routes/patientsRoutes.js";
@@ -16,27 +26,24 @@ import invoiceRouter from "./routes/invoiceRoutes.js";
 import feedbackRouter from "./routes/feedbackRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import subscriptionRouter from "./routes/subscirptionRoutes.js";
-
-import { startAutoCancelCron } from "./utils/autoCancellAppointments.js";
-import cors from "cors";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import systemUpdatesRouter from "./routes/systemUpdatesRoutes.js";
+import clinicAIRouter from "./routes/clinicAIRoutes.js"; // ✅ ONLY IMPORT, NO DUPLICATE
 
 const allowedOrigins = [
   "https://medora-dun.vercel.app",
-  "https://klinikahub.vercel.app", // 👈 your new domain
+  "https://klinikahub.vercel.app",
   "http://localhost:5173",
 ];
 
 dotenv.config();
 configDB();
+
 const app = express();
-const httpServer = createServer(app); // Create HTTP server
+const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: allowedOrigins,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // <-- added PATCH
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   },
 });
@@ -44,14 +51,10 @@ const io = new Server(httpServer, {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// ✅ USE MIDDLEWARE FILES INSTEAD OF HARDCODED
+app.use(corsConfig); // From middleware file
 app.use(express.json());
-app.use(
-  cors({
-    origin: ["https://medora-dun.vercel.app", "http://localhost:5173"], // allow production + local dev
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"], // <-- added PATCH
-    credentials: true,
-  })
-);
+app.use(sessionConfig); // From middleware file
 
 // Start the cron job when server starts
 startAutoCancelCron();
@@ -70,6 +73,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Routes
 app.use("/clinic", clinicRoutes);
 app.use("/doctor", doctorRouter);
 app.use("/patient", patientRouter);
@@ -84,6 +88,25 @@ app.use("/api/notification", notificationRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/subscription", subscriptionRouter);
+app.use("/api/system-update", systemUpdatesRouter);
+app.use("/api/clinic-ai", clinicAIRouter); // ✅ USE THE IMPORTED ROUTER
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Something went wrong!",
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
 
 httpServer.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on PORT : 3000`);

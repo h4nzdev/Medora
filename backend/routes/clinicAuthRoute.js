@@ -6,11 +6,14 @@ import {
   verifyAndChangeClinicPassword,
   updateClinicPassword,
   sendClinicPasswordChangeVerification,
+  logoutClinic, // ADD THIS IMPORT
 } from "../controller/clinicAuthController.js";
 import upload from "../middleware/multerConfig.js";
+import { authenticate, requireClinic } from "../middleware/authMiddleware.js"; // ADD THIS IMPORT
 
 const clinicAuthRoutes = express.Router();
 
+// 🟢 Public Clinic Routes (no authentication needed)
 clinicAuthRoutes.post("/login", loginClinic);
 clinicAuthRoutes.post(
   "/register",
@@ -19,12 +22,22 @@ clinicAuthRoutes.post(
 );
 clinicAuthRoutes.post("/send-verification", sendVerification);
 
-// 👇 NEW PASSWORD ROUTES
+// 🟢 Protected Clinic Routes (require clinic authentication)
+clinicAuthRoutes.post("/logout", authenticate, logoutClinic);
 clinicAuthRoutes.post(
   "/send-password-verification",
+  authenticate,
   sendClinicPasswordChangeVerification
 );
-clinicAuthRoutes.post("/verify-change-password", verifyAndChangeClinicPassword);
-clinicAuthRoutes.patch("/update-password/:clinicId", updateClinicPassword);
+clinicAuthRoutes.post(
+  "/verify-change-password",
+  authenticate,
+  verifyAndChangeClinicPassword
+);
+clinicAuthRoutes.patch(
+  "/update-password/:clinicId",
+  requireClinic,
+  updateClinicPassword
+);
 
 export default clinicAuthRoutes;

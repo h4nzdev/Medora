@@ -6,6 +6,7 @@ import {
   markAllNotificationsAsRead,
   deleteNotification as deleteNotificationService,
   deleteAllNotifications as deleteAllNotificationsService,
+  getSystemNotifications,
 } from "../services/notificationService";
 import { AuthContext } from "./AuthContext";
 import { useSettings } from "./SettingsContext";
@@ -19,7 +20,7 @@ export const NotificationProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
   const { settings } = useSettings();
   const [notifications, setNotifications] = useState([]);
-  const [shownNotificationIds, setShownNotificationIds] = useState(new Set()); // Track shown notifications by ID
+  const [shownNotificationIds, setShownNotificationIds] = useState(new Set());
   const [showSplashNotif, setShowSplashNotif] = useState(true);
 
   // FIXED: Consistent role checking
@@ -71,7 +72,7 @@ export const NotificationProvider = ({ children }) => {
           });
         }
 
-        // In your NotificationContext useEffect
+        // Show toast notifications
         if (settings.notifications) {
           newOnes.forEach((notification) => {
             console.log("🚀 Showing toast for:", notification.message);
@@ -104,6 +105,17 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     setShownNotificationIds(new Set());
   }, [user?._id]);
+
+  // Function to fetch system notifications (for admin)
+  const fetchSystemNotifications = async () => {
+    try {
+      const systemNotifications = await getSystemNotifications();
+      return systemNotifications;
+    } catch (error) {
+      console.error("Failed to fetch system notifications.", error);
+      throw error;
+    }
+  };
 
   const markAsRead = async (id) => {
     try {
@@ -171,6 +183,7 @@ export const NotificationProvider = ({ children }) => {
         deleteNotification,
         deleteAllNotifications,
         setShowSplashNotif,
+        fetchSystemNotifications, // Added for admin system notifications
       }}
     >
       {children}
