@@ -2,13 +2,26 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/clinic-ai`;
 
-// ✅ CRITICAL: Configure axios to send cookies with every request
-axios.defaults.withCredentials = true;
+// ✅ REMOVE THIS: axios.defaults.withCredentials = true;
+
+// Get token from storage
+const getToken = () => {
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
+};
 
 // Main clinic AI chat
 export const chatWithClinicAI = async (message) => {
   try {
-    const response = await axios.post(`${API_URL}/chat`, { message });
+    const token = getToken();
+    const response = await axios.post(
+      `${API_URL}/chat`,
+      { message },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error chatting with Clinic AI:", error);
@@ -19,7 +32,12 @@ export const chatWithClinicAI = async (message) => {
 // Get clinic analytics for AI context
 export const getClinicAnalytics = async () => {
   try {
-    const response = await axios.get(`${API_URL}/analytics`);
+    const token = getToken();
+    const response = await axios.get(`${API_URL}/analytics`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching clinic analytics:", error);
@@ -30,7 +48,12 @@ export const getClinicAnalytics = async () => {
 // Test clinic AI connection
 export const testClinicAIConnection = async () => {
   try {
-    const response = await axios.get(`${API_URL}/test`);
+    const token = getToken();
+    const response = await axios.get(`${API_URL}/test`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error testing Clinic AI connection:", error);
@@ -38,7 +61,6 @@ export const testClinicAIConnection = async () => {
   }
 };
 
-// Get appointment statistics (if you want separate endpoint)
 export const getAppointmentStats = async (timeframe = "today") => {
   try {
     const response = await axios.get(`${API_URL}/appointments/stats`, {

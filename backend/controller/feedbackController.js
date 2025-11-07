@@ -1,12 +1,11 @@
 import Feedback from "../model/feedbackModel.js";
 
 // 📝 Submit feedback (the "ahahaha I found something" button)
-// 📝 Submit feedback (the "ahahaha I found something" button)
 export const submitFeedback = async (req, res) => {
   try {
     const { message, type } = req.body;
-    const userId = req.session.user?._id;
-    const userRole = req.session.user?.role; // Get the user's role from session
+    const userId = req.user?._id; // ✅ CHANGED: req.session.user → req.user
+    const userRole = req.user?.role; // ✅ CHANGED: req.session.user → req.user
 
     // Determine userType based on the user's role
     let userType;
@@ -21,10 +20,10 @@ export const submitFeedback = async (req, res) => {
     // Just create the feedback, that's it!
     const newFeedback = new Feedback({
       userId,
-      userType, // Use the determined userType
+      userType,
       message,
-      type: type || "suggestion", // default to suggestion if not specified
-      status: "pending", // initial status
+      type: type || "suggestion",
+      status: "pending",
     });
 
     await newFeedback.save();
@@ -51,8 +50,8 @@ export const submitFeedback = async (req, res) => {
 export const getAllFeedback = async (req, res) => {
   try {
     // Double security check - only admins can access all feedback
-    if (req.session.user?.role !== "Admin") {
-      // CHANGED: req.user → req.session.user
+    if (req.user?.role !== "Admin") {
+      // ✅ CHANGED: req.session.user → req.user
       return res.status(403).json({
         message: "Access denied. Admin privileges required.",
       });
@@ -77,8 +76,8 @@ export const getAllFeedback = async (req, res) => {
 export const getFeedbackByType = async (req, res) => {
   try {
     // Double security check - only admins can filter feedback
-    if (req.session.user?.role !== "Admin") {
-      // CHANGED: req.user → req.session.user
+    if (req.user?.role !== "Admin") {
+      // ✅ CHANGED: req.session.user → req.user
       return res.status(403).json({
         message: "Access denied. Admin privileges required.",
       });
@@ -105,8 +104,8 @@ export const getFeedbackByType = async (req, res) => {
 export const addAdminResponse = async (req, res) => {
   try {
     // Double security check - only admins can respond
-    if (req.session.user?.role !== "Admin") {
-      // CHANGED: req.user → req.session.user
+    if (req.user?.role !== "Admin") {
+      // ✅ CHANGED: req.session.user → req.user
       return res.status(403).json({
         message: "Access denied. Admin privileges required.",
       });
@@ -123,14 +122,13 @@ export const addAdminResponse = async (req, res) => {
     feedback.adminResponse = {
       message,
       respondedAt: new Date(),
-      respondedBy: req.session.user._id, // CHANGED: req.user → req.session.user
+      respondedBy: req.user._id, // ✅ CHANGED: req.session.user → req.user
     };
 
-    feedback.status = "reviewed"; // Update status when admin responds
+    feedback.status = "reviewed";
 
     await feedback.save();
 
-    // Populate the response for better output
     await feedback.populate("adminResponse.respondedBy", "name email");
 
     res.status(200).json({
@@ -149,15 +147,15 @@ export const addAdminResponse = async (req, res) => {
 export const addAdminReaction = async (req, res) => {
   try {
     // Double security check - only admins can react
-    if (req.session.user?.role !== "Admin") {
-      // CHANGED: req.user → req.session.user
+    if (req.user?.role !== "Admin") {
+      // ✅ CHANGED: req.session.user → req.user
       return res.status(403).json({
         message: "Access denied. Admin privileges required.",
       });
     }
 
     const { id } = req.params;
-    const { reaction } = req.body; // "thumbs_up" or "thumbs_down"
+    const { reaction } = req.body;
 
     if (!["thumbs_up", "thumbs_down"].includes(reaction)) {
       return res.status(400).json({
@@ -172,11 +170,10 @@ export const addAdminReaction = async (req, res) => {
 
     feedback.adminReaction = reaction;
     feedback.reactedAt = new Date();
-    feedback.reactedBy = req.session.user._id; // CHANGED: req.user → req.session.user
+    feedback.reactedBy = req.user._id; // ✅ CHANGED: req.session.user → req.user
 
     await feedback.save();
 
-    // Populate the reactor for better output
     await feedback.populate("reactedBy", "name email");
 
     res.status(200).json({
@@ -195,8 +192,8 @@ export const addAdminReaction = async (req, res) => {
 export const updateFeedbackStatus = async (req, res) => {
   try {
     // Double security check - only admins can update status
-    if (req.session.user?.role !== "Admin") {
-      // CHANGED: req.user → req.session.user
+    if (req.user?.role !== "Admin") {
+      // ✅ CHANGED: req.session.user → req.user
       return res.status(403).json({
         message: "Access denied. Admin privileges required.",
       });
@@ -237,8 +234,8 @@ export const updateFeedbackStatus = async (req, res) => {
 export const deleteFeedback = async (req, res) => {
   try {
     // Double security check - only admins can delete
-    if (req.session.user?.role !== "Admin") {
-      // CHANGED: req.user → req.session.user
+    if (req.user?.role !== "Admin") {
+      // ✅ CHANGED: req.session.user → req.user
       return res.status(403).json({
         message: "Access denied. Admin privileges required.",
       });
@@ -262,7 +259,7 @@ export const deleteFeedback = async (req, res) => {
 // 👤 Get user's own feedback (for regular users to see their submissions)
 export const getMyFeedback = async (req, res) => {
   try {
-    const userId = req.session.user?._id; // CHANGED: req.user → req.session.user
+    const userId = req.user?._id; // ✅ CHANGED: req.session.user → req.user
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });

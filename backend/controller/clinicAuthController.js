@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import Clinic from "../model/clinicModel.js";
 import sendVerificationEmail from "../utils/emailService.js";
+import { generateToken } from "../utils/jwtUtils.js";
 
 const verificationCodes = {};
 
@@ -47,22 +48,25 @@ export const loginClinic = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // ✅ SET SESSION - ADD THIS
-    req.session.user = {
+    // ✅ CREATE JWT TOKEN instead of session
+    const tokenPayload = {
       _id: clinic._id,
       email: clinic.email,
-      role: "Clinic", // Set role as Clinic
+      role: "Clinic",
       clinicName: clinic.clinicName,
       contactPerson: clinic.contactPerson,
     };
 
-    // FIX: Remove password from response
+    const token = generateToken(tokenPayload);
+
+    // Remove password from response
     const clinicWithoutPassword = { ...clinic._doc };
     delete clinicWithoutPassword.password;
 
     res.json({
       message: "Login successful",
       clinic: clinicWithoutPassword,
+      token: token, // Send token to frontend
     });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
@@ -71,12 +75,9 @@ export const loginClinic = async (req, res) => {
 
 // Add clinic logout function
 export const logoutClinic = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ message: "Error logging out" });
-    }
-    res.clearCookie("connect.sid");
-    res.json({ message: "Logged out successfully" });
+  res.json({
+    message:
+      "Logged out successfully. Please remove the token from client storage.",
   });
 };
 

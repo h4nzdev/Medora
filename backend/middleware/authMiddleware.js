@@ -1,73 +1,84 @@
-// middleware/authMiddleware.js
+import { verifyToken } from "../utils/jwtUtils.js";
 
-// General authentication - checks if user is logged in
 export const authenticate = (req, res, next) => {
-  if (!req.session.user) {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    console.log("🔐 Auth Middleware - Token received:", token ? "YES" : "NO"); // ADD THIS
+    console.log("🔐 Auth Middleware - Headers:", req.headers); // ADD THIS
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided. Please log in.",
+      });
+    }
+
+    const decoded = verifyToken(token);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    console.log("🔐 Auth Middleware - Error:", error.message); // ADD THIS
     return res.status(401).json({
       success: false,
-      message: "Not authenticated. Please log in.",
+      message: "Invalid or expired token. Please log in again.",
     });
   }
-  req.user = req.session.user; // Set for consistency
-  next();
 };
 
 // Admin-only access
 export const requireAdmin = (req, res, next) => {
-  if (!req.session.user) {
+  if (!req.user) {
     return res.status(401).json({
       success: false,
       message: "Not authenticated. Please log in.",
     });
   }
 
-  if (req.session.user.role !== "Admin") {
+  if (req.user.role !== "Admin") {
     return res.status(403).json({
       success: false,
       message: "Access denied. Admin privileges required.",
     });
   }
 
-  req.user = req.session.user;
   next();
 };
 
 // Clinic-only access
 export const requireClinic = (req, res, next) => {
-  if (!req.session.user) {
+  if (!req.user) {
     return res.status(401).json({
       success: false,
       message: "Not authenticated. Please log in.",
     });
   }
 
-  if (req.session.user.role !== "Clinic") {
+  if (req.user.role !== "Clinic") {
     return res.status(403).json({
       success: false,
       message: "Access denied. Clinic privileges required.",
     });
   }
 
-  req.user = req.session.user;
   next();
 };
 
 // Patient-only access
 export const requirePatient = (req, res, next) => {
-  if (!req.session.user) {
+  if (!req.user) {
     return res.status(401).json({
       success: false,
       message: "Not authenticated. Please log in.",
     });
   }
 
-  if (req.session.user.role !== "Patient") {
+  if (req.user.role !== "Patient") {
     return res.status(403).json({
       success: false,
       message: "Access denied. Patient privileges required.",
     });
   }
 
-  req.user = req.session.user;
   next();
 };

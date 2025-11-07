@@ -32,32 +32,38 @@ export default function ClinicLogin() {
   });
 
   const handleLogin = async (e) => {
-    axios.defaults.withCredentials = true;
+    // REMOVE THIS LINE: axios.defaults.withCredentials = true;
+
     e.preventDefault();
     if (isLoading) return;
     setIsLoading(true);
-    const loginClinic = `${import.meta.env.VITE_API_URL}/auth/clinic/login`; // Clinic login endpoint
+    const loginClinic = `${import.meta.env.VITE_API_URL}/auth/clinic/login`;
+
     try {
       const res = await axios.post(loginClinic, {
         ...formData,
         role: "clinic",
       });
 
-      if (res.data.clinic) {
-        login(res.data.clinic, res.data.clinic.role, rememberMe);
+      if (res.data.clinic && res.data.token) {
+        // ✅ UPDATED: Pass the token to login function
+        login(
+          res.data.clinic,
+          res.data.clinic.role,
+          rememberMe,
+          res.data.token
+        );
         setError(null);
+
+        console.log("Login successful for: clinic");
+        setFormData({ email: "", password: "" });
+
+        setTimeout(() => {
+          toast.success("Logged in successfully");
+        }, 3000);
       } else {
         console.error("Unexpected response from server:", res.data);
       }
-
-      console.log("Login successful for: clinic");
-      setFormData({
-        email: "",
-        password: "",
-      });
-      setTimeout(() => {
-        toast.success("Logged in successfully");
-      }, 3000);
     } catch (error) {
       if (
         error.response &&

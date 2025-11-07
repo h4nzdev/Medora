@@ -12,7 +12,7 @@ const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 export const clinicAIChat = async (req, res) => {
   try {
     const { message } = req.body;
-    const clinicId = req.session.user?._id;
+    const clinicId = req.user?._id;
 
     if (!clinicId) {
       return res.status(401).json({ error: "Clinic authentication required." });
@@ -141,7 +141,7 @@ ${clinicContext}
 // Enhanced analytics endpoint using services
 export const getClinicAnalytics = async (req, res) => {
   try {
-    const clinicId = req.session.user?._id;
+    const clinicId = req.user?._id;
 
     if (!clinicId) {
       return res.status(401).json({ error: "Clinic authentication required." });

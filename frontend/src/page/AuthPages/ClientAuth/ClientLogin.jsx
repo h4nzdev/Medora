@@ -70,7 +70,8 @@ const ClientLogin = () => {
   }, [location.search, clinics]);
 
   const handleLogin = async (e) => {
-    axios.defaults.withCredentials = true;
+    // REMOVE THIS LINE: axios.defaults.withCredentials = true;
+
     setIsLoading(true);
     e.preventDefault();
     if (!selectedClinic) {
@@ -86,8 +87,14 @@ const ClientLogin = () => {
         role: "patient",
       });
 
-      if (res.data.patient) {
-        login(res.data.patient, res.data.patient.role, rememberMe);
+      if (res.data.patient && res.data.token) {
+        // ✅ UPDATED: Pass the token to login function
+        login(
+          res.data.patient,
+          res.data.patient.role,
+          rememberMe,
+          res.data.token
+        );
         console.log("Login successful for patient:", res.data.patient.email);
 
         navigate(`/client/dashboard?clinicId=${selectedClinic._id}`);

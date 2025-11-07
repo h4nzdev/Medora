@@ -25,7 +25,7 @@ clinicAIRouter.get(
 clinicAIRouter.get("/test", authenticate, requireClinic, (req, res) => {
   res.json({
     message: "Clinic AI is working! 🏥",
-    clinic: req.session.user.clinicName,
+    clinic: req.user.clinicName,
     role: "Clinic AI Assistant",
   });
 });

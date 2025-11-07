@@ -38,17 +38,24 @@ export default function AdminLogin() {
 
     const adminLoginEndpoint = `${
       import.meta.env.VITE_API_URL
-    }/api/admin/login`; // Admin login endpoint
+    }/api/admin/login`;
 
     try {
       const res = await axios.post(adminLoginEndpoint, formData);
 
-      if (res.data.admin) {
-        login(res.data.admin, res.data.admin.role, true); // Always remember admin for convenience
+      if (res.data.admin && res.data.token) {
+        // ✅ IMMEDIATE FIX: Store token directly here
+        localStorage.setItem("token", res.data.token); // Since admin always rememberMe=true
+
+        // Then call login function
+        login(res.data.admin, res.data.admin.role, true, res.data.token);
         setError(null);
         toast.success("Admin access granted!", {
           icon: <Crown className="w-5 h-5 text-amber-500" />,
         });
+
+        // ✅ TEST: Check if token is stored
+        console.log("🔐 Token stored:", localStorage.getItem("token"));
       }
     } catch (error) {
       if (error.response?.data?.message) {

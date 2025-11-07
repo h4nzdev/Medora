@@ -7,8 +7,6 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Import your middleware files
-import { sessionConfig } from "./middleware/sessionMiddleware.js";
 import { corsConfig } from "./middleware/corsMiddleware.js";
 
 // Import routes
@@ -54,7 +52,6 @@ const __dirname = path.dirname(__filename);
 // ✅ USE MIDDLEWARE FILES INSTEAD OF HARDCODED
 app.use(corsConfig); // From middleware file
 app.use(express.json());
-app.use(sessionConfig); // From middleware file
 
 // Start the cron job when server starts
 startAutoCancelCron();

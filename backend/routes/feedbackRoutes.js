@@ -9,20 +9,30 @@ import {
   updateFeedbackStatus,
   getMyFeedback,
 } from "../controller/feedbackController.js";
-import { authenticate, requireAdmin } from "../middleware/authMiddleware.js"; // ADD THIS IMPORT
+import { authenticate, requireAdmin } from "../middleware/authMiddleware.js";
 
 const feedbackRouter = express.Router();
 
 // 🛣️ Public/User Routes (no admin required)
-feedbackRouter.post("/", submitFeedback); // POST /api/feedback
-feedbackRouter.get("/my-feedback", authenticate, getMyFeedback); // ADDED: authenticate middleware
+feedbackRouter.post("/", submitFeedback);
 
 // 🛣️ Admin Only Routes (all require admin privileges)
-feedbackRouter.get("/", requireAdmin, getAllFeedback); // ADDED: requireAdmin middleware
-feedbackRouter.get("/type/:type", requireAdmin, getFeedbackByType); // ADDED: requireAdmin middleware
-feedbackRouter.post("/:id/response", requireAdmin, addAdminResponse); // ADDED: requireAdmin middleware
-feedbackRouter.post("/:id/reaction", requireAdmin, addAdminReaction); // ADDED: requireAdmin middleware
-feedbackRouter.patch("/:id/status", requireAdmin, updateFeedbackStatus); // ADDED: requireAdmin middleware
-feedbackRouter.delete("/:id", requireAdmin, deleteFeedback); // ADDED: requireAdmin middleware
+feedbackRouter.get(
+  "/",
+  authenticate,
+  requireAdmin,
+  (req, res, next) => {
+    console.log("🔐 Feedback route - User:", req.user); // ADD THIS
+    next();
+  },
+  getAllFeedback
+);
+
+feedbackRouter.get("/type/:type", requireAdmin, getFeedbackByType);
+feedbackRouter.post("/:id/response", requireAdmin, addAdminResponse);
+feedbackRouter.post("/:id/reaction", requireAdmin, addAdminReaction);
+feedbackRouter.patch("/:id/status", requireAdmin, updateFeedbackStatus);
+feedbackRouter.delete("/:id", requireAdmin, deleteFeedback);
+feedbackRouter.get("/my-feedback", authenticate, getMyFeedback);
 
 export default feedbackRouter;

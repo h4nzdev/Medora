@@ -9,7 +9,6 @@ const allowedOrigins = [
 
 export const corsConfig = cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.indexOf(origin) === -1) {
@@ -18,6 +17,7 @@ export const corsConfig = cors({
     }
     return callback(null, true);
   },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true, // You can remove this line now since we're using JWT
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 });

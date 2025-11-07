@@ -2,13 +2,20 @@ import axios from "axios";
 
 const API_URL = `${import.meta.env.VITE_API_URL}/api/feedback`;
 
-// ✅ CRITICAL: Configure axios to send cookies with every request
-axios.defaults.withCredentials = true;
+// Get token from storage
+const getToken = () => {
+  return localStorage.getItem("token") || sessionStorage.getItem("token");
+};
 
 // Submit new feedback
 export const submitFeedback = async (feedbackData) => {
   try {
-    const response = await axios.post(`${API_URL}/`, feedbackData);
+    const token = getToken();
+    const response = await axios.post(`${API_URL}/`, feedbackData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error submitting feedback:", error);
@@ -19,7 +26,12 @@ export const submitFeedback = async (feedbackData) => {
 // Get all feedback (Admin only)
 export const getAllFeedback = async () => {
   try {
-    const response = await axios.get(`${API_URL}/`);
+    const token = getToken();
+    const response = await axios.get(`${API_URL}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching all feedback:", error);
@@ -30,7 +42,12 @@ export const getAllFeedback = async () => {
 // Get feedback by type (Admin only)
 export const getFeedbackByType = async (type) => {
   try {
-    const response = await axios.get(`${API_URL}/type/${type}`);
+    const token = getToken();
+    const response = await axios.get(`${API_URL}/type/${type}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(`Error fetching ${type} feedback:`, error);
@@ -41,7 +58,12 @@ export const getFeedbackByType = async (type) => {
 // Get user's own feedback
 export const getMyFeedback = async () => {
   try {
-    const response = await axios.get(`${API_URL}/my-feedback`);
+    const token = getToken();
+    const response = await axios.get(`${API_URL}/my-feedback`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error fetching user's feedback:", error);
@@ -52,9 +74,18 @@ export const getMyFeedback = async () => {
 // Add admin response to feedback (Admin only)
 export const addAdminResponse = async (id, responseMessage) => {
   try {
-    const response = await axios.post(`${API_URL}/${id}/response`, {
-      message: responseMessage,
-    });
+    const token = getToken();
+    const response = await axios.post(
+      `${API_URL}/${id}/response`,
+      {
+        message: responseMessage,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Error adding response to feedback ${id}:`, error);
@@ -65,9 +96,18 @@ export const addAdminResponse = async (id, responseMessage) => {
 // Add admin reaction (thumbs up/down) (Admin only)
 export const addAdminReaction = async (id, reaction) => {
   try {
-    const response = await axios.post(`${API_URL}/${id}/reaction`, {
-      reaction, // "thumbs_up" or "thumbs_down"
-    });
+    const token = getToken();
+    const response = await axios.post(
+      `${API_URL}/${id}/reaction`,
+      {
+        reaction,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Error adding reaction to feedback ${id}:`, error);
@@ -78,7 +118,16 @@ export const addAdminReaction = async (id, reaction) => {
 // Update feedback status (Admin only)
 export const updateFeedbackStatus = async (id, status) => {
   try {
-    const response = await axios.patch(`${API_URL}/${id}/status`, { status });
+    const token = getToken();
+    const response = await axios.patch(
+      `${API_URL}/${id}/status`,
+      { status },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error(`Error updating feedback status with id ${id}:`, error);
@@ -89,7 +138,12 @@ export const updateFeedbackStatus = async (id, status) => {
 // Delete feedback (Admin only)
 export const deleteFeedback = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/${id}`);
+    const token = getToken();
+    const response = await axios.delete(`${API_URL}/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error(`Error deleting feedback with id ${id}:`, error);
@@ -97,7 +151,7 @@ export const deleteFeedback = async (id) => {
   }
 };
 
-// Get feedback statistics (Admin only) - Optional helper function
+// Get feedback statistics (Admin only)
 export const getFeedbackStats = async () => {
   try {
     const allFeedback = await getAllFeedback();
@@ -123,13 +177,12 @@ export const getFeedbackStats = async () => {
   }
 };
 
-// Utility functions for reactions
+// Utility functions
 export const ReactionTypes = {
   THUMBS_UP: "thumbs_up",
   THUMBS_DOWN: "thumbs_down",
 };
 
-// Utility functions for status
 export const StatusTypes = {
   PENDING: "pending",
   REVIEWED: "reviewed",
@@ -137,7 +190,6 @@ export const StatusTypes = {
   CLOSED: "closed",
 };
 
-// Utility functions for feedback types
 export const FeedbackTypes = {
   BUG: "bug",
   SUGGESTION: "suggestion",

@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import Admin from "../model/adminModel.js";
+import { generateToken } from "../utils/jwtUtils.js";
 
 // Login admin - UPDATED TO SET SESSION
 export const loginAdmin = async (req, res) => {
@@ -18,13 +19,15 @@ export const loginAdmin = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // ✅ SET SESSION - THIS IS CRITICAL
-    req.session.user = {
+    // ✅ CREATE JWT TOKEN instead of session
+    const tokenPayload = {
       _id: admin._id,
       email: admin.email,
-      role: "Admin", // Make sure this is set!
+      role: "Admin",
       admin_name: admin.admin_name,
     };
+
+    const token = generateToken(tokenPayload);
 
     res.json({
       message: "Login successful",
@@ -34,20 +37,19 @@ export const loginAdmin = async (req, res) => {
         admin_name: admin.admin_name,
         role: "Admin",
       },
+      token: token, // ✅ Send token to frontend
     });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });
   }
 };
 
-// Logout admin - ADD THIS NEW FUNCTION
+// Logout admin - UPDATED FOR JWT
 export const logoutAdmin = (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ message: "Error logging out" });
-    }
-    res.clearCookie("connect.sid"); // Clear the session cookie
-    res.json({ message: "Logged out successfully" });
+  // With JWT, logout is handled on the client side by removing the token
+  res.json({
+    message:
+      "Logged out successfully. Please remove the token from client storage.",
   });
 };
 
