@@ -6,6 +6,7 @@ import {
   isClinicUser,
   formatClinicInsights,
 } from "../../../services/clinic_services/clinicAIService";
+import { X } from "lucide-react";
 
 const ChatbotWindow = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState("");
@@ -52,16 +53,18 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
     setIsLoading(true);
 
     try {
-      // ✅ Use the service instead of direct axios call
       const data = await chatWithClinicAI(message);
 
       // Format clinic insights for display
       const formattedClinicData = formatClinicInsights(data.clinic_data);
 
+      // Clean the response text - replace * with spaces
+      const cleanedResponse = data.ai_response.reply.replace(/\*/g, " ");
+
       // Add bot response with clinic data
       const botMessage = {
         id: Date.now() + 1,
-        text: data.ai_response.reply,
+        text: cleanedResponse,
         isBot: true,
         timestamp: new Date(),
         clinicData: formattedClinicData,
@@ -107,34 +110,34 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed bottom-20 right-6 w-80 h-96 bg-white rounded-xl shadow-2xl z-50 flex flex-col border border-gray-200"
+          className="fixed bottom-20 right-6 w-98 h-[500px] bg-white rounded-xl shadow-2xl z-50 flex flex-col border border-gray-200"
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
         >
-          {/* Header */}
+          {/* Header - Bigger */}
           <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 rounded-t-xl text-white flex justify-between items-center">
             <div>
-              <h3 className="font-bold text-sm">Medora Clinic AI</h3>
-              <p className="text-xs opacity-90">Operations Assistant</p>
+              <h3 className="font-bold text-lg">Medora Clinic AI</h3>
+              <p className="text-sm opacity-90">Operations Assistant</p>
             </div>
             <button
               onClick={onClose}
-              className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors text-xs"
+              className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors text-lg font-bold"
             >
-              ×
+              <X />
             </button>
           </div>
 
-          {/* Chat Messages */}
-          <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+          {/* Chat Messages - Bigger */}
+          <div className="flex-1 p-5 overflow-y-auto bg-gray-50">
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`mb-3 ${msg.isBot ? "" : "flex justify-end"}`}
+                className={`mb-4 ${msg.isBot ? "" : "flex justify-end"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-lg p-3 ${
+                  className={`max-w-[90%] rounded-xl p-4 ${
                     msg.isBot
                       ? "bg-white border border-gray-200 text-gray-800"
                       : "bg-blue-500 text-white"
@@ -144,13 +147,13 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
                       : ""
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                  <p className="text-base whitespace-pre-wrap">{msg.text}</p>
 
                   {/* Show clinic data insights if available */}
                   {msg.clinicData && (
-                    <div className="mt-2 pt-2 border-t border-gray-200">
-                      <div className="text-xs text-gray-600">
-                        <div className="grid grid-cols-2 gap-1">
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="text-sm text-gray-600">
+                        <div className="grid grid-cols-2 gap-2">
                           <span>Today's Appointments:</span>
                           <span className="font-semibold">
                             {msg.clinicData.todaysAppointments}
@@ -177,7 +180,7 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
 
                   {/* Timestamp */}
                   <p
-                    className={`text-xs mt-1 ${
+                    className={`text-sm mt-2 ${
                       msg.isBot ? "text-gray-500" : "text-blue-200"
                     }`}
                   >
@@ -190,18 +193,18 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
               </div>
             ))}
 
-            {/* Loading indicator */}
+            {/* Loading indicator - Bigger */}
             {isLoading && (
-              <div className="mb-3">
-                <div className="bg-white border border-gray-200 rounded-lg p-3 max-w-[85%]">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+              <div className="mb-4">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 max-w-[90%]">
+                  <div className="flex space-x-2">
+                    <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"></div>
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"
                       style={{ animationDelay: "0.1s" }}
                     ></div>
                     <div
-                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"
                       style={{ animationDelay: "0.2s" }}
                     ></div>
                   </div>
@@ -212,29 +215,26 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
-          <div className="p-3 border-t border-gray-200 bg-white rounded-b-xl">
-            <div className="flex gap-2">
+          {/* Input Area - Bigger */}
+          <div className="p-4 border-t border-gray-200 bg-white rounded-b-xl">
+            <div className="flex gap-3">
               <input
                 type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about appointments, schedule, or clinic operations..."
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
                 disabled={isLoading}
               />
               <button
                 onClick={handleSendMessage}
                 disabled={isLoading || !message.trim()}
-                className="bg-cyan-500 text-white px-4 py-2 rounded-lg hover:bg-cyan-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-sm font-medium"
+                className="bg-cyan-500 text-white px-5 py-3 rounded-lg hover:bg-cyan-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-base font-medium"
               >
                 Send
               </button>
             </div>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Ask me about appointments, schedules, or clinic operations
-            </p>
           </div>
         </motion.div>
       )}

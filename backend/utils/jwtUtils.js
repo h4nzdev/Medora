@@ -13,7 +13,6 @@ export const generateToken = (payload) => {
 export const verifyToken = (token) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-
     return decoded;
   } catch (error) {
     console.log("🔐 Token verification failed:", error.message); // ADD THIS

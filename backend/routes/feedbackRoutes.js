@@ -17,22 +17,32 @@ const feedbackRouter = express.Router();
 feedbackRouter.post("/", submitFeedback);
 
 // 🛣️ Admin Only Routes (all require admin privileges)
+feedbackRouter.get("/", authenticate, requireAdmin, getAllFeedback);
 feedbackRouter.get(
-  "/",
+  "/type/:type",
   authenticate,
   requireAdmin,
-  (req, res, next) => {
-    console.log("🔐 Feedback route - User:", req.user); // ADD THIS
-    next();
-  },
-  getAllFeedback
+  getFeedbackByType
 );
-
-feedbackRouter.get("/type/:type", requireAdmin, getFeedbackByType);
-feedbackRouter.post("/:id/response", requireAdmin, addAdminResponse);
-feedbackRouter.post("/:id/reaction", requireAdmin, addAdminReaction);
-feedbackRouter.patch("/:id/status", requireAdmin, updateFeedbackStatus);
-feedbackRouter.delete("/:id", requireAdmin, deleteFeedback);
+feedbackRouter.post(
+  "/:id/response",
+  authenticate,
+  requireAdmin,
+  addAdminResponse
+);
+feedbackRouter.post(
+  "/:id/reaction",
+  authenticate,
+  requireAdmin,
+  addAdminReaction
+);
+feedbackRouter.patch(
+  "/:id/status",
+  authenticate,
+  requireAdmin,
+  updateFeedbackStatus
+);
+feedbackRouter.delete("/:id", authenticate, requireAdmin, deleteFeedback);
 feedbackRouter.get("/my-feedback", authenticate, getMyFeedback);
 
 export default feedbackRouter;
