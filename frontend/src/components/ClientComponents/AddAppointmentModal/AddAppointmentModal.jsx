@@ -17,7 +17,7 @@ import TimeTab from "./Tabs/TimeTab";
 import DetailsTab from "./Tabs/DetailsTab";
 import BookingTab from "./Tabs/BookingTab";
 
-const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
+const AddAppointmentModal = ({ isOpen, onClose, doctorId, onCheckPending }) => {
   const [doctors, setDoctors] = useState([]);
   const { user } = useContext(AuthContext);
   const { fetchAppointments } = useContext(AppointmentContext);
@@ -205,6 +205,7 @@ const AddAppointmentModal = ({ isOpen, onClose, doctorId }) => {
       fetchAppointments();
       setIsPaymentModalOpen(false);
       onClose();
+      onCheckPending();
     } catch (error) {
       console.error("Error booking appointment:", error);
       console.error("Error response:", error.response?.data);

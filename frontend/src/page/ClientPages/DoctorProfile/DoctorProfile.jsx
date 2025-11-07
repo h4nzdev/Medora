@@ -6,6 +6,8 @@ import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
 import AddAppointmentModal from "../../../components/ClientComponents/AddAppointmentModal/AddAppointmentModal";
 import AddReviewModal from "../../../components/ClientComponents/AddReviewModal/AddReviewModal";
+import { getAppointmentsByPatient } from "../../../services/appointmentService";
+import { getDoctorsByClinic } from "../../../services/doctor_services/doctorService";
 import {
   Stethoscope,
   GraduationCap,
@@ -33,6 +35,8 @@ const DoctorProfile = () => {
   const [reviews, setReviews] = useState([]);
   const [isEligibleForReview, setIsEligibleForReview] = useState(false);
   const [invoices, setInvoices] = useState([]);
+  const [hasPendingAppointment, setHasPendingAppointment] = useState(false);
+  const [checkingAppointment, setCheckingAppointment] = useState(true);
 
   const doctor = doctors?.find((doc) => doc._id === id);
   const hasUnpaid = invoices.some((invoice) => invoice.status === "unpaid");
@@ -57,6 +61,35 @@ const DoctorProfile = () => {
     }
   };
 
+  const checkPendingAppointment = async () => {
+    if (!user?._id || !id) {
+      setCheckingAppointment(false);
+      return;
+    }
+
+    try {
+      const appointments = await getAppointmentsByPatient(user._id);
+
+      const pendingAppointment = appointments.find(
+        (appointment) =>
+          appointment.patientId?._id === user._id &&
+          appointment.doctorId?._id === id &&
+          appointment.status === "pending"
+      );
+
+      setHasPendingAppointment(!!pendingAppointment);
+    } catch (error) {
+      console.error("Error checking pending appointment:", error);
+      setHasPendingAppointment(false);
+    } finally {
+      setCheckingAppointment(false);
+    }
+  };
+
+  useEffect(() => {
+    checkPendingAppointment();
+  }, [user, id]);
+
   useEffect(() => {
     fetchReviews();
   }, [doctor]);
@@ -73,13 +106,23 @@ const DoctorProfile = () => {
   };
 
   const handleBook = () => {
-    if (hasUnpaid)
+    if (hasPendingAppointment) {
+      return toast.warning(
+        "You already have a pending appointment with this doctor. Please wait for it to be processed before booking another one.",
+        {
+          id: "pending-appointment-notif",
+        }
+      );
+    }
+
+    if (hasUnpaid) {
       return toast.warning(
         `You still have an unpaid balance of ₱${totalAmount}. Please settle it before booking a new appointment.`,
         {
           id: "unpaid-notif",
         }
       );
+    }
 
     return setIsAppointmentModalOpen(true);
   };
@@ -130,6 +173,7 @@ const DoctorProfile = () => {
         isOpen={isAppointmentModalOpen}
         onClose={() => setIsAppointmentModalOpen(false)}
         doctorId={id}
+        onCheckPending={checkPendingAppointment}
       />
       <AddReviewModal
         isOpen={isReviewModalOpen}
@@ -499,14 +543,36 @@ const DoctorProfile = () => {
               </p>
               <button
                 onClick={handleBook}
+                disabled={
+                  hasPendingAppointment || hasUnpaid || checkingAppointment
+                }
                 className={`group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
-                  hasUnpaid
-                    ? "bg-gray-800/50 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 to-sky-500 cursor-pointer"
+                  hasPendingAppointment || hasUnpaid || checkingAppointment
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-500 to-sky-500 cursor-pointer hover:from-cyan-600 hover:to-sky-600"
                 } font-semibold text-base md:text-lg mx-auto`}
               >
-                <CalendarPlus className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 group-hover:scale-110 transition-transform duration-300" />
-                Book an Appointment
+                {checkingAppointment ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Checking...
+                  </>
+                ) : hasPendingAppointment ? (
+                  <>
+                    <Clock className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
+                    Appointment Pending
+                  </>
+                ) : hasUnpaid ? (
+                  <>
+                    <span className="mr-2">⚠️</span>
+                    Unpaid Balance
+                  </>
+                ) : (
+                  <>
+                    <CalendarPlus className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3 group-hover:scale-110 transition-transform duration-300" />
+                    Book an Appointment
+                  </>
+                )}
               </button>
             </div>
           </div>
