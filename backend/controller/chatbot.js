@@ -1,12 +1,132 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
-// In your backend chat endpoint
+// Simple in-memory storage for conversation context
+const conversationMemory = new Map();
+
+// Enhanced session management
+function getSession(sessionId) {
+  if (!conversationMemory.has(sessionId)) {
+    conversationMemory.set(sessionId, {
+      messages: [],
+      lastActivity: Date.now(),
+      patientInfo: {},
+      mentionedSymptoms: [],
+    });
+  }
+
+  const session = conversationMemory.get(sessionId);
+  session.lastActivity = Date.now();
+  return session;
+}
+
+// Add message to session
+function addMessageToSession(sessionId, role, content, metadata = {}) {
+  const session = getSession(sessionId);
+  const message = {
+    role,
+    content,
+    timestamp: new Date().toISOString(),
+    ...metadata,
+  };
+
+  session.messages.push(message);
+
+  // Keep only last 6 messages to maintain context
+  if (session.messages.length > 6) {
+    session.messages = session.messages.slice(-6);
+  }
+
+  return session;
+}
+
+// Generate conversation context for AI
+function generateConversationContext(session) {
+  if (!session.messages || session.messages.length === 0) {
+    return "No previous conversation.";
+  }
+
+  let context = "PREVIOUS CONVERSATION:\n\n";
+
+  session.messages.forEach((msg, index) => {
+    const role = msg.role === "user" ? "USER" : "MEDORA AI";
+    context += `${role}: ${msg.content}\n`;
+
+    // Add metadata if available
+    if (msg.severity) {
+      context += `[Previous severity: ${msg.severity}]\n`;
+    }
+    if (msg.suggested_clinics && msg.suggested_clinics.length > 0) {
+      context += `[Previously suggested clinics: ${msg.suggested_clinics.join(
+        ", "
+      )}]\n`;
+    }
+
+    context += "\n";
+  });
+
+  return context;
+}
+
+// Extract and update patient info from conversation
+function updatePatientInfo(session, userMessage, aiResponse) {
+  const lowerMessage = userMessage.toLowerCase();
+
+  // Extract symptoms
+  const symptomKeywords = [
+    "fever",
+    "cough",
+    "headache",
+    "pain",
+    "hurt",
+    "stomach",
+    "rash",
+    "cold",
+    "flu",
+    "sore throat",
+    "nausea",
+    "vomiting",
+    "diarrhea",
+    "chest pain",
+    "shortness of breath",
+    "dizziness",
+    "fatigue",
+  ];
+
+  const newSymptoms = symptomKeywords.filter(
+    (symptom) =>
+      lowerMessage.includes(symptom) &&
+      !session.mentionedSymptoms.includes(symptom)
+  );
+
+  if (newSymptoms.length > 0) {
+    session.mentionedSymptoms = [...session.mentionedSymptoms, ...newSymptoms];
+    session.patientInfo.symptoms = session.mentionedSymptoms;
+  }
+
+  // Update severity
+  if (aiResponse.severity) {
+    session.patientInfo.lastSeverity = aiResponse.severity;
+  }
+
+  // Extract duration
+  const durationMatch = userMessage.match(
+    /(\d+)\s*(day|days|hour|hours|week|weeks)/i
+  );
+  if (durationMatch && !session.patientInfo.duration) {
+    session.patientInfo.duration = durationMatch[0];
+  }
+}
+
+// Enhanced chat endpoint with proper conversation memory
 export const chatWithGemini = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, sessionId = "default" } = req.body;
 
     if (!apiKey) {
       return res
@@ -26,87 +146,207 @@ export const chatWithGemini = async (req, res) => {
       model: "gemini-2.0-flash",
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 200,
+        maxOutputTokens: 350,
       },
     });
 
-    // In your backend chat endpoint (chatWithGemini function)
-    const prompt = `
-You are Medora AI, a specialized virtual health assistant and symptom checker in the Philippines.
+    // Get session and add user message
+    const session = getSession(sessionId);
+    addMessageToSession(sessionId, "user", message);
 
-🚨 EMERGENCY DETECTION:
-- Analyze the user's symptoms for severity
-- Return a JSON response with this exact format:
+    // Generate conversation context
+    const conversationContext = generateConversationContext(session);
+
+    const prompt = `
+You are Medora AI, a SMART health assistant in the Philippines.
+
+${conversationContext}
+
+CURRENT USER MESSAGE:
+${message}
+
+🚨 HEALTH ASSISTANT WITH MEMORY:
+- Remember the entire conversation history above
+- Continue naturally from previous messages
+- Return JSON with this exact format:
 {
   "severity": "MILD|MODERATE|SEVERE",
-  "reply": "Your response text here...",
+  "reply": "Your response that continues naturally from the conversation...",
   "emergency_trigger": true/false,
-  "show_appointment_button": true/false
+  "suggest_appointment": true/false,
+  "appointment_reason": "Brief reason"
 }
 
-APPOINTMENT BOOKING DETECTION:
-- If user mentions: "book appointment", "schedule appointment", "make appointment", "want to see doctor", "need appointment", "book consult", "schedule consult"
-- Set "show_appointment_button": true
+CONVERSATION MEMORY GUIDELINES:
+- Reference previous symptoms or concerns mentioned
+- Continue advice from earlier messages
+- Ask follow-up questions based on conversation history
+- Don't repeat the same questions if already answered
+- Build on previous medical advice given
 
-SEVERE SYMPTOMS (emergency_trigger: true):
-- Chest pain, difficulty breathing, severe bleeding
-- Sudden weakness/numbness, confusion, severe headache  
-- Fainting, seizures, high fever with stiff neck
-- Severe abdominal pain, poisoning, suicidal thoughts
-- Signs of stroke or heart attack
+EMERGENCY PROTOCOL:
+- Severe symptoms → Emergency contacts
+- Life-threatening conditions → Immediate help
 
-MODERATE SYMPTOMS (emergency_trigger: false):
-- Persistent fever, worsening cough, moderate pain
-- Symptoms that concern you but aren't immediately life-threatening
-- Diarrhea or vomiting that lasts more than 24 hours
+APPOINTMENT SUGGESTION:
+- Suggest appointment for persistent or worsening symptoms
+- Consider conversation history when deciding
 
-MILD SYMPTOMS (emergency_trigger: false):
-- Common cold, mild headache, minor aches
-- Routine health questions, general wellness advice
+IMPORTANT: 
+- Return ONLY valid JSON
+- Your response should show you remember the conversation
+- Build naturally on what was discussed before
 
-User: ${message}
 Response:`;
 
     const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    let responseText = result.response.text();
 
-    // Parse the JSON response
+    // JSON parsing
     let responseData;
     try {
+      responseText = responseText.replace(/```json\s*|\s*```/g, "").trim();
+      responseData = JSON.parse(responseText);
+    } catch (parseError) {
+      console.log("🔄 First parse failed, trying regex extraction...");
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        responseData = JSON.parse(jsonMatch[0]);
+        try {
+          responseData = JSON.parse(jsonMatch[0]);
+        } catch (secondError) {
+          console.error("❌ JSON parse error:", secondError);
+          responseData = createFallbackResponse(responseText);
+        }
       } else {
-        // Fallback if JSON parsing fails
-        responseData = {
-          severity: "MODERATE",
-          reply: responseText,
-          emergency_trigger: false,
-        };
+        console.error("❌ No JSON found in response");
+        responseData = createFallbackResponse(responseText);
       }
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
-      responseData = {
-        severity: "MODERATE",
-        reply: responseText,
-        emergency_trigger: false,
-      };
     }
 
-    // Ensure all required fields
+    // Clean response
+    let cleanReply = responseData.reply || responseText;
+    cleanReply = cleanReply
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/\*(.*?)\*/g, "$1")
+      .replace(/`(.*?)`/g, "$1")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+
     const finalResponse = {
-      severity: responseData.severity || "MODERATE",
-      reply: responseData.reply || responseText,
+      severity: responseData.severity || classifySeverity(cleanReply),
+      reply: cleanReply,
       emergency_trigger: responseData.emergency_trigger || false,
+      suggest_appointment: responseData.suggest_appointment || false,
+      appointment_reason:
+        responseData.appointment_reason || "Medical consultation",
+      sessionId: sessionId,
+      conversationLength: session.messages.length,
     };
 
+    // Add AI response to session and update patient info
+    addMessageToSession(sessionId, "assistant", cleanReply, {
+      severity: finalResponse.severity,
+      suggested_clinics: finalResponse.suggested_clinics || [],
+    });
+
+    updatePatientInfo(session, message, finalResponse);
+
+    console.log(`💬 Conversation memory: ${session.messages.length} messages`);
     res.json(finalResponse);
   } catch (error) {
     console.error("Chat error:", error);
-    const msg = error?.message || "Something went wrong";
-    res.status(500).json({ error: msg });
+    res.status(500).json({ error: error?.message || "Something went wrong" });
   }
 };
+
+// Get conversation history endpoint
+export const getConversationHistory = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required." });
+    }
+
+    const session = getSession(sessionId);
+
+    res.json({
+      sessionId,
+      messages: session.messages,
+      patientInfo: session.patientInfo,
+      totalMessages: session.messages.length,
+      lastActivity: session.lastActivity,
+    });
+  } catch (error) {
+    console.error("Get conversation error:", error);
+    res.status(500).json({ error: "Failed to get conversation history" });
+  }
+};
+
+// Clear conversation endpoint
+export const clearConversation = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required." });
+    }
+
+    conversationMemory.delete(sessionId);
+
+    res.json({
+      success: true,
+      message: "Conversation cleared successfully",
+      sessionId,
+    });
+  } catch (error) {
+    console.error("Clear conversation error:", error);
+    res.status(500).json({ error: "Failed to clear conversation" });
+  }
+};
+
+// Helper functions (keep your existing ones)
+function createFallbackResponse(rawText) {
+  const cleanText = rawText
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/\*(.*?)\*/g, "$1")
+    .replace(/`(.*?)`/g, "$1")
+    .trim();
+
+  return {
+    reply: cleanText,
+    severity: classifySeverity(cleanText),
+    emergency_trigger: false,
+  };
+}
+
+function classifySeverity(text) {
+  const lowerText = text.toLowerCase();
+  const severeKeywords = [
+    "emergency",
+    "immediate",
+    "911",
+    "urgent",
+    "severe",
+    "chest pain",
+    "difficulty breathing",
+  ];
+  const moderateKeywords = [
+    "persistent",
+    "worsening",
+    "fever",
+    "consult doctor",
+    "medical attention",
+  ];
+
+  if (severeKeywords.some((keyword) => lowerText.includes(keyword))) {
+    return "SEVERE";
+  } else if (moderateKeywords.some((keyword) => lowerText.includes(keyword))) {
+    return "MODERATE";
+  } else {
+    return "MILD";
+  }
+}
 
 // 🚨 Philippines Emergency contact function
 export const getEmergencyContacts = async (req, res) => {
@@ -267,10 +507,10 @@ export const getEmergencyContacts = async (req, res) => {
   }
 };
 
-// 📋 Chat Summary Function
+// 📋 Chat Summary Function (enhanced with conversation memory)
 export const summarizeChatHistory = async (req, res) => {
   try {
-    const { messages } = req.body;
+    const { sessionId } = req.body;
 
     if (!apiKey) {
       return res
@@ -278,8 +518,16 @@ export const summarizeChatHistory = async (req, res) => {
         .json({ error: "Missing GEMINI_API_KEY in environment." });
     }
 
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ error: "Messages array is required." });
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is required." });
+    }
+
+    const messages = getConversationHistory(sessionId);
+
+    if (messages.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "No conversation history found for this session." });
     }
 
     const model = genAI.getGenerativeModel({
@@ -290,21 +538,25 @@ export const summarizeChatHistory = async (req, res) => {
       },
     });
 
-    // Create a summary prompt with Philippines context
+    // Enhanced summary prompt with full conversation context
     const summaryPrompt = `
 You are a medical assistant helping clinic staff in the Philippines understand patient conversations.
 
-Please analyze the following chat conversation between a patient and our chatbot, and provide a helpful summary for Philippine healthcare providers.
+Please analyze the following complete chat conversation between a patient and our chatbot, and provide a comprehensive summary for Philippine healthcare providers.
 
-Chat Messages:
-${messages.map((msg) => `${msg.role}: ${msg.text}`).join("\n")}
+COMPLETE CONVERSATION HISTORY:
+${messages
+  .map((msg, index) => `[${index + 1}] ${msg.role.toUpperCase()}: ${msg.text}`)
+  .join("\n")}
 
-Please provide a summary that includes:
-1. Main symptoms or concerns mentioned by the patient
-2. Severity level assessed by the AI (if available)
-3. Key advice given by the chatbot
-4. Any emergency triggers or red flags detected
-5. Recommended follow-up actions appropriate for Philippine healthcare context
+Please provide a detailed summary that includes:
+1. Patient's main symptoms or concerns throughout the conversation
+2. Progression of symptoms or concerns over time
+3. Key medical advice and recommendations given
+4. Emergency triggers or red flags detected
+5. Patient's response to advice and follow-up questions
+6. Recommended next steps for healthcare providers in the Philippines
+7. Any patterns or important context from the entire conversation
 
 Keep the summary clear, professional, and helpful for medical staff in the Philippines. Use plain text format.
 `;
@@ -315,6 +567,7 @@ Keep the summary clear, professional, and helpful for medical staff in the Phili
     res.json({
       summary: summary,
       messageCount: messages.length,
+      sessionId: sessionId,
     });
   } catch (error) {
     console.error("Summary error:", error);

@@ -1,12 +1,13 @@
 // utils/emailService.js
 import emailjs from "@emailjs/browser";
 
-// EmailJS configuration - replace with your real IDs & key
+// EmailJS configuration
 const EMAILJS_CONFIG = {
-  SERVICE_ID: "service_50vrouu",        // Your EmailJS service ID
-  APPROVAL_TEMPLATE_ID: "template_evtsibo", // Template ID for approval
-  REJECTION_TEMPLATE_ID: "template_evtsibo", // Template ID for rejection
-  PUBLIC_KEY: "MnJJTRsFLVayVbcMf",      // Your public key
+  SERVICE_ID: "service_50vrouu",
+  APPROVAL_TEMPLATE_ID: "template_evtsibo",
+  REJECTION_TEMPLATE_ID: "template_evtsibo",
+  CONSULTATION_TEMPLATE_ID: "template_evtsibo", // Use same template or create a new one
+  PUBLIC_KEY: "MnJJTRsFLVayVbcMf",
 };
 
 // Initialize EmailJS
@@ -16,7 +17,11 @@ export const initializeEmailJS = () => {
 };
 
 // Send appointment approval email
-export const sendApprovalEmail = async (patientEmail, patientName, appointmentDetails) => {
+export const sendApprovalEmail = async (
+  patientEmail,
+  patientName,
+  appointmentDetails
+) => {
   const templateParams = {
     to_email: patientEmail,
     patient_name: patientName,
@@ -41,7 +46,11 @@ export const sendApprovalEmail = async (patientEmail, patientName, appointmentDe
 };
 
 // Send appointment rejection email
-export const sendRejectionEmail = async (patientEmail, patientName, appointmentDetails) => {
+export const sendRejectionEmail = async (
+  patientEmail,
+  patientName,
+  appointmentDetails
+) => {
   const templateParams = {
     to_email: patientEmail,
     patient_name: patientName,
@@ -49,7 +58,8 @@ export const sendRejectionEmail = async (patientEmail, patientName, appointmentD
     appointment_time: appointmentDetails.time,
     doctor_name: appointmentDetails.doctorName,
     clinic_name: appointmentDetails.clinicName,
-    rejection_reason: appointmentDetails.rejectionReason || "No reason provided",
+    rejection_reason:
+      appointmentDetails.rejectionReason || "No reason provided",
   };
 
   try {
@@ -63,5 +73,36 @@ export const sendRejectionEmail = async (patientEmail, patientName, appointmentD
   } catch (err) {
     console.error("Rejection email error:", err);
     throw new Error("Failed to send rejection email");
+  }
+};
+
+// Send consultation link email using EmailJS
+export const sendConsultationLinkEmail = async (
+  email,
+  patientName,
+  appointmentDetails,
+  consultationLink
+) => {
+  const templateParams = {
+    to_email: email,
+    patient_name: patientName,
+    appointment_date: appointmentDetails.date,
+    appointment_time: appointmentDetails.time,
+    doctor_name: appointmentDetails.doctorName,
+    clinic_name: appointmentDetails.clinicName,
+    consultation_link: consultationLink, // Include the consultation link
+  };
+
+  try {
+    const res = await emailjs.send(
+      EMAILJS_CONFIG.SERVICE_ID,
+      EMAILJS_CONFIG.APPROVAL_TEMPLATE_ID,
+      templateParams,
+      EMAILJS_CONFIG.PUBLIC_KEY
+    );
+    return res;
+  } catch (err) {
+    console.error("Consultation link email error:", err);
+    throw new Error("Failed to send consultation link email");
   }
 };

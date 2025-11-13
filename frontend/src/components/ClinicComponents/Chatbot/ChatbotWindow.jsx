@@ -3,39 +3,142 @@ import { useState, useRef, useEffect, useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import {
   chatWithClinicAI,
-  isClinicUser,
   formatClinicInsights,
 } from "../../../services/clinic_services/clinicAIService";
-import { X } from "lucide-react";
+import {
+  X,
+  Send,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Trash2,
+  Bot,
+  User,
+} from "lucide-react";
 
 const ChatbotWindow = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const messagesEndRef = useRef(null);
   const { user } = useContext(AuthContext);
 
-  // Sample welcome message when chat opens
+  // Load chat history from localStorage
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      setMessages([
-        {
+    if (isOpen) {
+      const savedChat = localStorage.getItem("clinicChatHistory");
+      if (savedChat) {
+        // Parse and fix timestamps
+        const parsedMessages = JSON.parse(savedChat);
+        const fixedMessages = parsedMessages.map((msg) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp), // Convert string back to Date
+        }));
+        setMessages(fixedMessages);
+      } else {
+        // Welcome message
+        const welcomeMessage = {
           id: 1,
           text: `Hello ${
             user?.contactPerson || "Clinic Staff"
-          }! I'm your Medora Clinic AI assistant. How can I help with your clinic operations today?`,
+          }! I'm your Medora Clinic AI assistant. How can I help with clinic operations today?`,
           isBot: true,
           timestamp: new Date(),
-          clinicData: null,
-        },
-      ]);
+        };
+        setMessages([welcomeMessage]);
+      }
     }
-  }, [isOpen, messages.length, user]);
+  }, [isOpen, user]);
 
-  // Scroll to bottom when messages change
+  // Save chat history to localStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem("clinicChatHistory", JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Voice recognition
+  const startListening = () => {
+    if ("webkitSpeechRecognition" in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setMessage(transcript);
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognition.start();
+    }
+  };
+
+  const stopListening = () => {
+    setIsListening(false);
+  };
+
+  // Text-to-speech
+  const speakText = (text) => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+
+      const speech = new SpeechSynthesisUtterance();
+      speech.text = text;
+      speech.rate = 1;
+      speech.pitch = 1;
+
+      speech.onstart = () => setIsSpeaking(true);
+      speech.onend = () => setIsSpeaking(false);
+      speech.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(speech);
+    }
+  };
+
+  const stopSpeaking = () => {
+    window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+  };
+
+  // Clear chat history
+  const clearChat = () => {
+    setMessages([
+      {
+        id: 1,
+        text: `Hello ${
+          user?.contactPerson || "Clinic Staff"
+        }! I'm your Medora Clinic AI assistant. How can I help with clinic operations today?`,
+        isBot: true,
+        timestamp: new Date(),
+      },
+    ]);
+    localStorage.removeItem("clinicChatHistory");
+  };
+
+  // Format timestamp for display
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "";
+
+    // Handle both Date objects and strings
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading) return;
@@ -47,21 +150,15 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
       timestamp: new Date(),
     };
 
-    // Add user message immediately
     setMessages((prev) => [...prev, userMessage]);
     setMessage("");
     setIsLoading(true);
 
     try {
       const data = await chatWithClinicAI(message);
-
-      // Format clinic insights for display
+      const cleanedResponse = data.ai_response.reply.replace(/\*/g, " ");
       const formattedClinicData = formatClinicInsights(data.clinic_data);
 
-      // Clean the response text - replace * with spaces
-      const cleanedResponse = data.ai_response.reply.replace(/\*/g, " ");
-
-      // Add bot response with clinic data
       const botMessage = {
         id: Date.now() + 1,
         text: cleanedResponse,
@@ -75,19 +172,9 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
     } catch (error) {
       console.error("Chat error:", error);
 
-      let errorText =
-        "Sorry, I'm having trouble connecting right now. Please try again later.";
-
-      if (error.response?.status === 401) {
-        errorText =
-          "Please log in to your clinic account to use the AI assistant.";
-      } else if (error.response?.status === 403) {
-        errorText = "This feature is only available for clinic staff.";
-      }
-
       const errorMessage = {
         id: Date.now() + 1,
-        text: errorText,
+        text: "Sorry, I'm having trouble connecting. Please try again.",
         isBot: true,
         timestamp: new Date(),
         isError: true,
@@ -109,134 +196,179 @@ const ChatbotWindow = ({ isOpen, onClose }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          className="fixed bottom-20 right-6 w-98 h-[500px] bg-white rounded-xl shadow-2xl z-50 flex flex-col border border-gray-200"
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: 20 }}
-        >
-          {/* Header - Bigger */}
-          <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 rounded-t-xl text-white flex justify-between items-center">
-            <div>
-              <h3 className="font-bold text-lg">Medora Clinic AI</h3>
-              <p className="text-sm opacity-90">Operations Assistant</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors text-lg font-bold"
-            >
-              <X />
-            </button>
-          </div>
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className="fixed z-40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
 
-          {/* Chat Messages - Bigger */}
-          <div className="flex-1 p-5 overflow-y-auto bg-gray-50">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`mb-4 ${msg.isBot ? "" : "flex justify-end"}`}
-              >
-                <div
-                  className={`max-w-[90%] rounded-xl p-4 ${
-                    msg.isBot
-                      ? "bg-white border border-gray-200 text-gray-800"
-                      : "bg-blue-500 text-white"
-                  } ${
-                    msg.isError
-                      ? "bg-red-100 border border-red-300 text-red-800"
-                      : ""
-                  }`}
+          {/* Chat Window */}
+          <motion.div
+            className="fixed bottom-20 right-6 w-96 h-[500px] bg-white rounded-xl shadow-2xl z-50 flex flex-col border border-gray-200"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-cyan-500 to-blue-600 p-4 rounded-t-xl text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-bold text-lg">Medora Clinic AI</h3>
+                <p className="text-sm opacity-90">Operations Assistant</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={clearChat}
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                  title="Clear chat"
                 >
-                  <p className="text-base whitespace-pre-wrap">{msg.text}</p>
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={onClose}
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
 
-                  {/* Show clinic data insights if available */}
-                  {msg.clinicData && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <div className="text-sm text-gray-600">
-                        <div className="grid grid-cols-2 gap-2">
+            {/* Messages */}
+            <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`mb-3 ${msg.isBot ? "" : "flex justify-end"}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-xl p-3 ${
+                      msg.isBot
+                        ? msg.isError
+                          ? "bg-red-100 border border-red-300 text-red-800"
+                          : "bg-white border border-gray-200 text-gray-800"
+                        : "bg-blue-500 text-white"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      {msg.isBot ? (
+                        <Bot className="w-4 h-4" />
+                      ) : (
+                        <User className="w-4 h-4" />
+                      )}
+                      <span className="text-sm font-medium">
+                        {msg.isBot ? "Medora AI" : "You"}
+                      </span>
+                    </div>
+
+                    <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+
+                    {/* Clinic Data */}
+                    {msg.clinicData && (
+                      <div className="mt-2 pt-2 border-t border-gray-200">
+                        <div className="text-xs text-gray-600 grid grid-cols-2 gap-1">
                           <span>Today's Appointments:</span>
                           <span className="font-semibold">
                             {msg.clinicData.todaysAppointments}
                           </span>
-
                           <span>Pending:</span>
                           <span className="font-semibold text-orange-500">
                             {msg.clinicData.pendingAppointments}
                           </span>
-
-                          <span>Scheduled:</span>
-                          <span className="font-semibold text-green-500">
-                            {msg.clinicData.scheduledAppointments}
-                          </span>
-
-                          <span>Doctors:</span>
-                          <span className="font-semibold">
-                            {msg.clinicData.totalDoctors}
-                          </span>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Timestamp */}
-                  <p
-                    className={`text-sm mt-2 ${
-                      msg.isBot ? "text-gray-500" : "text-blue-200"
-                    }`}
-                  >
-                    {msg.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {/* Loading indicator - Bigger */}
-            {isLoading && (
-              <div className="mb-4">
-                <div className="bg-white border border-gray-200 rounded-xl p-4 max-w-[90%]">
-                  <div className="flex space-x-2">
-                    <div className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"></div>
-                    <div
-                      className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.1s" }}
-                    ></div>
-                    <div
-                      className="w-3 h-3 bg-gray-400 rounded-full animate-bounce"
-                      style={{ animationDelay: "0.2s" }}
-                    ></div>
+                    {/* Message Actions */}
+                    {msg.isBot && !msg.isError && (
+                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                        <button
+                          onClick={() =>
+                            isSpeaking ? stopSpeaking() : speakText(msg.text)
+                          }
+                          className="text-gray-500 hover:text-gray-700 transition-colors"
+                          title={isSpeaking ? "Stop speaking" : "Read aloud"}
+                        >
+                          {isSpeaking ? (
+                            <VolumeX className="w-4 h-4" />
+                          ) : (
+                            <Volume2 className="w-4 h-4" />
+                          )}
+                        </button>
+                        <span className="text-xs text-gray-500">
+                          {formatTimestamp(msg.timestamp)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
 
-            <div ref={messagesEndRef} />
-          </div>
+              {/* Loading */}
+              {isLoading && (
+                <div className="mb-3">
+                  <div className="bg-white border border-gray-200 rounded-xl p-3 max-w-[85%]">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-          {/* Input Area - Bigger */}
-          <div className="p-4 border-t border-gray-200 bg-white rounded-b-xl">
-            <div className="flex gap-3">
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask about appointments, schedule, or clinic operations..."
-                className="flex-1 border border-gray-300 rounded-lg px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                disabled={isLoading}
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={isLoading || !message.trim()}
-                className="bg-cyan-500 text-white px-5 py-3 rounded-lg hover:bg-cyan-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed text-base font-medium"
-              >
-                Send
-              </button>
+              <div ref={messagesEndRef} />
             </div>
-          </div>
-        </motion.div>
+
+            {/* Input Area */}
+            <div className="p-4 border-t border-gray-200 bg-white rounded-b-xl">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Ask about clinic operations..."
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  disabled={isLoading}
+                />
+
+                <button
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={isLoading}
+                  className={`p-2 rounded-lg transition-colors ${
+                    isListening
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                  title="Voice input"
+                >
+                  {isListening ? (
+                    <MicOff className="w-4 h-4" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
+                </button>
+
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isLoading || !message.trim()}
+                  className="bg-cyan-500 text-white px-3 py-2 rounded-lg hover:bg-cyan-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

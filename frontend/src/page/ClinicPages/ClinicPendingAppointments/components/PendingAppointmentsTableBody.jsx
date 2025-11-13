@@ -19,10 +19,12 @@ import { AuthContext } from "../../../../context/AuthContext";
 import {
   sendApprovalEmail,
   sendRejectionEmail,
+  sendConsultationLinkEmail,
 } from "../../../../utils/emailService";
 import { formatDate, useDate, useTime } from "../../../../utils/date";
 import { createNotification } from "../../../../services/notificationService";
 import AppointmentDetailsSidebar from "./AppointmentDetailsSidebar";
+import ConsultationLinkModal from "./ConsultationLinkModal";
 
 const PendingAppointmentsTableBody = ({ appointments }) => {
   const { fetchAppointments } = useContext(AppointmentContext);
@@ -30,6 +32,9 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
   const [loadingStates, setLoadingStates] = useState({});
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+  const [pendingApprovalAppointment, setPendingApprovalAppointment] =
+    useState(null);
 
   const handleViewAppointment = (appointment) => {
     setSelectedAppointment(appointment);
@@ -41,108 +46,175 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
     setSelectedAppointment(null);
   };
 
+  const handleSendConsultationLink = async (consultationLink, appointment) => {
+    try {
+      // First, update the appointment status to approved
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL}/appointment/respond/${
+          appointment._id
+        }`,
+        { action: "approve" }
+      );
+
+      const appointmentDetails = {
+        date: useDate(appointment.date),
+        time: useTime(appointment.date),
+        doctorName: appointment.doctorId?.name || "Dr. Unknown",
+        clinicName: user?.clinicName || "Our Clinic",
+      };
+
+      // Send consultation link email
+      await sendConsultationLinkEmail(
+        appointment.patientId.email,
+        appointment.patientId.name,
+        appointmentDetails,
+        consultationLink
+      );
+
+      // Create notification with the link
+      await createNotification({
+        recipientId: appointment.patientId._id,
+        recipientType: "Client",
+        message: `Your appointment has been approved. Consultation link: ${consultationLink}`,
+        type: "appointment",
+        metadata: { consultationLink },
+      });
+
+      toast.success("Appointment approved and consultation link sent!");
+      fetchAppointments();
+      setPendingApprovalAppointment(null);
+    } catch (error) {
+      console.error("Failed to approve appointment and send link:", error);
+      toast.error("Failed to approve appointment and send link.");
+      throw error;
+    }
+  };
+
   const handleRespond = async (appointmentId, action) => {
-    // Set loading state for this specific appointment
     setLoadingStates((prev) => ({ ...prev, [appointmentId]: true }));
 
     try {
-      // Find the appointment details for email
       const appointment = appointments.find((apt) => apt._id === appointmentId);
 
-      // Update appointment status first
-      const res = await axios.patch(
-        `${import.meta.env.VITE_API_URL}/appointment/respond/${appointmentId}`,
-        { action }
-      );
+      // Define which booking types require consultation links
+      const needsConsultationLink = ["walk-in", "online"];
 
-      // Create a notification
-      if (appointment && appointment.patientId) {
-        try {
-          await createNotification({
-            recipientId: appointment.patientId._id,
-            recipientType: "Client",
-            message: `Your appointment has been ${action}d.`,
-            type: "appointment",
-          });
-        } catch (notificationError) {
-          console.error("Failed to create notification:", notificationError);
-          toast.error("Failed to create notification."); // Optional: inform the user
-        }
-      }
-      // Send email notification after successful status update
-      if (appointment && appointment.patientId) {
-        const appointmentDetails = {
-          date: useDate(appointment.date),
-          time: useTime(appointment.date), // use real time, fallback to 09:00 AM if missing
-          doctorName: appointment.doctorId?.name || "Dr. Unknown",
-          clinicName: user?.clinicName || "Our Clinic",
-        };
-
-        try {
-          if (action === "approve") {
-            await sendApprovalEmail(
-              appointment.patientId.email,
-              appointment.patientId.name,
-              appointmentDetails
-            );
-            toast.success("Appointment approved and email sent!");
-          } else {
-            await sendRejectionEmail(
-              appointment.patientId.email,
-              appointment.patientId.name,
-              appointmentDetails
-            );
-            toast.success("Appointment rejected and email sent!");
-          }
-        } catch (emailError) {
-          // If email fails, still show success for the appointment update
-          console.error("Email sending failed:", emailError);
-          if (action === "approve") {
-            toast.success(
-              res.data.message ||
-                "Appointment Approved! (Email notification failed)"
-            );
-          } else {
-            toast.success(
-              res.data.message ||
-                "Appointment Rejected! (Email notification failed)"
-            );
-          }
-        }
+      // For appointments that need consultation links, open modal first
+      if (
+        action === "approve" &&
+        needsConsultationLink.includes(appointment.bookingType)
+      ) {
+        setPendingApprovalAppointment(appointment);
+        setIsLinkModalOpen(true);
+        toast.info(
+          "Please provide consultation link to approve this appointment."
+        );
       } else {
-        // Fallback if no appointment found or no patient email
-        if (action === "approve") {
-          toast.success(res.data.message || "Appointment Approved!");
-        } else {
-          toast.success(res.data.message || "Appointment Rejected!");
-        }
+        // For appointments that don't need links or are rejected, proceed normally
+        await updateAppointmentStatus(appointmentId, action);
+        await handleAppointmentNotification(appointment, action);
+        fetchAppointments();
+        setIsSidebarOpen(false);
       }
-
-      fetchAppointments();
-      setIsSidebarOpen(false);
     } catch (error) {
       toast.error("Failed to update appointment status.");
       console.error("Error responding:", error);
     } finally {
-      // Clear loading state for this appointment
       setLoadingStates((prev) => ({ ...prev, [appointmentId]: false }));
     }
   };
 
-  const confirmAction = (appointmentId, action) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: `Yes, ${action} it!`,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        handleRespond(appointmentId, action);
+  // Separate function to update appointment status
+  const updateAppointmentStatus = async (appointmentId, action) => {
+    const res = await axios.patch(
+      `${import.meta.env.VITE_API_URL}/appointment/respond/${appointmentId}`,
+      { action }
+    );
+    return res;
+  };
+
+  const handleAppointmentNotification = async (appointment, action) => {
+    if (!appointment || !appointment.patientId) return;
+
+    try {
+      // Create notification
+      await createNotification({
+        recipientId: appointment.patientId._id,
+        recipientType: "Client",
+        message: `Your appointment has been ${action}d.`,
+        type: "appointment",
+      });
+    } catch (notificationError) {
+      console.error("Failed to create notification:", notificationError);
+      toast.error("Failed to create notification.");
+    }
+
+    // Send email only for non-consultation-link appointments
+    try {
+      const appointmentDetails = {
+        date: useDate(appointment.date),
+        time: useTime(appointment.date),
+        doctorName: appointment.doctorId?.name || "Dr. Unknown",
+        clinicName: user?.clinicName || "Our Clinic",
+      };
+
+      if (action === "approve") {
+        await sendApprovalEmail(
+          appointment.patientId.email,
+          appointment.patientId.name,
+          appointmentDetails
+        );
+      } else {
+        await sendRejectionEmail(
+          appointment.patientId.email,
+          appointment.patientId.name,
+          appointmentDetails
+        );
       }
-    });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      toast.success(`Appointment ${action}d! (Email notification failed)`);
+    }
+  };
+
+  const confirmAction = (appointmentId, action) => {
+    const appointment = appointments.find((apt) => apt._id === appointmentId);
+    const needsConsultationLink = ["walk-in", "online"];
+
+    // For appointments needing links, show different confirmation message
+    if (
+      action === "approve" &&
+      needsConsultationLink.includes(appointment.bookingType)
+    ) {
+      Swal.fire({
+        title: "Add Consultation Link",
+        text: "This appointment requires a consultation link. You'll be asked to provide the link next.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Continue",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          handleRespond(appointmentId, action);
+        }
+      });
+    } else {
+      // Normal confirmation for other cases
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: `Yes, ${action} it!`,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          handleRespond(appointmentId, action);
+        }
+      });
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -304,6 +376,16 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
         onApprove={(appointmentId) => confirmAction(appointmentId, "approve")}
         onReject={(appointmentId) => confirmAction(appointmentId, "reject")}
         loadingStates={loadingStates}
+      />
+
+      <ConsultationLinkModal
+        isOpen={isLinkModalOpen}
+        onClose={() => {
+          setIsLinkModalOpen(false);
+          setPendingApprovalAppointment(null);
+        }}
+        appointment={pendingApprovalAppointment}
+        onSendLink={handleSendConsultationLink}
       />
     </>
   );

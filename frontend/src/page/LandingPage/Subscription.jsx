@@ -7,6 +7,8 @@ import {
   Zap,
   Crown,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSubscriptionTourGuide } from "../../hooks/useSubscriptionTourGuide";
 
 const plans = [
   {
@@ -50,6 +52,18 @@ const plans = [
 ];
 
 const Subscriptions = () => {
+  const [showTour, setShowTour] = useState(false);
+
+  // Check if this is the first visit
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("subscriptionPageVisited");
+    if (!hasVisited) {
+      setShowTour(true);
+      localStorage.setItem("subscriptionPageVisited", "true");
+    }
+  }, []);
+
+  useSubscriptionTourGuide(showTour);
   return (
     <section
       id="subscriptions"
@@ -80,7 +94,7 @@ const Subscriptions = () => {
       ></div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center mb-16">
+        <div id="tour-subscription-header" className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-cyan-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
             <CreditCard className="w-4 h-4" />
             Transparent Pricing
@@ -95,7 +109,10 @@ const Subscriptions = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div
+          id="tour-subscription-cards"
+          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+        >
           {plans.map((plan, index) => {
             const IconComponent = plan.icon;
             return (
@@ -216,7 +233,7 @@ const Subscriptions = () => {
         </div>
 
         {/* Enhanced Additional Info */}
-        <div className="text-center mt-16">
+        <div id="tour-subscription-features" className="text-center mt-16">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200/60 max-w-4xl mx-auto">
             <p className="text-slate-600 mb-8 text-lg">
               All plans include enterprise-grade security and compliance

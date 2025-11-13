@@ -1,13 +1,7 @@
 "use client";
 
 import axios from "axios";
-import {
-  FileText,
-  Plus,
-  Search,
-  Filter,
-  ChevronDown,
-} from "lucide-react";
+import { FileText, Plus, Search, Filter, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import ClinicMedicalRecordsTableBody from "./components/ClinicMedicalRecordsTableBody";
@@ -27,7 +21,9 @@ export default function ClinicMedicalRecords() {
         `${import.meta.env.VITE_API_URL}/medical-records/clinic/${user._id}`
       );
       setRecords(res.data);
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error fetching records:", error);
+    }
   };
 
   useEffect(() => {
@@ -36,18 +32,44 @@ export default function ClinicMedicalRecords() {
     }
   }, [user]);
 
+  // Add this function to handle record deletion
+  const handleRecordDelete = async (recordId) => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_API_URL}/medical-records/${recordId}`
+      );
+      // Update local state by removing the deleted record
+      setRecords(records.filter((record) => record._id !== recordId));
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      throw error; // Re-throw to handle in the table component
+    }
+  };
+
+  // Add this function to handle record updates
+  const handleRecordUpdate = (updatedRecord) => {
+    setRecords(
+      records.map((record) =>
+        record._id === updatedRecord._id ? updatedRecord : record
+      )
+    );
+  };
+
   const filteredRecords = records
     .filter((record) => {
       if (filter === "All") return true;
-      return record.type.toLowerCase() === filter.toLowerCase();
+      return record.type?.toLowerCase() === filter.toLowerCase();
     })
     .filter((record) => {
       const searchTermLower = searchTerm.toLowerCase();
       const patientName = record.patientId?.name?.toLowerCase() || "";
       const doctorName = record.doctorId?.name?.toLowerCase() || "";
+      const diagnosis = record.diagnosis?.toLowerCase() || "";
+
       return (
         patientName.includes(searchTermLower) ||
-        doctorName.includes(searchTermLower)
+        doctorName.includes(searchTermLower) ||
+        diagnosis.includes(searchTermLower)
       );
     });
 
@@ -61,7 +83,7 @@ export default function ClinicMedicalRecords() {
 
   const recordTypes = [
     "All",
-    ...new Set(records.map((record) => record.type)),
+    ...new Set(records.map((record) => record.type).filter(Boolean)),
   ];
 
   const handleNextPage = () => {
@@ -75,7 +97,6 @@ export default function ClinicMedicalRecords() {
       setCurrentPage(currentPage - 1);
     }
   };
-
 
   return (
     <div className="w-full min-h-screen bg-slate-50">
@@ -208,7 +229,7 @@ export default function ClinicMedicalRecords() {
           </div>
 
           {/* Table */}
-          <div className="rounded-xl border border-slate-200 overflow-hidden">
+          <div className="rounded-xl border border-slate-200">
             <table className="w-full text-left">
               <thead className="bg-slate-50">
                 <tr>
@@ -219,7 +240,9 @@ export default function ClinicMedicalRecords() {
                     Patient Name
                   </th>
                   <th className="font-semibold text-slate-700 px-4">Date</th>
-                  <th className="font-semibold text-slate-700 px-4">Type</th>
+                  <th className="font-semibold text-slate-700 px-4">
+                    Diagnosis
+                  </th>
                   <th className="font-semibold text-slate-700 px-4">Doctor</th>
                   <th className="font-semibold text-slate-700 px-4">Status</th>
                   <th className="font-semibold text-slate-700 px-4 text-right">
@@ -227,35 +250,39 @@ export default function ClinicMedicalRecords() {
                   </th>
                 </tr>
               </thead>
-                <ClinicMedicalRecordsTableBody records={currentRecords} />
+              <ClinicMedicalRecordsTableBody
+                records={currentRecords}
+                onRecordDelete={handleRecordDelete}
+                onRecordUpdate={handleRecordUpdate}
+              />
             </table>
           </div>
 
           {/* Results Summary */}
           <div className="mt-6 flex items-center justify-between text-sm text-slate-600">
-          <p>
-          Showing {indexOfFirstRecord + 1}-
-          {Math.min(indexOfLastRecord, filteredRecords.length)} of {filteredRecords.length}{" "}
-          records
-        </p>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handlePrevPage}
-            disabled={currentPage === 1}
-            className="rounded-lg bg-transparent border border-slate-300 px-3 py-1 text-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className="rounded-lg bg-transparent border border-slate-300 px-3 py-1 text-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
-        </div>
+            <p>
+              Showing {indexOfFirstRecord + 1}-
+              {Math.min(indexOfLastRecord, filteredRecords.length)} of{" "}
+              {filteredRecords.length} records
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className="rounded-lg bg-transparent border border-slate-300 px-3 py-1 text-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages || totalPages === 0}
+                className="rounded-lg bg-transparent border border-slate-300 px-3 py-1 text-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
           </div>
         </div>
       </div>

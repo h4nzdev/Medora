@@ -24,6 +24,7 @@ import { useDate, useTime } from "../../../utils/date";
 import DashboardCharts from "./DashboardCharts";
 import { getInvoicesByClinic } from "../../../services/invoiceService";
 import { Link } from "react-router-dom";
+import { useTourGuide } from "../../../hooks/useTourGuide";
 
 export default function ClinicDashboard() {
   const { appointments } = useContext(AppointmentContext);
@@ -33,6 +34,18 @@ export default function ClinicDashboard() {
   const [showAll, setShowAll] = useState(false);
   const [view, setView] = useState("default");
   const [invoices, setInvoices] = useState([]);
+  const [showTour, setShowTour] = useState(false);
+
+  // Check if this is the first visit
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("clinicDashboardVisited");
+    if (!hasVisited) {
+      setShowTour(true);
+      localStorage.setItem("clinicDashboardVisited", "true");
+    }
+  }, []);
+
+  useTourGuide(showTour);
 
   const clinicAppointments = appointments?.filter(
     (appointment) => appointment.clinicId?._id === user._id
@@ -159,7 +172,10 @@ export default function ClinicDashboard() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {/* Appointments Card */}
-              <div className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <div
+                id="tour-appointments-card"
+                className="group relative overflow-hidden bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
@@ -250,7 +266,10 @@ export default function ClinicDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Recent Appointments */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+                <div
+                  id="tour-recent-appointments"
+                  className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8"
+                >
                   <h2 className="text-2xl font-semibold text-slate-800 mb-8">
                     Recent Appointments
                   </h2>
@@ -314,7 +333,10 @@ export default function ClinicDashboard() {
               {/* Sidebar with Quick Actions and Notifications */}
               <div className="lg:col-span-1 space-y-8">
                 {/* Quick Actions */}
-                <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+                <div
+                  id="tour-quick-actions"
+                  className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8"
+                >
                   <h2 className="text-2xl font-semibold text-slate-800 mb-8">
                     Quick Actions
                   </h2>

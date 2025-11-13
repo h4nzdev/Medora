@@ -23,11 +23,24 @@ import { toast } from "sonner";
 import logo from "../../assets/medoralogo2.png";
 // Import our subscription service
 import { getClinicSubscription } from "../../services/subscription_services/subscriptionService";
+import { useSidebarTourGuide } from "../../hooks/useSidebarTourGuide";
 
 export default function ClinicSidebar() {
   const { user, logout } = useContext(AuthContext);
   const [openDropdowns, setOpenDropdowns] = useState([]);
   const [currentSubscription, setCurrentSubscription] = useState(null);
+  const [showTour, setShowTour] = useState(false);
+
+  // Check if this is the first visit
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("clinicSidebarVisited");
+    if (!hasVisited) {
+      setShowTour(true);
+      localStorage.setItem("clinicSidebarVisited", "true");
+    }
+  }, []);
+
+  useSidebarTourGuide(showTour);
 
   // Fetch current subscription when component loads
   useEffect(() => {
@@ -178,7 +191,10 @@ export default function ClinicSidebar() {
   return (
     <div className="hidden md:flex fixed left-0 top-0 h-screen w-64 bg-white shadow-lg z-50 flex-col">
       {/* Sidebar Header - Fixed at top */}
-      <div className="flex items-center space-x-3 p-6 border-b flex-shrink-0">
+      <div
+        id="tour-sidebar-plan"
+        className="flex items-center space-x-3 p-6 border-b flex-shrink-0"
+      >
         <img src={logo} alt="medoralogo" className="w-12 h-12" />
         <div>
           <h1 className="text-lg font-bold text-slate-800">
@@ -194,7 +210,10 @@ export default function ClinicSidebar() {
       </div>
 
       {/* Navigation Menu - Scrollable if content overflows */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto hide-scroll">
+      <nav
+        id="tour-sidebar-nav"
+        className="flex-1 p-4 space-y-2 overflow-y-auto hide-scroll"
+      >
         {menuItems.map((item, index) => (
           <div key={index}>
             {item.type === "dropdown" ? (
@@ -253,7 +272,10 @@ export default function ClinicSidebar() {
       </nav>
 
       {/* User Profile & Logout - Fixed at bottom */}
-      <div className="flex-shrink-0 p-4 border-t bg-white">
+      <div
+        id="tour-sidebar-profile"
+        className="flex-shrink-0 p-4 border-t bg-white"
+      >
         <div className="flex items-center space-x-3 p-3 mb-3">
           <div className="w-10 h-10 bg-cyan-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-semibold text-sm">DC</span>

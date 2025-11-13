@@ -11,11 +11,12 @@ import {
   ChevronDown,
 } from "lucide-react";
 import ClinicAppointmentsTableBody from "./components/ClinicAppointmentsTableBody";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AppointmentContext } from "../../../context/AppointmentContext";
 import { AuthContext } from "../../../context/AuthContext";
 import ClinicAppointmentsList from "./components/ClinicAppointmentsList";
 import { Link } from "react-router-dom";
+import { useAppointmentsTourGuide } from "../../../hooks/useAppointmentsTourGuide";
 
 export default function ClinicAppointments() {
   const { appointments } = useContext(AppointmentContext);
@@ -26,7 +27,19 @@ export default function ClinicAppointments() {
   const [doctorFilter, setDoctorFilter] = useState("All");
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [isDoctorDropdownOpen, setDoctorDropdownOpen] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const appointmentsPerPage = 5;
+
+  // Check if this is the first visit
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("clinicAppointmentsVisited");
+    if (!hasVisited) {
+      setShowTour(true);
+      localStorage.setItem("clinicAppointmentsVisited", "true");
+    }
+  }, []);
+
+  useAppointmentsTourGuide(showTour);
 
   const doctors = [
     ...new Set(appointments.map((app) => app.doctorId?.name).filter(Boolean)),
@@ -128,7 +141,10 @@ export default function ClinicAppointments() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div
+          id="tour-appointments-stats"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between">
               <div>
@@ -202,7 +218,10 @@ export default function ClinicAppointments() {
         {/* Main Content */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
           {/* Controls */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+          <div
+            id="tour-appointments-controls"
+            className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8"
+          >
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
@@ -300,7 +319,10 @@ export default function ClinicAppointments() {
           </div>
 
           {/* Desktop Table */}
-          <div className="hidden md:block rounded-xl border border-slate-200 overflow-visible">
+          <div
+            id="tour-appointments-table"
+            className="hidden md:block rounded-xl border border-slate-200 overflow-visible"
+          >
             <table className="w-full text-left">
               <thead className="bg-slate-50">
                 <tr>

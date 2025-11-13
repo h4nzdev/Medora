@@ -2,16 +2,29 @@
 
 import { Search, Clock, Users, ChevronDown } from "lucide-react";
 import PendingAppointmentsTableBody from "./components/PendingAppointmentsTableBody";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import PendingAppointmentsList from "./components/PendingAppointmentsList";
 import { AppointmentContext } from "../../../context/AppointmentContext";
+import { usePendingAppointmentsTourGuide } from "../../../hooks/usePendingAppointmentsTourGuide";
 
 export default function PendingAppointments() {
   const { appointments } = useContext(AppointmentContext);
   const { user } = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showTour, setShowTour] = useState(false);
   const appointmentsPerPage = 5;
+
+  // Check if this is the first visit
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("clinicPendingAppointmentsVisited");
+    if (!hasVisited) {
+      setShowTour(true);
+      localStorage.setItem("clinicPendingAppointmentsVisited", "true");
+    }
+  }, []);
+
+  usePendingAppointmentsTourGuide(showTour);
 
   const pendingAppointments = appointments.filter(
     (app) => app.clinicId?._id === user._id && app.status === "pending"
@@ -43,7 +56,7 @@ export default function PendingAppointments() {
     <div className="w-full min-h-screen bg-slate-50">
       <div className="mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        <div id="tour-pending-header" className="mb-8">
           <div className="flex items-center space-x-3 mb-4">
             <div className="bg-amber-500 p-3 rounded-2xl shadow-lg">
               <Clock className="w-8 h-8 text-white" />
@@ -62,7 +75,10 @@ export default function PendingAppointments() {
         {/* Main Content */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
           {/* Controls */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
+          <div
+            id="tour-pending-search"
+            className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8"
+          >
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
@@ -91,7 +107,10 @@ export default function PendingAppointments() {
           </div>
 
           {/* Desktop Table */}
-          <div className="hidden md:block rounded-xl border border-slate-200 overflow-hidden">
+          <div
+            id="tour-pending-table"
+            className="hidden md:block rounded-xl border border-slate-200 overflow-hidden"
+          >
             <table className="w-full text-left">
               <thead className="bg-slate-50">
                 <tr>

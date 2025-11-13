@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Star,
   MapPin,
@@ -17,9 +17,22 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
+import { useProfileTourGuide } from "../../../hooks/useProfileTourGuide";
 
 const ClinicProfile = () => {
   const { user } = useContext(AuthContext);
+  const [showTour, setShowTour] = useState(false);
+
+  // Check if this is the first visit to profile
+  useEffect(() => {
+    const hasVisitedProfile = localStorage.getItem("clinicProfileVisited");
+    if (!hasVisitedProfile) {
+      setShowTour(true);
+      localStorage.setItem("clinicProfileVisited", "true");
+    }
+  }, []);
+
+  useProfileTourGuide(showTour);
   // Mock reviews data for demonstration
   const [reviews] = useState([
     {
@@ -61,7 +74,10 @@ const ClinicProfile = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30">
       <div>
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-cyan-500 to-sky-600 rounded-3xl p-8 mb-8 shadow-xl">
+        <div
+          id="tour-clinic-hero"
+          className="bg-gradient-to-br from-cyan-500 to-sky-600 rounded-3xl p-8 mb-8 shadow-xl"
+        >
           <div className="flex flex-col lg:flex-row items-center gap-8">
             {/* Clinic Image */}
             <div className="flex-shrink-0">
@@ -173,7 +189,10 @@ const ClinicProfile = () => {
             </div>
 
             {/* Patient Reviews */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
+            <div
+              id="tour-clinic-reviews"
+              className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200"
+            >
               <h2 className="text-2xl font-bold text-slate-800 mb-6">
                 Patient Reviews
               </h2>
@@ -291,7 +310,10 @@ const ClinicProfile = () => {
             </div>
 
             {/* Clinic Stats */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
+            <div
+              id="tour-clinic-stats"
+              className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200"
+            >
               <div className="flex items-center gap-3 mb-4">
                 <Users className="w-6 h-6 text-cyan-500" />
                 <h3 className="text-xl font-bold text-slate-800">
