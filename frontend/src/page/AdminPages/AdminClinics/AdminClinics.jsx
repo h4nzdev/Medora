@@ -283,10 +283,6 @@ const AdminClinics = () => {
                 Manage all healthcare clinics on the Medora platform
               </p>
             </div>
-            <button className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-colors">
-              <Plus className="w-5 h-5" />
-              Add New Clinic
-            </button>
           </div>
         </div>
 
@@ -518,23 +514,11 @@ const AdminClinics = () => {
                             <Eye className="w-5 h-5" />
                           </button>
                           <button
-                            className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Edit Clinic"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
-                          <button
                             onClick={() => handleDeleteClinic(clinic)} // Pass the whole clinic object, not just clinic._id
                             className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete Clinic"
                           >
                             <Trash2 className="w-5 h-5" />
-                          </button>
-                          <button
-                            className="p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-                            title="More Options"
-                          >
-                            <MoreVertical className="w-5 h-5" />
                           </button>
                         </div>
                       </td>

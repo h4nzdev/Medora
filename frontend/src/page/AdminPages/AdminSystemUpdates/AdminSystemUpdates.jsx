@@ -16,6 +16,8 @@ import {
   Info,
   AlertTriangle,
   CheckCircle,
+  Loader,
+  LoaderCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createNotification } from "../../../services/notificationService";
@@ -188,6 +190,7 @@ const AdminSystemUpdates = () => {
       toast.error("Please fill in title and description");
       return;
     }
+    setLoading(true);
 
     try {
       const systemUpdateData = {
@@ -244,6 +247,8 @@ const AdminSystemUpdates = () => {
     } catch (error) {
       console.error("Error creating system update:", error);
       toast.error("Failed to create system update");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -261,6 +266,7 @@ const AdminSystemUpdates = () => {
   };
 
   const handlePublishUpdate = async (id) => {
+    setLoading(true);
     try {
       const publishedUpdate = await publishSystemUpdate(id);
 
@@ -302,6 +308,8 @@ const AdminSystemUpdates = () => {
     } catch (error) {
       console.error("Error publishing system update:", error);
       toast.error("Failed to publish system update");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -552,10 +560,17 @@ const AdminSystemUpdates = () => {
                 {update.status === StatusTypes.DRAFT && (
                   <button
                     onClick={() => handlePublishUpdate(update._id)}
+                    disabled={loading}
                     className="p-2 text-slate-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                     title="Publish Update"
                   >
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                    {loading ? (
+                      <div className="animate-spin w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
+                        <LoaderCircle />
+                      </div>
+                    ) : (
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                    )}
                   </button>
                 )}
                 <button
@@ -686,9 +701,18 @@ const AdminSystemUpdates = () => {
               </button>
               <button
                 onClick={handleCreateUpdate}
-                className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
+                disabled={loading}
+                className={`px-4 py-2 ${
+                  loading ? "bg-gray-500" : "bg-cyan-600"
+                } text-white rounded-lg hover:bg-cyan-700 transition-colors`}
               >
-                Create Update
+                {loading ? (
+                  <div className="animate-spin flex items-center justify-center">
+                    <LoaderCircle />
+                  </div>
+                ) : (
+                  "Create Update"
+                )}
               </button>
             </div>
           </div>

@@ -36,6 +36,11 @@ const PatientSchema = new mongoose.Schema(
       type: String,
       default: "Client",
     },
+    status: {
+      type: String,
+      default: "active",
+      enum: ["active", "inactive"],
+    },
     password: {
       type: String,
       required: true,

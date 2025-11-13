@@ -20,6 +20,7 @@ import {
 import {
   getAllPatients,
   deletePatient,
+  getPatientsByClinic,
 } from "../../../services/patient_services/patientService";
 import { getAllClinics } from "../../../services/clinic_services/clinicService";
 import { getAppointmentsByPatient } from "../../../services/appointmentService";
@@ -75,24 +76,43 @@ const AdminPatients = () => {
     },
   ];
 
-  // Fetch all data
+  // Fetch clinics (only once on mount)
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchClinics = async () => {
+      try {
+        const clinicsData = await getAllClinics();
+        setClinics(clinicsData);
+      } catch (err) {
+        console.error("Error fetching clinics:", err);
+        setClinics([]);
+      }
+    };
+
+    fetchClinics();
+  }, []);
+
+  // Fetch patients based on clinic filter
+  useEffect(() => {
+    const fetchPatients = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch patients and clinics in parallel
-        const [patientsData, clinicsData] = await Promise.all([
-          getAllPatients(),
-          getAllClinics(),
-        ]);
+        let patientsData;
 
-        // Validate patients data
+        if (clinicFilter === "all") {
+          // Fetch all patients
+          patientsData = await getAllPatients();
+        } else {
+          // Fetch patients by specific clinic
+          patientsData = await getPatientsByClinic(clinicFilter);
+        }
+
+        // Validate and process patients data
         if (Array.isArray(patientsData)) {
           // For each patient, find their clinic name
           const patientsWithClinicNames = patientsData.map((patient) => {
-            const clinic = clinicsData.find((c) => c._id === patient.clinicId);
+            const clinic = clinics.find((c) => c._id === patient.clinicId);
             return {
               ...patient,
               clinic: clinic ? clinic.clinicName : "Unknown Clinic",
@@ -107,22 +127,20 @@ const AdminPatients = () => {
           });
 
           setPatients(patientsWithClinicNames);
-          setClinics(clinicsData);
         } else {
           throw new Error("Invalid patients data format");
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching patients:", err);
         setError("Failed to load data. Using demo data.");
         setPatients(getMockPatients());
-        setClinics([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchPatients();
+  }, [clinicFilter, clinics]); // Re-fetch when clinicFilter changes
 
   // Safe delete handler
   const handleDeletePatient = async (patientId) => {
@@ -134,9 +152,14 @@ const AdminPatients = () => {
     if (window.confirm("Are you sure you want to delete this patient?")) {
       try {
         await deletePatient(patientId);
-        setPatients((prev) =>
-          prev.filter((patient) => patient && patient._id !== patientId)
-        );
+        // Refetch patients after deletion to update the list
+        if (clinicFilter === "all") {
+          const updatedPatients = await getAllPatients();
+          setPatients(updatedPatients);
+        } else {
+          const updatedPatients = await getPatientsByClinic(clinicFilter);
+          setPatients(updatedPatients);
+        }
       } catch (err) {
         console.error("Error deleting patient:", err);
         alert("Failed to delete patient. Please try again.");
@@ -174,9 +197,6 @@ const AdminPatients = () => {
 
   // Get clinic name by ID - FIXED VERSION
   const getClinicName = (clinicId) => {
-    console.log("=== DEBUG getClinicName ===");
-    console.log("clinicId received:", clinicId);
-
     if (!clinicId) return "Unknown Clinic";
 
     // Handle the case where clinicId is an object with _id property
@@ -187,13 +207,10 @@ const AdminPatients = () => {
       actualClinicId = clinicId;
     }
 
-    console.log("Actual clinicId to use:", actualClinicId);
-
     const clinic = clinics.find(
       (c) => c._id.toString() === actualClinicId.toString()
     );
 
-    console.log("Found clinic:", clinic);
     return clinic ? clinic.clinicName : "Unknown Clinic";
   };
 
@@ -250,7 +267,7 @@ const AdminPatients = () => {
     );
   };
 
-  // Safe patient filtering - now using clinicId
+  // Safe patient filtering - now only for search and status (clinic filtering is done via API)
   const filteredPatients = useMemo(() => {
     try {
       return safeArray(patients).filter((patient) => {
@@ -266,24 +283,18 @@ const AdminPatients = () => {
         const matchesStatus =
           statusFilter === "all" || patient.status === statusFilter;
 
-        const matchesClinic =
-          clinicFilter === "all" || patient.clinicId === clinicFilter;
-
-        return matchesSearch && matchesStatus && matchesClinic;
+        return matchesSearch && matchesStatus;
       });
     } catch (err) {
       console.error("Error filtering patients:", err);
       return [];
     }
-  }, [patients, searchTerm, statusFilter, clinicFilter, clinics]);
+  }, [patients, searchTerm, statusFilter, clinics]);
 
   // Safe stats calculation
   const stats = useMemo(() => {
     try {
-      const filtered = safeArray(patients).filter((patient) => {
-        if (!patient) return false;
-        return clinicFilter === "all" || patient.clinicId === clinicFilter;
-      });
+      const filtered = safeArray(patients);
 
       const defaultStats = {
         total: 0,
@@ -318,7 +329,7 @@ const AdminPatients = () => {
         totalAppointments: 0,
       };
     }
-  }, [patients, clinicFilter]);
+  }, [patients]);
 
   // Safe date formatting
   const formatDate = (dateString) => {
@@ -348,7 +359,11 @@ const AdminPatients = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto"></div>
-          <p className="text-slate-600 mt-4">Loading patients...</p>
+          <p className="text-slate-600 mt-4">
+            {clinicFilter === "all"
+              ? "Loading all patients..."
+              : `Loading patients for ${getClinicName(clinicFilter)}...`}
+          </p>
         </div>
       </div>
     );
@@ -365,19 +380,11 @@ const AdminPatients = () => {
                 Patient Management
               </h1>
               <p className="text-slate-600">
-                Manage all patients across the Medora platform
-                {clinicFilter !== "all" && (
-                  <span className="text-cyan-600 font-medium">
-                    {" "}
-                    • Filtered by: {getClinicName(clinicFilter)}
-                  </span>
-                )}
+                {clinicFilter === "all"
+                  ? "Manage all patients across the Medora platform"
+                  : `Managing patients for ${getClinicName(clinicFilter)}`}
               </p>
             </div>
-            <button className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 sm:px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-colors w-fit">
-              <Plus className="w-5 h-5" />
-              Add New Patient
-            </button>
           </div>
         </div>
 
@@ -483,6 +490,7 @@ const AdminPatients = () => {
           </div>
         </div>
 
+        {/* Rest of your component remains the same */}
         {/* Patients Table */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
@@ -656,12 +664,6 @@ const AdminPatients = () => {
                           title="View Medical Records"
                         >
                           <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                        </button>
-                        <button
-                          className="p-1 sm:p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Patient"
-                        >
-                          <Edit className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                         <button
                           onClick={() =>

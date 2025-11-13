@@ -73,27 +73,27 @@ export const deleteChatsByPatient = async (req, res) => {
 export const getChatCredits = async (req, res) => {
   try {
     const { patientId } = req.params;
-    
+
     let chatCredit = await ChatCredit.findOne({ patientId });
-    
+
     if (!chatCredit) {
       // Create new credit record for patient
-      chatCredit = new ChatCredit({ 
-        patientId, 
+      chatCredit = new ChatCredit({
+        patientId,
         dailyCredits: 0,
-        lastResetDate: new Date()
+        lastResetDate: new Date(),
       });
       await chatCredit.save();
     } else if (chatCredit.shouldResetCredits()) {
       // Reset credits if it's a new day
       await chatCredit.resetDailyCredits();
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       credits: chatCredit.dailyCredits,
       maxCredits: 5,
-      canChat: chatCredit.dailyCredits < 5
+      canChat: chatCredit.dailyCredits < 5,
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -104,35 +104,37 @@ export const getChatCredits = async (req, res) => {
 export const incrementChatCredits = async (req, res) => {
   try {
     const { patientId } = req.body;
-    
+
     if (!patientId) {
-      return res.status(400).json({ success: false, error: "Patient ID is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Patient ID is required" });
     }
-    
+
     let chatCredit = await ChatCredit.findOne({ patientId });
-    
+
     if (!chatCredit) {
       // Create new credit record
-      chatCredit = new ChatCredit({ 
-        patientId, 
+      chatCredit = new ChatCredit({
+        patientId,
         dailyCredits: 0,
-        lastResetDate: new Date()
+        lastResetDate: new Date(),
       });
     } else if (chatCredit.shouldResetCredits()) {
       // Reset credits if it's a new day
       await chatCredit.resetDailyCredits();
     }
-    
+
     // Increment credits if under limit
     if (chatCredit.dailyCredits < 5) {
       await chatCredit.incrementCredits();
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       credits: chatCredit.dailyCredits,
       maxCredits: 5,
-      canChat: chatCredit.dailyCredits < 5
+      canChat: chatCredit.dailyCredits < 5,
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

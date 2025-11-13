@@ -25,7 +25,7 @@ import feedbackRouter from "./routes/feedbackRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import subscriptionRouter from "./routes/subscirptionRoutes.js";
 import systemUpdatesRouter from "./routes/systemUpdatesRoutes.js";
-import clinicAIRouter from "./routes/clinicAIRoutes.js"; // ✅ ONLY IMPORT, NO DUPLICATE
+import clinicAIRouter from "./routes/clinicAIRoutes.js";
 
 const allowedOrigins = [
   "https://medora-dun.vercel.app",
