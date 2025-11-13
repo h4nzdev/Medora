@@ -8,7 +8,6 @@ import {
   Crown,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSubscriptionTourGuide } from "../../hooks/useSubscriptionTourGuide";
 
 const plans = [
   {
@@ -63,7 +62,6 @@ const Subscriptions = () => {
     }
   }, []);
 
-  useSubscriptionTourGuide(showTour);
   return (
     <section
       id="subscriptions"
