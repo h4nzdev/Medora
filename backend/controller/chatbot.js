@@ -158,46 +158,51 @@ export const chatWithGemini = async (req, res) => {
     const conversationContext = generateConversationContext(session);
 
     const prompt = `
-You are Medora AI, a SMART health assistant in the Philippines.
-
+CONVERSATION HISTORY:
 ${conversationContext}
 
 CURRENT USER MESSAGE:
-${message}
+"${message}"
 
-🚨 HEALTH ASSISTANT WITH MEMORY:
-- Remember the entire conversation history above
-- Continue naturally from previous messages
-- Return JSON with this exact format:
+STRICT RULES - FOLLOW EXACTLY:
+
+1. ONLY set "suggest_appointment": true if the user's message contains ANY of these exact phrases:
+   - "book appointment"
+   - "schedule appointment" 
+   - "make appointment"
+   - "see doctor"
+   - "see a doctor"
+   - "want appointment"
+   - "need appointment"
+   - "make booking"
+   - "i want to book"
+   - "can i book"
+   - "appointment with"
+
+2. For ALL other messages, set "suggest_appointment": false
+
+3. ALWAYS remember the conversation history above and continue naturally
+
+4. Return ONLY this JSON format, nothing else:
+
 {
-  "severity": "MILD|MODERATE|SEVERE",
-  "reply": "Your response that continues naturally from the conversation...",
-  "emergency_trigger": true/false,
+  "severity": "MILD",
+  "reply": "Your response that continues naturally from the conversation history",
+  "emergency_trigger": false,
   "suggest_appointment": true/false,
-  "appointment_reason": "Brief reason"
+  "appointment_reason": "Appointment booking requested"
 }
 
-CONVERSATION MEMORY GUIDELINES:
-- Reference previous symptoms or concerns mentioned
-- Continue advice from earlier messages
-- Ask follow-up questions based on conversation history
-- Don't repeat the same questions if already answered
-- Build on previous medical advice given
+EXAMPLES:
 
-EMERGENCY PROTOCOL:
-- Severe symptoms → Emergency contacts
-- Life-threatening conditions → Immediate help
+User: "book appointment" → suggest_appointment: true
+User: "i want to see doctor" → suggest_appointment: true  
+User: "can i schedule appointment" → suggest_appointment: true
+User: "hello" → suggest_appointment: false
+User: "headache" → suggest_appointment: false
+User: "fever" → suggest_appointment: false
 
-APPOINTMENT SUGGESTION:
-- Suggest appointment for persistent or worsening symptoms
-- Consider conversation history when deciding
-
-IMPORTANT: 
-- Return ONLY valid JSON
-- Your response should show you remember the conversation
-- Build naturally on what was discussed before
-
-Response:`;
+RESPONSE:`;
 
     const result = await model.generateContent(prompt);
     let responseText = result.response.text();

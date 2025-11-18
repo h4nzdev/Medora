@@ -282,7 +282,8 @@ const ClientChat = () => {
         text: response.data.reply,
         severity: response.data.severity,
         emergency: response.data.emergency_trigger,
-        showAppointmentButton: response.data.show_appointment_button || false,
+        suggestAppointment: response.data.suggest_appointment || false, // Changed from show_appointment_button
+        appointmentReason: response.data.appointment_reason || "",
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -291,8 +292,8 @@ const ClientChat = () => {
 
       setChatHistory((prev) => [...prev, botMessage]);
 
-      // Show appointment button
-      if (response.data.show_appointment_button) {
+      // Show appointment button based on AI response
+      if (response.data.suggest_appointment) {
         setShowAppointmentButton(true);
         setLastBotMessage(botMessage);
       } else {
@@ -366,7 +367,7 @@ const ClientChat = () => {
 
   // Add this function with your other handlers
   const handleBookAppointment = () => {
-    navigate("/book-appointment");
+    navigate("/client/doctors");
 
     if (lastBotMessage) {
       localStorage.setItem(
@@ -610,6 +611,21 @@ const ClientChat = () => {
                 <p className="text-sm lg:text-base leading-relaxed whitespace-pre-wrap">
                   {chat.text}
                 </p>
+                {chat.suggestAppointment && (
+                  <div className="flex justify-start my-2 ">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4">
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={handleBookAppointment}
+                          className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl font-semibold transition-colors duration-200 text-sm cursor-pointer"
+                        >
+                          <Calendar className="h-4 w-4" />
+                          <span>Book Now</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Message Footer */}
                 {chat.role === "bot" && !chat.type && (

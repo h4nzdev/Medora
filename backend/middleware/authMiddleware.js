@@ -4,9 +4,6 @@ export const authenticate = (req, res, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
 
-    console.log("🔐 Auth Middleware - Token received:", token ? "YES" : "NO"); // ADD THIS
-    console.log("🔐 Auth Middleware - Headers:", req.headers); // ADD THIS
-
     if (!token) {
       return res.status(401).json({
         success: false,
