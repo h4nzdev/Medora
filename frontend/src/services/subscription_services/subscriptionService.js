@@ -29,6 +29,7 @@ export const getClinicSubscription = async (clinicId) => {
 export const updateSubscription = async (id, updateData) => {
   try {
     const response = await axios.put(`${API_URL}/${id}`, updateData);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(`Error updating subscription with id ${id}:`, error);

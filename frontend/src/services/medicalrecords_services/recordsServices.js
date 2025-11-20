@@ -2,7 +2,7 @@ import axios from "axios";
 
 const MEDICAL_RECORDS_API_URL = `${
   import.meta.env.VITE_API_URL
-}/medical-record`;
+}/medical-records`;
 
 // Get all medical records
 export const getAllMedicalRecords = async () => {

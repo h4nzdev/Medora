@@ -189,3 +189,20 @@ html {
   scrollbar-width: none;
   -ms-overflow-style: none; /* IE and old Edge */
 }
+
+.btn-confirm-custom {
+  background-color: #dc2626 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 5px !important;
+  margin-right: 6px;
+}
+
+.btn-cancel-custom {
+  background-color: #6b7280 !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 5px !important;
+}

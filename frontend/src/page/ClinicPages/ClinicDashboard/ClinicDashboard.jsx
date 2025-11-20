@@ -155,8 +155,13 @@ export default function ClinicDashboard() {
               Default
             </button>
             <button
+              disabled={user.subscriptionPlan !== "pro"}
               onClick={() => setView("charts")}
-              className={`px-4 py-2 rounded-lg ${
+              className={`px-4 py-2 ${
+                user.subscriptionPlan !== "pro"
+                  ? "cursor-not-allowed"
+                  : "cursor-pointer"
+              } rounded-lg ${
                 view === "charts"
                   ? "bg-cyan-600 text-white"
                   : "bg-gray-200 text-gray-800"

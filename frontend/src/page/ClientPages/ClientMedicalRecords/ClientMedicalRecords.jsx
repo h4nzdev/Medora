@@ -6,12 +6,15 @@ import {
   User,
   Clock,
   MoreHorizontal,
+  Trash2,
 } from "lucide-react";
 import useMedicalRecords from "../../../hooks/medicalRecords";
 import { useState } from "react";
 import MedicalRecordsModal from "../../../components/ClientComponents/MedicalRecordsModal/MedicalRecordsModal";
 import jsPDF from "jspdf";
 import { formatDate, useTime } from "../../../utils/date";
+import { deleteMedicalRecord } from "../../../services/medicalrecords_services/recordsServices";
+import Swal from "sweetalert2";
 
 const ClientMedicalRecords = () => {
   const { records } = useMedicalRecords();
@@ -62,6 +65,33 @@ const ClientMedicalRecords = () => {
     });
 
     doc.save("medical-records.pdf");
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "No, cancel!",
+        customClass: {
+          confirmButton: "btn-confirm-custom",
+          cancelButton: "btn-cancel-custom",
+        },
+        buttonsStyling: false,
+      });
+
+      if (result.isConfirmed) {
+        await deleteMedicalRecord(id);
+        console.log("Successfully deleted: ", id);
+        Swal.fire("Deleted!", "Your record has been deleted.", "success");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire("Error!", "Failed to delete record.", "error");
+    }
   };
 
   const stats = [
@@ -287,10 +317,11 @@ const ClientMedicalRecords = () => {
                           </button>
                           <button
                             type="button"
-                            className="p-3 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-700 transition-all duration-300 hover:scale-110"
+                            onClick={() => handleDelete(record._id)}
+                            className="p-2 hover:bg-red-100 rounded-xl text-slate-500 hover:text-red-700 transition-all duration-300 hover:scale-105 cursor-pointer"
                             aria-label="More options"
                           >
-                            <MoreHorizontal className="h-5 w-5" />
+                            <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
                       </td>

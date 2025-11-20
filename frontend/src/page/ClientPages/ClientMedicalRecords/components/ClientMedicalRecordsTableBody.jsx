@@ -18,7 +18,10 @@ const ClientMedicalRecordsTableBody = () => {
   return (
     <tbody>
       {records.map((record, index) => (
-        <tr key={index} className="border-t border-slate-200 hover:bg-slate-50 transition-colors">
+        <tr
+          key={index}
+          className="border-t border-slate-200 hover:bg-slate-50 transition-colors"
+        >
           <td className="py-4 px-4 text-slate-700">{record.date}</td>
           <td className="py-4 px-4 text-slate-700">{record.doctor}</td>
           <td className="py-4 px-4 text-slate-700">{record.reason}</td>
