@@ -11,6 +11,9 @@ import {
   Clock,
   FileText,
   X,
+  Info,
+  History,
+  BarChart3,
 } from "lucide-react";
 import { AuthContext } from "../../../context/AuthContext";
 import { formatDate } from "../../../utils/date";
@@ -24,8 +27,15 @@ const ClientProfile = () => {
   const [appointmentHistory, setAppointmentHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-
   const [viewPicture, setViewPicture] = useState(false);
+  const [activeTab, setActiveTab] = useState("personal"); // Default tab
+
+  const tabs = [
+    { id: "personal", label: "Personal", icon: User },
+    { id: "contact", label: "Contact", icon: Mail },
+    { id: "appointments", label: "Appointments", icon: Calendar },
+    { id: "overview", label: "Overview", icon: BarChart3 },
+  ];
 
   useEffect(() => {
     if (user) {
@@ -112,16 +122,6 @@ const ClientProfile = () => {
     setError("");
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl p-8 text-center max-w-md w-full">
-          <p className="text-slate-600 text-lg">No user data available</p>
-        </div>
-      </div>
-    );
-  }
-
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "scheduled":
@@ -132,6 +132,332 @@ const ClientProfile = () => {
         return "text-red-600 bg-red-50";
       default:
         return "text-slate-600 bg-slate-50";
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl p-8 text-center max-w-md w-full">
+          <p className="text-slate-600 text-lg">No user data available</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Render content based on active tab
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "personal":
+        return (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-6">
+              <User className="w-5 h-5 text-cyan-600" />
+              <h2 className="text-xl font-semibold text-slate-800">
+                Personal Information
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                {/* Name */}
+                <div>
+                  <label className="text-sm font-medium text-slate-600 block mb-2">
+                    Full Name
+                  </label>
+                  {isEditMode ? (
+                    <input
+                      type="text"
+                      name="name"
+                      value={updatedUser?.name || ""}
+                      onChange={handleInputChange}
+                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      disabled={isLoading}
+                    />
+                  ) : (
+                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                      {user.name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Age */}
+                <div>
+                  <label className="text-sm font-medium text-slate-600 block mb-2">
+                    Age
+                  </label>
+                  {isEditMode ? (
+                    <input
+                      type="number"
+                      name="age"
+                      value={updatedUser?.age || ""}
+                      onChange={handleInputChange}
+                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      disabled={isLoading}
+                    />
+                  ) : (
+                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                      {user.age} years
+                    </p>
+                  )}
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="text-sm font-medium text-slate-600 block mb-2">
+                    Gender
+                  </label>
+                  {isEditMode ? (
+                    <select
+                      name="gender"
+                      value={updatedUser?.gender || ""}
+                      onChange={handleInputChange}
+                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                      disabled={isLoading}
+                    >
+                      <option value="">Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  ) : (
+                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg capitalize">
+                      {user.gender}
+                    </p>
+                  )}
+                </div>
+
+                {/* Role */}
+                <div>
+                  <label className="text-sm font-medium text-slate-600 block mb-2">
+                    Role
+                  </label>
+                  <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                    {user.role}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "contact":
+        return (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-6">
+              <Mail className="w-5 h-5 text-cyan-600" />
+              <h2 className="text-xl font-semibold text-slate-800">
+                Contact Information
+              </h2>
+            </div>
+
+            <div className="space-y-4">
+              {/* Email */}
+              <div>
+                <label className="text-sm font-medium text-slate-600 block mb-2">
+                  Email Address
+                </label>
+                {isEditMode ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={updatedUser?.email || ""}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    disabled={isLoading}
+                  />
+                ) : (
+                  <p className="text-slate-800 p-3 bg-slate-50 rounded-lg break-words">
+                    {user.email}
+                  </p>
+                )}
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="text-sm font-medium text-slate-600 block mb-2">
+                  Phone Number
+                </label>
+                {isEditMode ? (
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={updatedUser?.phone || ""}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                    disabled={isLoading}
+                  />
+                ) : (
+                  <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                    {user.phone}
+                  </p>
+                )}
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="text-sm font-medium text-slate-600 block mb-2">
+                  Address
+                </label>
+                {isEditMode ? (
+                  <textarea
+                    name="address"
+                    value={updatedUser?.address || ""}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
+                    disabled={isLoading}
+                  />
+                ) : (
+                  <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                    {user.address || "No address provided"}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+
+      case "appointments":
+        return (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div className="flex items-center gap-3 mb-6">
+              <FileText className="w-5 h-5 text-cyan-600" />
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800">
+                  Appointment History
+                </h2>
+                <p className="text-slate-600 text-sm mt-1">
+                  {appointmentHistory.length} total appointments
+                </p>
+              </div>
+            </div>
+
+            {appointmentHistory.length === 0 ? (
+              <div className="text-center py-8">
+                <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500">No appointment history yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {appointmentHistory.map((record, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-left">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Calendar className="w-4 h-4 text-slate-400" />
+                          <span className="font-medium text-slate-800">
+                            {formatDate(record.date)}
+                          </span>
+                        </div>
+                        <div className="text-sm text-slate-600">
+                          {record.type} • {record.clinicId._id.slice(0, 8)}...
+                        </div>
+                      </div>
+                    </div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                        record.status
+                      )}`}
+                    >
+                      {record.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "overview":
+        return (
+          <div className="space-y-6">
+            {/* Patient ID */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+              <div className="flex items-center gap-3 mb-4">
+                <Shield className="w-5 h-5 text-cyan-600" />
+                <h3 className="font-semibold text-slate-800">Patient ID</h3>
+              </div>
+              <p className="text-sm text-slate-600 font-mono bg-slate-50 p-3 rounded-lg break-all">
+                {user._id}
+              </p>
+            </div>
+
+            {/* Account Overview */}
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+              <div className="flex items-center gap-3 mb-4">
+                <CheckCircle className="w-5 h-5 text-emerald-600" />
+                <h3 className="font-semibold text-slate-800">
+                  Account Overview
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                  <span className="text-slate-600 text-sm">Status</span>
+                  <span className="text-emerald-600 font-medium text-sm">
+                    Active
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                  <span className="text-slate-600 text-sm">Member Since</span>
+                  <span className="text-slate-800 font-medium text-sm">
+                    {formatDate(user.createdAt)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-slate-600 text-sm">
+                    Total Appointments
+                  </span>
+                  <span className="text-slate-800 font-medium text-sm">
+                    {appointmentHistory.length}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl p-6 text-white">
+              <h3 className="font-semibold mb-4">Medical Summary</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-cyan-100 text-sm">Upcoming</span>
+                  <span className="font-semibold">
+                    {
+                      appointmentHistory.filter((a) => a.status === "scheduled")
+                        .length
+                    }
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-cyan-100 text-sm">Completed</span>
+                  <span className="font-semibold">
+                    {
+                      appointmentHistory.filter((a) => a.status === "completed")
+                        .length
+                    }
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-cyan-100 text-sm">This Month</span>
+                  <span className="font-semibold">
+                    {
+                      appointmentHistory.filter(
+                        (a) =>
+                          new Date(a.date).getMonth() === new Date().getMonth()
+                      ).length
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -215,250 +541,308 @@ const ClientProfile = () => {
           </div>
         )}
 
+        {/* Mobile Tabs - Clean & Compact */}
+        <div className="lg:hidden mb-6">
+          <div className="w-full overflow-hidden">
+            <div className="flex justify-between bg-white rounded-xl p-1.5 shadow-sm border border-slate-200 max-w-full">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 flex items-center justify-center px-2 py-2.5 rounded-lg transition-all duration-200 mx-0.5 ${
+                      isActive
+                        ? "bg-cyan-500 text-white shadow-sm"
+                        : "text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <span className="font-semibold text-xs whitespace-nowrap truncate">
+                      {tab.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Content */}
+          {/* Main Content - Mobile shows only active tab */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <User className="w-5 h-5 text-cyan-600" />
-                <h2 className="text-xl font-semibold text-slate-800">
-                  Personal Information
-                </h2>
-              </div>
+            {/* Mobile: Show only active tab content */}
+            <div className="lg:hidden">
+              {renderTabContent()}
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Name */}
-                  <div>
-                    <label className="text-sm font-medium text-slate-600 block mb-2">
-                      Full Name
-                    </label>
-                    {isEditMode ? (
-                      <input
-                        type="text"
-                        name="name"
-                        value={updatedUser?.name || ""}
-                        onChange={handleInputChange}
-                        className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                        disabled={isLoading}
-                      />
-                    ) : (
-                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
-                        {user.name}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Age */}
-                  <div>
-                    <label className="text-sm font-medium text-slate-600 block mb-2">
-                      Age
-                    </label>
-                    {isEditMode ? (
-                      <input
-                        type="number"
-                        name="age"
-                        value={updatedUser?.age || ""}
-                        onChange={handleInputChange}
-                        className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                        disabled={isLoading}
-                      />
-                    ) : (
-                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
-                        {user.age} years
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Gender */}
-                  <div>
-                    <label className="text-sm font-medium text-slate-600 block mb-2">
-                      Gender
-                    </label>
-                    {isEditMode ? (
-                      <select
-                        name="gender"
-                        value={updatedUser?.gender || ""}
-                        onChange={handleInputChange}
-                        className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                        disabled={isLoading}
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                    ) : (
-                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg capitalize">
-                        {user.gender}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Role */}
-                  <div>
-                    <label className="text-sm font-medium text-slate-600 block mb-2">
-                      Role
-                    </label>
-                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
-                      {user.role}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <Mail className="w-5 h-5 text-cyan-600" />
-                <h2 className="text-xl font-semibold text-slate-800">
-                  Contact Information
-                </h2>
-              </div>
-
-              <div className="space-y-4">
-                {/* Email */}
-                <div>
-                  <label className="text-sm font-medium text-slate-600 block mb-2">
-                    Email Address
-                  </label>
-                  {isEditMode ? (
-                    <input
-                      type="email"
-                      name="email"
-                      value={updatedUser?.email || ""}
-                      onChange={handleInputChange}
-                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              {/* Save/Cancel Buttons for mobile when in edit mode */}
+              {(activeTab === "personal" || activeTab === "contact") &&
+                isEditMode && (
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      onClick={handleCancelEdit}
                       disabled={isLoading}
-                    />
-                  ) : (
-                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg break-words">
-                      {user.email}
-                    </p>
-                  )}
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="text-sm font-medium text-slate-600 block mb-2">
-                    Phone Number
-                  </label>
-                  {isEditMode ? (
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={updatedUser?.phone || ""}
-                      onChange={handleInputChange}
-                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                      disabled={isLoading}
-                    />
-                  ) : (
-                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
-                      {user.phone}
-                    </p>
-                  )}
-                </div>
-
-                {/* Address */}
-                <div>
-                  <label className="text-sm font-medium text-slate-600 block mb-2">
-                    Address
-                  </label>
-                  {isEditMode ? (
-                    <textarea
-                      name="address"
-                      value={updatedUser?.address || ""}
-                      onChange={handleInputChange}
-                      rows="3"
-                      className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
-                      disabled={isLoading}
-                    />
-                  ) : (
-                    <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
-                      {user.address || "No address provided"}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Save/Cancel Buttons */}
-            {isEditMode && (
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={handleCancelEdit}
-                  disabled={isLoading}
-                  className="px-6 py-3 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium disabled:opacity-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveChanges}
-                  disabled={isLoading}
-                  className="px-6 py-3 bg-cyan-600 text-white hover:bg-cyan-700 rounded-lg transition-colors font-medium disabled:opacity-50"
-                >
-                  {isLoading ? "Saving..." : "Save Changes"}
-                </button>
-              </div>
-            )}
-
-            {/* Appointment History */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <div className="flex items-center gap-3 mb-6">
-                <FileText className="w-5 h-5 text-cyan-600" />
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-800">
-                    Appointment History
-                  </h2>
-                  <p className="text-slate-600 text-sm mt-1">
-                    {appointmentHistory.length} total appointments
-                  </p>
-                </div>
-              </div>
-
-              {appointmentHistory.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">No appointment history yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {appointmentHistory.map((record, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                      className="px-6 py-3 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium disabled:opacity-50"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="text-left">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Calendar className="w-4 h-4 text-slate-400" />
-                            <span className="font-medium text-slate-800">
-                              {formatDate(record.date)}
-                            </span>
-                          </div>
-                          <div className="text-sm text-slate-600">
-                            {record.type} • {record.clinicId._id.slice(0, 8)}...
-                          </div>
-                        </div>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          record.status
-                        )}`}
-                      >
-                        {record.status}
-                      </span>
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveChanges}
+                      disabled={isLoading}
+                      className="px-6 py-3 bg-cyan-600 text-white hover:bg-cyan-700 rounded-lg transition-colors font-medium disabled:opacity-50"
+                    >
+                      {isLoading ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                )}
+            </div>
+
+            {/* Desktop: Show all content */}
+            <div className="hidden lg:block space-y-6">
+              {/* Personal Information */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-6">
+                  <User className="w-5 h-5 text-cyan-600" />
+                  <h2 className="text-xl font-semibold text-slate-800">
+                    Personal Information
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Name */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 block mb-2">
+                        Full Name
+                      </label>
+                      {isEditMode ? (
+                        <input
+                          type="text"
+                          name="name"
+                          value={updatedUser?.name || ""}
+                          onChange={handleInputChange}
+                          className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                          disabled={isLoading}
+                        />
+                      ) : (
+                        <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                          {user.name}
+                        </p>
+                      )}
                     </div>
-                  ))}
+
+                    {/* Age */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 block mb-2">
+                        Age
+                      </label>
+                      {isEditMode ? (
+                        <input
+                          type="number"
+                          name="age"
+                          value={updatedUser?.age || ""}
+                          onChange={handleInputChange}
+                          className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                          disabled={isLoading}
+                        />
+                      ) : (
+                        <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                          {user.age} years
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Gender */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 block mb-2">
+                        Gender
+                      </label>
+                      {isEditMode ? (
+                        <select
+                          name="gender"
+                          value={updatedUser?.gender || ""}
+                          onChange={handleInputChange}
+                          className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                          disabled={isLoading}
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                        </select>
+                      ) : (
+                        <p className="text-slate-800 p-3 bg-slate-50 rounded-lg capitalize">
+                          {user.gender}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Role */}
+                    <div>
+                      <label className="text-sm font-medium text-slate-600 block mb-2">
+                        Role
+                      </label>
+                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                        {user.role}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-6">
+                  <Mail className="w-5 h-5 text-cyan-600" />
+                  <h2 className="text-xl font-semibold text-slate-800">
+                    Contact Information
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Email */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 block mb-2">
+                      Email Address
+                    </label>
+                    {isEditMode ? (
+                      <input
+                        type="email"
+                        name="email"
+                        value={updatedUser?.email || ""}
+                        onChange={handleInputChange}
+                        className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        disabled={isLoading}
+                      />
+                    ) : (
+                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg break-words">
+                        {user.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 block mb-2">
+                      Phone Number
+                    </label>
+                    {isEditMode ? (
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={updatedUser?.phone || ""}
+                        onChange={handleInputChange}
+                        className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                        disabled={isLoading}
+                      />
+                    ) : (
+                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                        {user.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address */}
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 block mb-2">
+                      Address
+                    </label>
+                    {isEditMode ? (
+                      <textarea
+                        name="address"
+                        value={updatedUser?.address || ""}
+                        onChange={handleInputChange}
+                        rows="3"
+                        className="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
+                        disabled={isLoading}
+                      />
+                    ) : (
+                      <p className="text-slate-800 p-3 bg-slate-50 rounded-lg">
+                        {user.address || "No address provided"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Save/Cancel Buttons for desktop */}
+              {isEditMode && (
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={handleCancelEdit}
+                    disabled={isLoading}
+                    className="px-6 py-3 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors font-medium disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveChanges}
+                    disabled={isLoading}
+                    className="px-6 py-3 bg-cyan-600 text-white hover:bg-cyan-700 rounded-lg transition-colors font-medium disabled:opacity-50"
+                  >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                  </button>
                 </div>
               )}
+
+              {/* Appointment History */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-6">
+                  <FileText className="w-5 h-5 text-cyan-600" />
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-800">
+                      Appointment History
+                    </h2>
+                    <p className="text-slate-600 text-sm mt-1">
+                      {appointmentHistory.length} total appointments
+                    </p>
+                  </div>
+                </div>
+
+                {appointmentHistory.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500">
+                      No appointment history yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {appointmentHistory.map((record, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-4 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="text-left">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Calendar className="w-4 h-4 text-slate-400" />
+                              <span className="font-medium text-slate-800">
+                                {formatDate(record.date)}
+                              </span>
+                            </div>
+                            <div className="text-sm text-slate-600">
+                              {record.type} • {record.clinicId._id.slice(0, 8)}
+                              ...
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            record.status
+                          )}`}
+                        >
+                          {record.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Sidebar - Clean and Minimal */}
-          <div className="space-y-6">
+          {/* Sidebar - Desktop only */}
+          <div className="hidden lg:block space-y-6">
             {/* Patient ID */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
               <div className="flex items-center gap-3 mb-4">

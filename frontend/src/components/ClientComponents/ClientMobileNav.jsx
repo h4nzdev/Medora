@@ -27,11 +27,11 @@ const ClientMobileNav = () => {
 
   const leftMenuItems = [
     { icon: Home, link: "/client/dashboard", label: "Home" },
-    { icon: Calendar, link: "/client/appointments", label: "Appointments" },
+    { icon: MessageSquare, link: "/client/chats", label: "AI Chat" },
   ];
 
   const rightMenuItems = [
-    { icon: MessageSquare, link: "/client/chats", label: "AI Chat" },
+    { icon: Calendar, link: "/client/appointments", label: "Appointments" },
     {
       icon: MoreHorizontal,
       action: () => setShowMoreMenu(!showMoreMenu),

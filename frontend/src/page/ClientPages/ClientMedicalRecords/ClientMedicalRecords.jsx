@@ -164,11 +164,11 @@ const ClientMedicalRecords = () => {
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`${stat.color} text-sm md:text-base font-semibold uppercase tracking-wider mb-3 truncate opacity-80`}
+                        className={`${stat.color} text-xs md:text-base font-semibold uppercase tracking-wider mb-3 truncate opacity-80`}
                       >
                         {stat.title}
                       </p>
-                      <p className="text-3xl md:text-4xl font-bold text-slate-800 group-hover:scale-105 transition-transform duration-300">
+                      <p className="text-xl md:text-4xl font-bold text-slate-800 group-hover:scale-105 transition-transform duration-300">
                         {stat.value}
                       </p>
                     </div>
