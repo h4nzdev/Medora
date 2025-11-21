@@ -253,7 +253,7 @@ export default function ClinicDashboard() {
                       Monthly Revenue
                     </p>
                     <p className="text-4xl font-semibold text-emerald-600">
-                      ${stats?.revenue}
+                      ₱{stats?.revenue}
                     </p>
                     <p className="text-sm text-emerald-600 mt-1 flex items-center">
                       <TrendingUp className="w-4 h-4 mr-1" />
