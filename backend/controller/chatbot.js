@@ -512,22 +512,15 @@ export const getEmergencyContacts = async (req, res) => {
   }
 };
 
-// 📋 Chat Summary Function (enhanced with conversation memory)
 export const summarizeChatHistory = async (req, res) => {
   try {
-    const { sessionId } = req.body;
+    const { messages } = req.body;
 
     if (!apiKey) {
       return res
         .status(500)
         .json({ error: "Missing GEMINI_API_KEY in environment." });
     }
-
-    if (!sessionId) {
-      return res.status(400).json({ error: "Session ID is required." });
-    }
-
-    const messages = getConversationHistory(sessionId);
 
     if (messages.length === 0) {
       return res
@@ -572,7 +565,6 @@ Keep the summary clear, professional, and helpful for medical staff in the Phili
     res.json({
       summary: summary,
       messageCount: messages.length,
-      sessionId: sessionId,
     });
   } catch (error) {
     console.error("Summary error:", error);

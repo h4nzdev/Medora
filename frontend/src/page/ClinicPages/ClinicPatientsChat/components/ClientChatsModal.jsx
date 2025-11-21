@@ -4,6 +4,7 @@ import { X, Sparkles, MessageCircle, Loader2 } from "lucide-react";
 import { useContext } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
 import jsPDF from "jspdf";
+import { cleanSummary } from "../../../../utils/formatText";
 
 export default function ClientChatsModal({ patient, initialChat, onClose }) {
   const { user } = useContext(AuthContext);
@@ -29,8 +30,6 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
         }));
         setMessages(normalized);
       } catch (e) {
-        // keep initialChat fallback
-        // eslint-disable-next-line no-console
         console.error("Failed to load patient chats", e);
       } finally {
         setLoading(false);
@@ -55,7 +54,12 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
         }
       );
 
-      setSummary(response.data);
+      const cleaned = {
+        ...response.data,
+        summary: cleanSummary(response.data.summary),
+      };
+
+      setSummary(cleaned);
       setShowSummary(true);
     } catch (error) {
       console.error("Failed to summarize chat:", error);

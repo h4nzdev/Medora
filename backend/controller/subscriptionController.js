@@ -1,4 +1,5 @@
 import Subscription from "../model/subscriptionModel.js";
+import Clinic from "../model/clinicModel.js";
 
 export const createSubscription = async (req, res) => {
   try {
@@ -16,6 +17,11 @@ export const createSubscription = async (req, res) => {
     });
 
     await subscription.save();
+
+    await Clinic.findByIdAndUpdate(clinicId, {
+      subscriptionPlan: plan,
+      subscriptionStatus: subscription.status,
+    });
 
     res.status(201).json({
       success: true,
@@ -70,6 +76,7 @@ export const updateSubscription = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
+    // 1. Update subscription
     const subscription = await Subscription.findByIdAndUpdate(
       id,
       { status },

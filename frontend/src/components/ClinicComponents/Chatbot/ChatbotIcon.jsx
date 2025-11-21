@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Bot } from "lucide-react";
 import aicon from "../../../assets/ai-icon.png";
 
-const ChatbotIcon = () => {
+const ChatbotIcon = ({ isNotPro }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showGreeting, setShowGreeting] = useState(false);
 
@@ -27,7 +27,7 @@ const ChatbotIcon = () => {
 
   return (
     <motion.div
-      className="fixed bottom-10 right-10 z-50 cursor-pointer"
+      className="fixed bottom-10 right-10 z-50"
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.5, duration: 0.5 }}
@@ -92,8 +92,17 @@ const ChatbotIcon = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 10 }}
           >
-            <p className="text-sm font-medium">Clinic AI Assistant</p>
-            <p className="text-xs text-cyan-200">Click to chat with me!</p>
+            {isNotPro ? (
+              <>
+                <p className="text-sm font-medium">Subscribe to pro</p>
+                <p className="text-xs text-cyan-200">To chat with me!</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium">Clinic AI Assistant</p>
+                <p className="text-xs text-cyan-200">Click to chat with me!</p>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

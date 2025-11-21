@@ -6,6 +6,8 @@ import ChatbotWindow from "./ChatbotWindow";
 const Chatbot = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const { user } = useContext(AuthContext);
+  console.log(user);
+  const isNotPro = user.subscriptionPlan !== "pro";
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -18,9 +20,14 @@ const Chatbot = () => {
 
   return (
     <>
-      <div onClick={toggleChat}>
-        <ChatbotIcon />
-      </div>
+      <button
+        onClick={toggleChat}
+        disabled={isNotPro}
+        className={`${isNotPro ? "cursor-not-allowed" : "cursor-pointer"}`}
+      >
+        <ChatbotIcon isNotPro={isNotPro} />
+      </button>
+
       <ChatbotWindow isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </>
   );

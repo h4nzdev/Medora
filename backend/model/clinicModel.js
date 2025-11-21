@@ -35,6 +35,14 @@ const ClinicSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    subscriptionPlan: {
+      type: String,
+      default: "free",
+    },
+    subscriptionStatus: {
+      type: String,
+      default: "inactive",
+    },
     role: {
       type: String,
       default: "Clinic",
@@ -51,11 +59,10 @@ const ClinicSchema = new mongoose.Schema(
     },
   },
   {
-    // ADD THIS PART TO REMOVE PASSWORD FROM RESPONSES
     toJSON: {
       transform: function (doc, ret) {
-        delete ret.password; // This removes password from ALL API responses
-        delete ret.__v; // Also remove version key
+        delete ret.password;
+        delete ret.__v;
         return ret;
       },
     },
