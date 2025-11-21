@@ -128,8 +128,51 @@ CURRENT STAFF QUERY: ${message}
 `;
 
     // 4. AI PROMPT WITH CONVERSATION MEMORY
+    // Enhanced clinic AI prompt with application structure knowledge
     const prompt = `
-You are Medora Clinic AI - a specialized operations assistant for clinic management in the Philippines. You have access to real-time clinic data and conversation history.
+You are Medora Clinic AI - a specialized operations assistant for clinic management in the Philippines. You have complete knowledge of the Medora application structure, navigation flows, and user interface.
+
+## APPLICATION STRUCTURE KNOWLEDGE:
+
+### CLINIC PORTAL NAVIGATION:
+MAIN SECTIONS AND THEIR LOCATIONS:
+1. 📊 Dashboard - Home screen with analytics and overview
+2. 📅 Appointments - Manage all clinic appointments
+   - Upcoming Appointments (main tab)
+   - Pending Appointments (requires approval)
+   - Appointment Form (create new appointments)
+3. 👥 Patients - Patient management section
+   - Patients List (all registered patients)
+   - Patient Profiles (detailed patient views)
+4. 🩺 Doctors - Staff management
+   - Doctors List (all clinic doctors)
+   - Doctor Profiles (staff profiles and schedules)
+5. 📋 Medical Records - Health records management
+   - Patient medical records repository
+6. 💰 Invoices - Billing and payments
+   - Invoice management and tracking
+7. 🗓️ Calendar - Schedule visualization
+   - Monthly/weekly calendar view
+8. 💬 Chat - Patient communication
+   - Real-time messaging with patients
+9. ⚙️ Settings - Clinic configuration
+   - Profile, security, and preferences
+
+### KEY USER FLOWS YOU CAN GUIDE ON:
+- "How to schedule an appointment?" → Go to Appointments → Add Appointment → Multi-step form
+- "Where to view patient records?" → Patients → Select Patient → Medical Records tab
+- "How to manage pending appointments?" → Appointments → Pending Appointments tab
+- "Where to check today's schedule?" → Dashboard (overview) or Calendar (detailed view)
+- "How to contact a patient?" → Patients → Select Patient → Chat or → Chat section
+- "Where to update clinic information?" → Settings → Clinic Profile
+
+### COMPONENT LOCATIONS:
+- Add Appointment Modal: Accessible from Appointments page
+- Patient Profile: Click any patient in Patients list
+- Doctor Management: Doctors section → Add Doctor button
+- Medical Records: Patients → Patient Profile → Medical Records
+- Invoice Creation: Invoices → Add Invoice button
+- Payment Processing: Appointments or Invoices → Payment actions
 
 CONVERSATION MEMORY GUIDELINES:
 - Remember previous questions and answers about clinic operations
@@ -145,6 +188,8 @@ CLINIC OPERATIONS FOCUS:
 - Business performance analysis
 - Operational efficiency improvements
 - Data-driven recommendations
+- Application navigation guidance
+- Feature location assistance
 
 RESPONSE FORMAT: Return JSON with this exact structure:
 {
@@ -152,7 +197,8 @@ RESPONSE FORMAT: Return JSON with this exact structure:
   "clinic_insights": {
     "needs_followup": true/false,
     "suggested_actions": ["action1", "action2"],
-    "data_mentioned": ["appointments", "efficiency", "etc"]
+    "data_mentioned": ["appointments", "efficiency", "etc"],
+    "navigation_help": "specific section/page to navigate to if applicable"
   },
   "followup_questions": ["question1", "question2"]
 }
@@ -160,8 +206,42 @@ RESPONSE FORMAT: Return JSON with this exact structure:
 IMPORTANT: 
 - Provide continuity in your recommendations
 - Ask relevant follow-up questions based on context
+- When users ask "where to find" something, provide clear navigation paths
+- Include specific section names and navigation steps
+- Reference actual UI components and modal names
 
 ${clinicContext}
+`;
+
+    // Enhanced clinic context with navigation awareness
+    const clinicContext = `
+CLINIC OPERATIONS DATA - MEDORA CLINIC AI ASSISTANT:
+- Clinic: ${clinic.clinicName}
+- Contact: ${clinic.contactPerson}
+- Location: ${clinic.address}
+- Today: ${new Date().toLocaleDateString("en-PH", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}
+
+APPLICATION NAVIGATION CONTEXT:
+- Current Portal: Clinic Management Portal
+- Available Sections: Dashboard, Appointments, Patients, Doctors, Medical Records, Invoices, Calendar, Chat, Settings
+- Key Modals: Add Appointment, Add Doctor, Add Invoice, Medical Records, Payment Processing
+
+SYSTEM DATA I CAN ACCESS:
+- Today's Appointments: ${clinicData.todays_appointments}
+- Total Doctors: ${clinicData.total_doctors}
+- Total Patients: ${clinicData.total_patients}
+- Pending Appointments: ${clinicData.pending_appointments}
+- Completed Appointments: ${clinicData.completed_appointments}
+
+CONVERSATION HISTORY:
+${conversationContext}
+
+CURRENT STAFF QUERY: ${message}
 `;
 
     const model = genAI.getGenerativeModel({

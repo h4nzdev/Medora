@@ -1,95 +1,156 @@
-# Medo-Oral: Dental Clinic Management System
+# Medora - Medical Management System
 
-This is a comprehensive dental clinic management system with separate interfaces for clients and clinics, built with the MERN stack.
+Medora is a comprehensive medical management platform that connects patients, clinics, and administrators through a modern, feature-rich web application.
 
-## Features
+## Project Structure
 
-### Client-Side
+```
+frontend/src/
+├── components/          # Reusable UI components
+│   ├── AdminComponents/     # Admin-specific components
+│   ├── ClientComponents/    # Patient-facing components
+│   └── ClinicComponents/    # Clinic management components
+├── context/             # React context for state management
+├── hooks/               # Custom React hooks
+├── layout/              # Application layout components
+├── page/                # Main page components
+│   ├── AdminPages/          # Admin dashboard and management
+│   ├── AuthPages/           # Authentication pages
+│   ├── ClientPages/         # Patient portal pages
+│   ├── ClinicPages/         # Clinic management pages
+│   └── LandingPage/         # Public landing pages
+├── routes/              # Application routing
+├── services/            # API service layers
+└── utils/               # Utility functions
+```
 
-*   **Authentication:** Secure user registration and login.
-*   **Email Verification:** Secure user's valid email.
-*   **Appointment Management:** Book, view, and manage appointments.
-*   **Medical Records:** Access and view personal medical records.
-*   **Real-time Chat:** Communicate with the clinic in real-time.
-*   **Notifications & Reminders:** Receive important alerts and reminders.
-*   **Invoices:** View and manage invoices.
-*   **Reviews:** Provide feedback and reviews for doctors.
+## User Roles & Features
 
-### Clinic-Side
+### Admin
+- **Dashboard** with analytics and charts
+- **Clinic Management** - View and manage all clinics
+- **Patient Management** - Oversee patient accounts and data
+- **System Updates** - Platform maintenance and updates
+- **Feedback Management** - Review user feedback
 
-*   **Authentication:** Secure login for clinic staff.
-*   **Dashboard:** View key statistics and analytics.
-*   **Patient Management:** Manage patient information and records.
-*   **Doctor Management:** Add, view, and manage doctor profiles.
-*   **Appointment Scheduling:** Schedule and manage patient appointments.
-*   **Medical Records Management:** Create and manage patient medical records.
-*   **Invoice Management:** Generate and manage invoices.
-*   **Real-time Chat:** Communicate with patients.
+### Clinic
+- **Dashboard** with clinic analytics
+- **Appointment Management** - Schedule and manage appointments
+- **Patient Management** - Patient records and profiles
+- **Doctor Management** - Staff and scheduling
+- **Medical Records** - Digital health records
+- **Invoicing & Payments** - Billing and payment processing
+- **Calendar** - Schedule management
+- **Chat System** - Patient communication
+- **Subscriptions** - Plan management
 
-## Tech Stack
+### Patient (Client)
+- **Dashboard** - Personal health overview
+- **Appointments** - Book and manage appointments
+- **Medical Records** - View personal health records
+- **Doctor Profiles** - Browse and review healthcare providers
+- **Reminders** - Medication and appointment reminders
+- **Invoices & Payments** - Bill payment
+- **Chat** - Communication with clinics
+- **Profile & Settings** - Account management
+
+## Key Features
+
+### Appointment System
+- Multi-step booking process
+- Rescheduling capabilities
+- Real-time availability
+- Consultation links for virtual visits
+
+### Medical Records
+- Secure digital health records
+- Clinic and patient access levels
+- Medical history tracking
+- Document management
+
+### Communication
+- Integrated chat system
+- AI-powered chatbot assistance
+- Notification system
+- Voice recognition support
+
+### Payment Processing
+- Secure payment modal
+- Invoice management
+- Subscription billing
+- Payment history
+
+### User Experience
+- Responsive design for all devices
+- Interactive tour guides for onboarding
+- Voice commands support
+- Real-time notifications
+
+## Technology Stack
 
 ### Frontend
+- **React** with modern hooks
+- **Context API** for state management
+- **Custom Hooks** for reusable logic
+- **Responsive Design** for mobile/desktop
 
-*   **Framework:** React
-*   **Build Tool:** Vite
-*   **Styling:** Tailwind CSS
-*   **Routing:** React Router
-*   **State Management:** React Context API
-*   **Real-time Communication:** Socket.IO Client
-*   **HTTP Client:** Axios
+### Key Libraries & Patterns
+- Modal-based UI components
+- Tab-based navigation
+- Form handling and validation
+- Real-time updates
 
-### Backend
+## Component Architecture
 
-*   **Framework:** Node.js, Express
-*   **Database:** MongoDB with Mongoose
-*   **Real-time Communication:** Socket.IO
-*   **File Storage:** Cloudinary
-*   **Email Services:** Brevo, Resend, Nodemailer
-*   **AI:** Google Generative AI
+### Common Patterns
+- **Modal Components**: Reusable modal dialogs for forms and details
+- **Tab Components**: Multi-step forms and content organization
+- **Sidebar Components**: Detailed information panels
+- **Table Components**: Data display with actions
+
+### State Management
+- **AppointmentContext**: Appointment state and actions
+- **AuthContext**: Authentication and user sessions
+- **ClinicContext**: Clinic-specific data
+- **NotificationContext**: Real-time notifications
+- **ReminderContext**: Medication and appointment reminders
+
+## UI/UX Features
+
+- **Tour Guides**: Interactive onboarding for key features
+- **Voice Recognition**: Hands-free navigation and commands
+- **Real-time Updates**: Live data synchronization
+- **Accessibility**: Focus on inclusive design
+
+## Security & Privacy
+
+- Role-based access control
+- Secure authentication flows
+- Protected medical data
+- Payment security compliance
 
 ## Getting Started
 
 ### Prerequisites
-
-*   Node.js and npm
-*   MongoDB
-*   Cloudinary Account
-*   Email service provider (Brevo, Resend, or Nodemailer)
+- Node.js and npm
+- Modern web browser
+- Backend API server (separate repository)
 
 ### Installation
+```bash
+cd frontend
+npm install
+npm start
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/medo-oral.git
-    cd medo-oral
-    ```
+## Future Enhancements
 
-2.  **Install backend dependencies:**
-    ```bash
-    cd backend
-    npm install
-    ```
+- Enhanced AI chatbot capabilities
+- Advanced analytics and reporting
+- Mobile app development
+- Integration with medical devices
+- Expanded payment gateway support
 
-3.  **Install frontend dependencies:**
-    ```bash
-    cd ../frontend
-    npm install
-    ```
+---
 
-### Environment Variables
-
-Create a `.env` file in the `backend` directory and add the necessary environment variables (e.g., database connection string, API keys).
-
-### Running the Application
-
-1.  **Start the backend server:**
-    ```bash
-    cd backend
-    npm start
-    ```
-
-2.  **Start the frontend development server:**
-    ```bash
-    cd ../frontend
-    npm run dev
-    ```
+*Medora - Streamlining healthcare management for patients, clinics, and administrators.*
