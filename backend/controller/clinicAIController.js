@@ -101,34 +101,6 @@ export const clinicAIChat = async (req, res) => {
     addMessageToClinicSession(clinicId, "user", message);
     const conversationContext = generateClinicConversationContext(session);
 
-    // 3. CREATE ENHANCED CLINIC CONTEXT FOR AI WITH MEMORY
-    const clinicContext = `
-CLINIC OPERATIONS DATA - MEDORA CLINIC AI ASSISTANT:
-- Clinic: ${clinic.clinicName}
-- Contact: ${clinic.contactPerson}
-- Location: ${clinic.address}
-- Today: ${new Date().toLocaleDateString("en-PH", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })}
-
-SYSTEM DATA I CAN ACCESS:
-- Today's Appointments: ${clinicData.todays_appointments}
-- Total Doctors: ${clinicData.total_doctors}
-- Total Patients: ${clinicData.total_patients}
-- Pending Appointments: ${clinicData.pending_appointments}
-- Completed Appointments: ${clinicData.completed_appointments}
-
-CONVERSATION HISTORY:
-${conversationContext}
-
-CURRENT STAFF QUERY: ${message}
-`;
-
-    // 4. AI PROMPT WITH CONVERSATION MEMORY
-    // Enhanced clinic AI prompt with application structure knowledge
     const prompt = `
 You are Medora Clinic AI - a specialized operations assistant for clinic management in the Philippines. You have complete knowledge of the Medora application structure, navigation flows, and user interface.
 
