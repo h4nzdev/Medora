@@ -108,13 +108,11 @@ export const registerClient = async (req, res) => {
       return res.status(400).json({ message: "Invalid verification code." });
     }
 
-    // ✅ Check if email already exists
     const existingPatientByEmail = await Patient.findOne({ email });
     if (existingPatientByEmail) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    // ✅ Check if phone already exists
     const existingPatientByPhone = await Patient.findOne({ phone });
     if (existingPatientByPhone) {
       return res
@@ -122,10 +120,8 @@ export const registerClient = async (req, res) => {
         .json({ message: "Phone number already registered" });
     }
 
-    // ✅ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ Create new patient with emergency contact
     const newPatient = new Patient({
       clinicId,
       name,

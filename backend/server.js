@@ -26,6 +26,7 @@ import adminRouter from "./routes/adminRoutes.js";
 import subscriptionRouter from "./routes/subscirptionRoutes.js";
 import systemUpdatesRouter from "./routes/systemUpdatesRoutes.js";
 import clinicAIRouter from "./routes/clinicAIRoutes.js";
+import forgotPasswordRouter from "./routes/forgotPasswordRoutes.js";
 
 const allowedOrigins = [
   "https://medora-dun.vercel.app",
@@ -86,7 +87,8 @@ app.use("/api/feedback", feedbackRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/subscription", subscriptionRouter);
 app.use("/api/system-update", systemUpdatesRouter);
-app.use("/api/clinic-ai", clinicAIRouter); // ✅ USE THE IMPORTED ROUTER
+app.use("/api/clinic-ai", clinicAIRouter);
+app.use("/api/forgot-password", forgotPasswordRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

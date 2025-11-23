@@ -17,6 +17,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import logo from "../../../assets/medoralogo1.png";
 import clinic from "../../../assets/clinic.jpg";
 import { toast } from "sonner";
+import ForgotPasswordModal from "../../../components/ForgotPasswordModal/ForgotPasswordModal";
 
 const ClientLogin = () => {
   const { login } = useContext(AuthContext);
@@ -29,6 +30,7 @@ const ClientLogin = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -356,6 +358,10 @@ const ClientLogin = () => {
               </label>
               <a
                 href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowForgotPassword(true);
+                }}
                 className="text-sm text-cyan-600 hover:text-cyan-700 font-medium transition-colors hover:underline"
               >
                 Forgot password?
@@ -421,6 +427,10 @@ const ClientLogin = () => {
           </div>
         </div>
       </div>
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 };
