@@ -18,10 +18,15 @@ import {
   ExternalLink,
   MoreHorizontal,
   ChevronRight,
+  Users,
+  Clock,
+  Eye,
+  ArrowRight,
 } from "lucide-react";
 import { useNotification } from "../../../context/NotificationContext";
 import { formatDate, useTime } from "../../../utils/date";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const ClientNotifications = () => {
   const {
@@ -32,6 +37,7 @@ const ClientNotifications = () => {
     deleteAllNotifications,
   } = useNotification();
 
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -84,34 +90,34 @@ const ClientNotifications = () => {
   const notificationConfig = {
     appointment: {
       icon: Calendar,
-      color: "bg-blue-500",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-700",
-      borderColor: "border-blue-200",
+      color: "bg-cyan-100 text-cyan-700",
+      bgColor: "bg-cyan-50",
+      textColor: "text-cyan-700",
+      borderColor: "border-cyan-200",
       badge: "Appointment",
     },
     payment: {
       icon: FileText,
-      color: "bg-green-500",
-      bgColor: "bg-green-50",
-      textColor: "text-green-700",
-      borderColor: "border-green-200",
+      color: "bg-emerald-100 text-emerald-700",
+      bgColor: "bg-emerald-50",
+      textColor: "text-emerald-700",
+      borderColor: "border-emerald-200",
       badge: "Payment",
     },
     system: {
       icon: Info,
-      color: "bg-purple-500",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-700",
-      borderColor: "border-purple-200",
+      color: "bg-slate-100 text-slate-700",
+      bgColor: "bg-slate-50",
+      textColor: "text-slate-700",
+      borderColor: "border-slate-200",
       badge: "System",
     },
     default: {
       icon: Bell,
-      color: "bg-gray-500",
-      bgColor: "bg-gray-50",
-      textColor: "text-gray-700",
-      borderColor: "border-gray-200",
+      color: "bg-slate-100 text-slate-700",
+      bgColor: "bg-slate-50",
+      textColor: "text-slate-700",
+      borderColor: "border-slate-200",
       badge: "Notification",
     },
   };
@@ -120,32 +126,36 @@ const ClientNotifications = () => {
     return notificationConfig[type] || notificationConfig.default;
   };
 
+  const getActionLink = (notification) => {
+    if (notification.type === "appointment") {
+      return {
+        label: "View Appointments",
+        path: "/client/appointments",
+        color: "bg-cyan-600 hover:bg-cyan-700",
+      };
+    }
+
+    if (notification.type === "payment") {
+      return {
+        label: "View Payments",
+        path: "/client/payments",
+        color: "bg-emerald-600 hover:bg-emerald-700",
+      };
+    }
+
+    return {
+      label: "View Details",
+      path: "/client/dashboard",
+      color: "bg-slate-600 hover:bg-slate-700",
+    };
+  };
+
   const filterOptions = [
-    { label: "All", value: "all", icon: Bell, count: notifications.length },
-    {
-      label: "Unread",
-      value: "unread",
-      icon: AlertCircle,
-      count: notifications.filter((n) => !n.isRead).length,
-    },
-    {
-      label: "Appointments",
-      value: "appointment",
-      icon: Calendar,
-      count: notifications.filter((n) => n.type === "appointment").length,
-    },
-    {
-      label: "Payments",
-      value: "payment",
-      icon: FileText,
-      count: notifications.filter((n) => n.type === "payment").length,
-    },
-    {
-      label: "System",
-      value: "system",
-      icon: Info,
-      count: notifications.filter((n) => n.type === "system").length,
-    },
+    { label: "All Notifications", value: "all", icon: Bell },
+    { label: "Unread Only", value: "unread", icon: AlertCircle },
+    { label: "Appointments", value: "appointment", icon: Calendar },
+    { label: "Payments", value: "payment", icon: FileText },
+    { label: "System", value: "system", icon: Info },
   ];
 
   const handleMarkAllAsRead = () => {
@@ -219,237 +229,229 @@ const ClientNotifications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 px-3 sm:px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="bg-cyan-500 p-3 rounded-2xl shadow-lg">
-              <BellRing className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+    <div className="w-full min-h-screen bg-slate-50 pb-6">
+      <div className="mx-auto">
+        {/* Clean Header with Stats */}
+        <header className="mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+            <div className="flex-1">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="bg-cyan-600 p-3 rounded-xl">
+                  <BellRing className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-slate-800">
+                    Notifications
+                  </h1>
+                  <p className="text-slate-600 mt-1">
+                    Stay updated with your appointments and alerts
+                  </p>
+                </div>
+              </div>
+
+              {/* Simple Stats */}
+              <div className="flex flex-wrap gap-3 mt-4">
+                <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                  <Bell className="w-4 h-4 text-slate-600" />
+                  <span className="text-sm font-medium text-slate-700">
+                    Total: {notifications.length}
+                  </span>
+                </div>
+                {hasUnreadNotifications && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                    <span className="text-sm font-medium text-amber-700">
+                      Unread: {notifications.filter((n) => !n.isRead).length}
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-slate-800 truncate">
-                Notifications
-              </h1>
-              <p className="text-slate-600 text-sm sm:text-base">
-                Stay updated with your appointments and alerts
-              </p>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              {/* Delete All Button */}
+              {hasNotifications && (
+                <button
+                  onClick={handleDeleteAllNotifications}
+                  className="flex items-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  <Trash className="w-4 h-4" />
+                  <span className="font-medium">Clear All</span>
+                </button>
+              )}
+
+              {/* Mark All as Read Button */}
+              {hasUnreadNotifications && (
+                <button
+                  onClick={handleMarkAllAsRead}
+                  className="flex items-center gap-2 px-3 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
+                >
+                  <CheckCheck className="w-4 h-4" />
+                  <span className="font-medium">Mark All Read</span>
+                </button>
+              )}
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* Stats Cards */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow border border-slate-200 p-3 sm:p-4">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 truncate">
-                  Total
-                </p>
-                <p className="text-lg sm:text-2xl font-semibold text-cyan-600 truncate">
-                  {notifications.length}
-                </p>
-              </div>
-              <div className="bg-cyan-500 p-2 sm:p-3 rounded-xl shadow-md flex-shrink-0">
-                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow border border-slate-200 p-3 sm:p-4">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 truncate">
-                  Unread
-                </p>
-                <p className="text-lg sm:text-2xl font-semibold text-orange-600 truncate">
-                  {notifications.filter((n) => !n.isRead).length}
-                </p>
-              </div>
-              <div className="bg-orange-500 p-2 sm:p-3 rounded-xl shadow-md flex-shrink-0">
-                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-2 sm:col-span-1 bg-white rounded-xl sm:rounded-2xl shadow border border-slate-200 p-3 sm:p-4">
-            <div className="flex items-center justify-between">
-              <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 truncate">
-                  This Week
-                </p>
-                <p className="text-lg sm:text-2xl font-semibold text-blue-600 truncate">
-                  {
-                    notifications.filter((n) => {
-                      const weekAgo = new Date();
-                      weekAgo.setDate(weekAgo.getDate() - 7);
-                      return new Date(n.createdAt) > weekAgo;
-                    }).length
-                  }
-                </p>
-              </div>
-              <div className="bg-blue-500 p-2 sm:p-3 rounded-xl shadow-md flex-shrink-0">
-                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div className="flex flex-col lg:flex-row gap-4">
-          {/* Desktop Sidebar Filter */}
-          <div className="hidden lg:block w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow border border-slate-200 p-4 sticky top-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Filter className="w-4 h-4 text-slate-600" />
-                <h3 className="text-sm font-semibold text-slate-800">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Clean Desktop Sidebar */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-6">
+              <div className="flex items-center gap-2 mb-6">
+                <Filter className="w-5 h-5 text-slate-600" />
+                <h3 className="text-lg font-semibold text-slate-800">
                   Filters
                 </h3>
               </div>
 
-              <div className="space-y-1">
+              {/* Filter Options */}
+              <div className="space-y-2 mb-6">
                 {filterOptions.map((option) => {
                   const IconComponent = option.icon;
-                  const isActive = filterType === option.value;
                   return (
                     <button
                       key={option.value}
                       onClick={() => setFilterType(option.value)}
-                      className={`w-full flex items-center justify-between p-2 rounded-lg transition-all duration-200 text-sm ${
-                        isActive
-                          ? "bg-cyan-50 text-cyan-700 border border-cyan-200"
-                          : "text-slate-600 hover:bg-slate-50"
+                      className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                        filterType === option.value
+                          ? "bg-cyan-600 text-white"
+                          : "text-slate-600 hover:bg-slate-100"
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <IconComponent className="w-4 h-4" />
-                        <span className="font-medium truncate">
-                          {option.label}
-                        </span>
-                      </div>
-                      <span
-                        className={`px-1.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-                          isActive
-                            ? "bg-cyan-100 text-cyan-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        {option.count}
-                      </span>
+                      <IconComponent className="w-5 h-5" />
+                      <span className="font-medium">{option.label}</span>
                     </button>
                   );
                 })}
               </div>
+
+              {/* Quick Actions */}
+              {hasNotifications && (
+                <div className="mt-6 pt-6 border-t border-slate-200">
+                  <h4 className="text-sm font-semibold text-slate-700 mb-3">
+                    Quick Actions
+                  </h4>
+                  <div className="space-y-2">
+                    {hasUnreadNotifications && (
+                      <button
+                        onClick={handleMarkAllAsRead}
+                        className="w-full flex items-center gap-3 p-3 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors"
+                      >
+                        <CheckCheck className="w-4 h-4" />
+                        <span className="font-medium">Mark All Read</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={handleDeleteAllNotifications}
+                      className="w-full flex items-center gap-3 p-3 rounded-lg text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span className="font-medium">Delete All</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </aside>
+
+          {/* Mobile Filter */}
+          <div className="lg:hidden mb-6">
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full flex items-center justify-between px-4 h-12 rounded-lg border border-slate-300 bg-white hover:border-slate-400 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Filter className="w-5 h-5 text-slate-600" />
+                  <span className="font-medium text-slate-700">
+                    {
+                      filterOptions.find((opt) => opt.value === filterType)
+                        ?.label
+                    }
+                  </span>
+                </div>
+                <svg
+                  className={`w-5 h-5 text-slate-400 transition-transform ${
+                    isDropdownOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {isDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setIsDropdownOpen(false)}
+                  />
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg border border-slate-200 shadow-lg z-20 overflow-hidden">
+                    {filterOptions.map((option) => {
+                      const IconComponent = option.icon;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            setFilterType(option.value);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                            filterType === option.value
+                              ? "bg-cyan-50 text-cyan-700 font-semibold"
+                              : "text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          <IconComponent className="w-5 h-5" />
+                          <span className="font-medium">{option.label}</span>
+                          {filterType === option.value && (
+                            <CheckCircle className="w-4 h-4 ml-auto text-cyan-600" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="flex-1 min-w-0">
-            {/* Mobile Filter and Search */}
-            <div className="lg:hidden space-y-3 mb-4">
-              {/* Mobile Filter Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200 shadow text-sm font-medium"
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Filter className="w-4 h-4 text-slate-600 flex-shrink-0" />
-                    <span className="truncate">
-                      {
-                        filterOptions.find((opt) => opt.value === filterType)
-                          ?.label
-                      }
-                    </span>
-                  </div>
-                  <div
-                    className={`transform transition-transform flex-shrink-0 ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  >
-                    <svg
-                      className="w-4 h-4 text-slate-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
-                </button>
-
-                {isDropdownOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-10"
-                      onClick={() => setIsDropdownOpen(false)}
-                    />
-                    <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-slate-200 shadow-lg z-20 overflow-hidden">
-                      {filterOptions.map((option) => {
-                        const IconComponent = option.icon;
-                        return (
-                          <button
-                            key={option.value}
-                            onClick={() => {
-                              setFilterType(option.value);
-                              setIsDropdownOpen(false);
-                            }}
-                            className={`w-full flex items-center justify-between p-3 text-sm transition-colors ${
-                              filterType === option.value
-                                ? "bg-cyan-50 text-cyan-700"
-                                : "text-slate-600 hover:bg-slate-50"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <IconComponent className="w-4 h-4" />
-                              <span className="truncate">{option.label}</span>
-                            </div>
-                            <span className="px-1.5 py-0.5 bg-slate-100 rounded-full text-xs font-medium flex-shrink-0">
-                              {option.count}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Mobile Action Buttons */}
-              <div className="flex gap-2">
+          {/* Main Content */}
+          <section className="flex-1">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-slate-800">
+                Recent Activity
+              </h2>
+              <p className="text-slate-600 mt-1">
+                {filteredNotifications.length} notification
+                {filteredNotifications.length !== 1 ? "s" : ""} found
                 {hasUnreadNotifications && (
-                  <button
-                    onClick={handleMarkAllAsRead}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-cyan-600 text-white rounded-lg text-xs font-medium shadow hover:bg-cyan-700 transition-colors"
-                  >
-                    <CheckCheck className="w-3 h-3" />
-                    Mark All Read
-                  </button>
+                  <span className="ml-2 text-cyan-600 font-medium">
+                    ({notifications.filter((n) => !n.isRead).length} unread)
+                  </span>
                 )}
-                {hasNotifications && (
-                  <button
-                    onClick={handleDeleteAllNotifications}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium shadow hover:bg-red-700 transition-colors"
-                  >
-                    <Trash className="w-3 h-3" />
-                    Delete All
-                  </button>
-                )}
-              </div>
+              </p>
             </div>
 
-            {/* Search Bar */}
-            <div className="mb-4">
+            {/* Search */}
+            <div className="mb-6">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search notifications..."
-                  className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                  className="pl-10 h-12 rounded-lg border border-slate-300 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 w-full bg-white"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -457,11 +459,11 @@ const ClientNotifications = () => {
             </div>
 
             {/* Notifications List */}
-            <div className="space-y-3">
+            <div className="space-y-4">
               {filteredNotifications.length > 0 ? (
                 filteredNotifications.map((notification) => {
                   const config = getNotificationConfig(notification.type);
-                  const IconComponent = config.icon;
+                  const actionLink = getActionLink(notification);
                   const formattedMessage = formatMessageWithLinks(
                     notification.message
                   );
@@ -471,74 +473,97 @@ const ClientNotifications = () => {
                   return (
                     <div
                       key={notification._id}
-                      className={`bg-white rounded-xl border-l-4 ${
+                      className={`bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow cursor-pointer ${
                         !notification.isRead
-                          ? "border-l-cyan-500 bg-cyan-50/30"
-                          : "border-l-gray-200"
-                      } shadow border border-slate-200 hover:shadow-md transition-all duration-200 group`}
+                          ? "border-l-4 border-l-cyan-500 bg-cyan-50/50"
+                          : ""
+                      }`}
                       onClick={() => showNotificationDetails(notification)}
                     >
-                      <div className="p-3 sm:p-4">
-                        <div className="flex items-start gap-3">
-                          {/* Notification Icon */}
-                          <div
-                            className={`p-2 rounded-lg ${config.bgColor} flex-shrink-0`}
-                          >
-                            <IconComponent
-                              className={`w-4 h-4 ${config.textColor}`}
-                            />
-                          </div>
+                      <div className="flex items-start gap-4">
+                        <div
+                          className={`hidden md:block p-3 rounded-lg ${config.color} flex-shrink-0`}
+                        >
+                          {config.icon && <config.icon className="w-5 h-5" />}
+                        </div>
 
-                          {/* Notification Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}
+                                >
+                                  {config.badge}
+                                </span>
+                                {!notification.isRead && (
                                   <span
-                                    className={`px-2 py-1 rounded-full text-xs font-medium ${config.bgColor} ${config.textColor}`}
-                                  >
-                                    {config.badge}
-                                  </span>
-                                  {!notification.isRead && (
-                                    <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full flex-shrink-0"></span>
-                                  )}
-                                </div>
-                                <p className="text-slate-800 font-medium text-sm leading-relaxed break-words">
-                                  {displayMessage}
-                                  {isLongMessage && (
-                                    <span className="text-cyan-600 font-semibold ml-1 text-xs">
-                                      Read more
-                                    </span>
-                                  )}
-                                </p>
-                                {formattedMessage.hasLinks && (
-                                  <div className="flex items-center gap-1 mt-1">
-                                    <ExternalLink className="w-3 h-3 text-blue-500" />
-                                    <span className="text-xs text-blue-600 font-medium">
-                                      Contains {formattedMessage.links.length}{" "}
-                                      link(s)
-                                    </span>
-                                  </div>
+                                    className="w-2 h-2 bg-cyan-500 rounded-full"
+                                    title="Unread"
+                                  ></span>
                                 )}
                               </div>
-
-                              {/* Action Button */}
-                              <button
-                                onClick={(e) =>
-                                  showNotificationActions(notification, e)
-                                }
-                                className="p-1 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0"
-                              >
-                                <MoreHorizontal className="w-4 h-4 text-slate-600" />
-                              </button>
+                              <h3 className="font-semibold text-slate-800 text-lg leading-relaxed">
+                                {displayMessage}
+                                {isLongMessage && (
+                                  <span className="ml-2 text-sm text-cyan-600 font-normal">
+                                    (Click to view details)
+                                  </span>
+                                )}
+                              </h3>
+                              {formattedMessage.hasLinks && (
+                                <div className="flex items-center gap-1 mt-2">
+                                  <ExternalLink className="w-4 h-4 text-blue-500" />
+                                  <span className="text-sm text-blue-600 font-medium">
+                                    Contains {formattedMessage.links.length}{" "}
+                                    link(s)
+                                  </span>
+                                </div>
+                              )}
                             </div>
+                            <button
+                              onClick={(e) =>
+                                showNotificationActions(notification, e)
+                              }
+                              className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0"
+                              title="More options"
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                          </div>
 
-                            {/* Timestamp */}
-                            <div className="flex items-center justify-between">
-                              <span className="text-slate-500 text-xs font-medium">
-                                {formatDate(notification.createdAt)} at{" "}
-                                {useTime(notification.createdAt)}
-                              </span>
+                          {/* Action Link */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(actionLink.path);
+                            }}
+                            className={`px-4 py-2 ${actionLink.color} text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 mb-4`}
+                          >
+                            {actionLink.label}
+                            <ArrowRight className="w-4 h-4" />
+                          </button>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              {formatDate(notification.createdAt)},{" "}
+                              {useTime(notification.createdAt)}
+                            </p>
+
+                            <div className="flex items-center gap-2">
+                              {!notification.isRead && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markAsRead(notification._id);
+                                  }}
+                                  className="px-3 py-1.5 bg-cyan-100 text-cyan-700 rounded-lg text-sm font-medium hover:bg-cyan-200 transition-colors"
+                                >
+                                  Mark as Read
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -547,23 +572,22 @@ const ClientNotifications = () => {
                   );
                 })
               ) : (
-                /* Empty State */
-                <div className="bg-white rounded-xl shadow border border-slate-200 p-8 text-center">
-                  <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Bell className="w-6 h-6 text-slate-400" />
+                <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                  <div className="bg-slate-100 rounded-xl p-6 w-fit mx-auto mb-6">
+                    <Bell className="w-12 h-12 text-slate-400 mx-auto" />
                   </div>
-                  <h3 className="text-base font-semibold text-slate-700 mb-2">
-                    No notifications found
+                  <h3 className="text-xl font-semibold text-slate-700 mb-2">
+                    All caught up! 🎉
                   </h3>
-                  <p className="text-slate-500 text-sm">
+                  <p className="text-slate-500">
                     {searchTerm || filterType !== "all"
-                      ? "Try adjusting your search or filter"
-                      : "You're all caught up!"}
+                      ? "No notifications match your search criteria"
+                      : "You're all caught up! No new notifications."}
                   </p>
                 </div>
               )}
             </div>
-          </div>
+          </section>
         </div>
       </div>
 
@@ -594,7 +618,14 @@ const ClientNotifications = () => {
                       getNotificationConfig(selectedNotification.type).bgColor
                     }`}
                   >
-                    {getNotificationIcon(selectedNotification.type)}
+                    {(() => {
+                      const IconComponent = getNotificationConfig(
+                        selectedNotification.type
+                      ).icon;
+                      return IconComponent ? (
+                        <IconComponent className="w-5 h-5" />
+                      ) : null;
+                    })()}
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-slate-800">
@@ -644,10 +675,10 @@ const ClientNotifications = () => {
                             href={link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors turncate-2"
+                            className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition-colors truncate"
                           >
                             <ExternalLink className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                            <span className="text-blue-700 text-sm font-medium">
+                            <span className="text-blue-700 text-sm font-medium truncate">
                               {link}
                             </span>
                           </a>
@@ -800,16 +831,6 @@ const ClientNotifications = () => {
       </AnimatePresence>
     </div>
   );
-};
-
-// Helper function to get notification icon
-const getNotificationIcon = (type) => {
-  const iconMap = {
-    appointment: <Calendar className="w-5 h-5" />,
-    payment: <FileText className="w-5 h-5" />,
-    system: <Info className="w-5 h-5" />,
-  };
-  return iconMap[type] || <Bell className="w-5 h-5" />;
 };
 
 export default ClientNotifications;

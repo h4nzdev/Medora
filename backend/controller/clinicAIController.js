@@ -101,6 +101,37 @@ export const clinicAIChat = async (req, res) => {
     addMessageToClinicSession(clinicId, "user", message);
     const conversationContext = generateClinicConversationContext(session);
 
+    // Enhanced clinic context with navigation awareness
+    const clinicContext = `
+CLINIC OPERATIONS DATA - MEDORA CLINIC AI ASSISTANT:
+- Clinic: ${clinic.clinicName}
+- Contact: ${clinic.contactPerson}
+- Location: ${clinic.address}
+- Today: ${new Date().toLocaleDateString("en-PH", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })}
+
+APPLICATION NAVIGATION CONTEXT:
+- Current Portal: Clinic Management Portal
+- Available Sections: Dashboard, Appointments, Patients, Doctors, Medical Records, Invoices, Calendar, Chat, Settings
+- Key Modals: Add Appointment, Add Doctor, Add Invoice, Medical Records, Payment Processing
+
+SYSTEM DATA I CAN ACCESS:
+- Today's Appointments: ${clinicData.todays_appointments}
+- Total Doctors: ${clinicData.total_doctors}
+- Total Patients: ${clinicData.total_patients}
+- Pending Appointments: ${clinicData.pending_appointments}
+- Completed Appointments: ${clinicData.completed_appointments}
+
+CONVERSATION HISTORY:
+${conversationContext}
+
+CURRENT STAFF QUERY: ${message}
+`;
+
     const prompt = `
 You are Medora Clinic AI - a specialized operations assistant for clinic management in the Philippines. You have complete knowledge of the Medora application structure, navigation flows, and user interface.
 
@@ -183,37 +214,6 @@ IMPORTANT:
 - Reference actual UI components and modal names
 
 ${clinicContext}
-`;
-
-    // Enhanced clinic context with navigation awareness
-    const clinicContext = `
-CLINIC OPERATIONS DATA - MEDORA CLINIC AI ASSISTANT:
-- Clinic: ${clinic.clinicName}
-- Contact: ${clinic.contactPerson}
-- Location: ${clinic.address}
-- Today: ${new Date().toLocaleDateString("en-PH", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })}
-
-APPLICATION NAVIGATION CONTEXT:
-- Current Portal: Clinic Management Portal
-- Available Sections: Dashboard, Appointments, Patients, Doctors, Medical Records, Invoices, Calendar, Chat, Settings
-- Key Modals: Add Appointment, Add Doctor, Add Invoice, Medical Records, Payment Processing
-
-SYSTEM DATA I CAN ACCESS:
-- Today's Appointments: ${clinicData.todays_appointments}
-- Total Doctors: ${clinicData.total_doctors}
-- Total Patients: ${clinicData.total_patients}
-- Pending Appointments: ${clinicData.pending_appointments}
-- Completed Appointments: ${clinicData.completed_appointments}
-
-CONVERSATION HISTORY:
-${conversationContext}
-
-CURRENT STAFF QUERY: ${message}
 `;
 
     const model = genAI.getGenerativeModel({

@@ -1,41 +1,37 @@
+import { useState } from "react";
 import {
-  Clock,
   Shield,
   CheckCircle,
   CreditCard,
   Star,
   Zap,
   Crown,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 
 const plans = [
   {
-    name: "free",
+    name: "Free",
+    subtitle: "Perfect for getting started with basic clinic management.",
     price: "₱0",
-    priceDetails: "/month",
-    features: ["Up to 10 patients", "Basic scheduling", "Email support"],
-    icon: Star,
-    popular: false,
-  },
-  {
-    name: "basic",
-    price: "₱199",
-    priceDetails: "/month",
+    period: "/month",
     features: [
-      "Up to 20 patients",
-      "Advanced scheduling",
-      "Priority support",
-      "Basic analytics",
-      "SMS reminders",
+      "Up to 10 patients",
+      "Basic scheduling",
+      "Email support",
+      "Standard templates",
+      "Basic reporting",
     ],
-    icon: Zap,
+    buttonText: "Get Started Free",
     popular: false,
+    icon: Star,
   },
   {
-    name: "pro",
+    name: "Pro",
+    subtitle: "Perfect for growing teams with enhanced support & features.",
     price: "₱299",
-    priceDetails: "/month",
+    period: "/month",
     features: [
       "Unlimited patients",
       "Full features access",
@@ -45,240 +41,276 @@ const plans = [
       "API access",
       "Multi-clinic management",
     ],
-    icon: Crown,
+    buttonText: "Get Started",
     popular: true,
+    icon: Crown,
+  },
+  {
+    name: "Basic",
+    subtitle: "Great way to start and see what works right for each program.",
+    price: "₱199",
+    period: "/month",
+    features: [
+      "Up to 20 patients",
+      "Advanced scheduling",
+      "Priority support",
+      "Basic analytics",
+      "SMS reminders",
+    ],
+    buttonText: "Get Started",
+    popular: false,
+    icon: Zap,
   },
 ];
 
-const Subscriptions = () => {
-  const [showTour, setShowTour] = useState(false);
-
-  // Check if this is the first visit
-  useEffect(() => {
-    const hasVisited = localStorage.getItem("subscriptionPageVisited");
-    if (!hasVisited) {
-      setShowTour(true);
-      localStorage.setItem("subscriptionPageVisited", "true");
-    }
-  }, []);
+export default function Subscriptions() {
+  const [expandedPlan, setExpandedPlan] = useState(null);
 
   return (
     <section
-      id="subscriptions"
-      className="py-24 bg-gradient-to-br from-cyan-50 via-white to-cyan-50/30 relative overflow-hidden"
+      id="pricing"
+      className="py-12 md:py-20 bg-gradient-to-br from-cyan-50 to-white"
     >
-      {/* Enhanced Background Elements */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-50/80 via-white to-cyan-50/60"></div>
-
-      {/* Floating Medical Elements */}
-      <div className="absolute top-10 left-10 w-20 h-20 text-cyan-200/30 animate-float">
-        <div className="w-full h-full bg-cyan-200/20 rounded-full blur-xl"></div>
-      </div>
-      <div className="absolute bottom-20 right-16 w-16 h-16 text-cyan-300/40 animate-float delay-1000">
-        <div className="w-full h-full bg-cyan-300/30 rounded-full blur-xl"></div>
-      </div>
-      <div className="absolute top-1/2 left-1/4 w-12 h-12 text-cyan-400/20 animate-pulse">
-        <div className="w-full h-full bg-cyan-400/20 rounded-full blur-lg"></div>
-      </div>
-
-      {/* Subtle Grid Pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(#0891b2 1px, transparent 1px),
-                            linear-gradient(90deg, #0891b2 1px, transparent 1px)`,
-          backgroundSize: "50px 50px",
-        }}
-      ></div>
-
-      <div className="container mx-auto px-6 relative z-10">
-        <div id="tour-subscription-header" className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-cyan-100 text-cyan-700 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-            <CreditCard className="w-4 h-4" />
-            Transparent Pricing
-          </div>
-          <h3 className="text-4xl md:text-5xl font-bold text-slate-800 mb-4">
-            Choose Your Plan
+      <div className="container mx-auto px-4 md:px-6">
+        {/* Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <h3 className="text-3xl md:text-4xl font-bold text-slate-800 mb-3">
+            Plans & Pricing
           </h3>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Flexible pricing plans designed for clinics of all sizes.
-            <span className="text-cyan-600 font-semibold"> Start free</span> and
-            upgrade as you grow.
+          <p className="text-slate-600 max-w-2xl mx-auto text-lg md:text-lg">
+            Your health quality and 10+ years of experience for less money than
+            hiring a single mid-level designer.
           </p>
         </div>
 
-        <div
-          id="tour-subscription-cards"
-          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
-        >
+        {/* Mobile Accordion */}
+        <div className="space-y-4 max-w-2xl mx-auto md:hidden">
           {plans.map((plan, index) => {
             const IconComponent = plan.icon;
+            const isPro = plan.name === "Pro";
+
             return (
               <div
                 key={plan.name}
-                className={`relative group ${
-                  plan.popular ? "md:-mt-4 md:mb-4" : ""
+                className={`bg-white rounded-2xl overflow-hidden border ${
+                  isPro
+                    ? "border-cyan-500 shadow-lg"
+                    : "border-slate-200 shadow"
                 }`}
               >
-                {/* Popular Badge */}
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
-                    <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
-                      <Crown className="w-4 h-4" />
-                      MOST POPULAR
-                    </div>
-                  </div>
-                )}
-
-                <div
-                  className={`bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border-2 relative overflow-hidden ${
-                    plan.popular
-                      ? "border-cyan-500 scale-105 shadow-2xl"
-                      : "border-slate-200/80 group-hover:border-cyan-300"
-                  }`}
+                {/* Clickable Header */}
+                <button
+                  onClick={() =>
+                    setExpandedPlan(expandedPlan === index ? null : index)
+                  }
+                  className="w-full p-6 text-left flex items-center justify-between hover:bg-slate-50 transition-colors duration-200"
                 >
-                  {/* Gradient Top Bar */}
-                  <div
-                    className={`h-2 ${
-                      plan.name === "free"
-                        ? "bg-gradient-to-r from-slate-400 to-slate-500"
-                        : plan.name === "basic"
-                        ? "bg-gradient-to-r from-cyan-400 to-cyan-500"
-                        : "bg-gradient-to-r from-cyan-500 to-cyan-600"
-                    }`}
-                  ></div>
-
-                  <div className="p-8">
-                    {/* Plan Header */}
-                    <div className="text-center mb-8">
-                      <div
-                        className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 ${
-                          plan.name === "free"
-                            ? "bg-slate-100 text-slate-600"
-                            : plan.name === "basic"
-                            ? "bg-cyan-100 text-cyan-600"
-                            : "bg-gradient-to-br from-cyan-500 to-cyan-600 text-white"
+                  <div className="flex items-center gap-4 flex-1">
+                    <div
+                      className={`p-3 rounded-lg ${
+                        isPro ? "bg-cyan-100" : "bg-slate-100"
+                      }`}
+                    >
+                      <IconComponent
+                        className={`w-6 h-6 ${
+                          isPro ? "text-cyan-600" : "text-slate-600"
                         }`}
-                      >
-                        <IconComponent className="w-8 h-8" />
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3">
+                        <h4 className="text-xl font-bold text-slate-800">
+                          {plan.name}
+                        </h4>
+                        {plan.popular && (
+                          <div className="bg-cyan-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase">
+                            Popular
+                          </div>
+                        )}
                       </div>
-
-                      <h4 className="text-2xl font-bold text-slate-800 mb-2 capitalize">
-                        {plan.name} Plan
-                      </h4>
-
-                      <div className="flex items-baseline justify-center gap-1 mb-6">
-                        <span className="text-4xl font-bold text-slate-800">
+                      <div className="flex items-baseline gap-1 mt-1">
+                        <span
+                          className={`text-2xl font-bold ${
+                            isPro ? "text-cyan-600" : "text-slate-800"
+                          }`}
+                        >
                           {plan.price}
                         </span>
-                        <span className="text-slate-600">
-                          {plan.priceDetails}
+                        <span className="text-slate-500 text-sm">
+                          {plan.period}
                         </span>
                       </div>
-
-                      {/* CTA Button */}
-                      <a
-                        href="/clinic/register"
-                        className={`w-full block py-4 px-6 rounded-xl font-semibold transition-all duration-300 relative overflow-hidden group ${
-                          plan.name === "free"
-                            ? "bg-slate-100 text-slate-700 hover:bg-slate-200 hover:shadow-lg"
-                            : plan.name === "basic"
-                            ? "bg-cyan-100 text-cyan-700 hover:bg-cyan-200 hover:shadow-lg"
-                            : "bg-gradient-to-r from-cyan-500 to-cyan-600 text-white hover:from-cyan-600 hover:to-cyan-700 shadow-lg hover:shadow-xl"
-                        }`}
-                      >
-                        <span className="relative z-10">
-                          {plan.name === "free"
-                            ? "Get Started Free"
-                            : plan.name === "basic"
-                            ? "Start Basic Plan"
-                            : "Go Pro"}
-                        </span>
-                        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                      </a>
                     </div>
+                  </div>
+                  <div className="flex-shrink-0 ml-4">
+                    {expandedPlan === index ? (
+                      <ChevronUp className="w-5 h-5 text-slate-400" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                    )}
+                  </div>
+                </button>
+
+                {/* Expandable Content */}
+                {expandedPlan === index && (
+                  <div className="px-6 pb-6 border-t border-slate-100 pt-4 animate-in fade-in duration-300">
+                    <p className="text-slate-500 text-sm mb-4">
+                      {plan.subtitle}
+                    </p>
+
+                    <a
+                      href="/clinic/register"
+                      className={`block w-full py-3 px-6 rounded-full font-semibold text-center transition-all duration-200 mb-6 ${
+                        isPro
+                          ? "bg-cyan-500 hover:bg-cyan-600 text-white shadow-lg"
+                          : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                      }`}
+                    >
+                      {plan.buttonText}
+                    </a>
 
                     {/* Features List */}
-                    <ul className="space-y-4">
+                    <ul className="space-y-3 text-sm">
                       {plan.features.map((feature, featureIndex) => (
                         <li
                           key={featureIndex}
-                          className="flex items-center gap-3 group/item"
+                          className="flex items-start gap-3"
                         >
                           <CheckCircle
-                            className={`w-5 h-5 flex-shrink-0 ${
-                              plan.name === "free"
-                                ? "text-slate-400 group-hover/item:text-slate-600"
-                                : plan.name === "basic"
-                                ? "text-cyan-500 group-hover/item:text-cyan-600"
-                                : "text-cyan-500 group-hover/item:text-cyan-600"
-                            } transition-colors duration-200`}
+                            className={`w-5 h-5 ${
+                              isPro ? "text-cyan-500" : "text-slate-400"
+                            } mt-0.5 flex-shrink-0`}
                           />
-                          <span className="text-slate-700 group-hover/item:text-slate-900 transition-colors duration-200">
-                            {feature}
-                          </span>
+                          <span className="text-slate-700">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-                  {/* Hover Effect Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-cyan-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl pointer-events-none"></div>
+        {/* Desktop Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {plans.map((plan) => {
+            const IconComponent = plan.icon;
+            const isPro = plan.name === "Pro";
+
+            return (
+              <div
+                key={plan.name}
+                className={`relative bg-white rounded-3xl overflow-hidden flex flex-col h-full ${
+                  isPro
+                    ? "border-2 border-cyan-500 shadow-2xl transform scale-105"
+                    : "border border-slate-200 shadow-lg"
+                }`}
+              >
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <div className="absolute top-6 right-6 z-10">
+                    <div className="bg-cyan-500 text-white px-4 py-2 rounded-full text-sm font-semibold uppercase">
+                      Most Popular
+                    </div>
+                  </div>
+                )}
+
+                {/* Card Content */}
+                <div className="p-8 flex flex-col flex-1">
+                  {/* Icon and Name */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        isPro ? "bg-cyan-100" : "bg-slate-100"
+                      }`}
+                    >
+                      <IconComponent
+                        className={`w-6 h-6 ${
+                          isPro ? "text-cyan-600" : "text-slate-600"
+                        }`}
+                      />
+                    </div>
+                    <h4 className="text-2xl font-bold text-slate-800">
+                      {plan.name}
+                    </h4>
+                  </div>
+
+                  {/* Subtitle */}
+                  <p className="text-sm text-slate-500 mb-6 min-h-[60px]">
+                    {plan.subtitle}
+                  </p>
+
+                  {/* Price */}
+                  <div className="mb-6">
+                    <div className="flex items-baseline gap-1">
+                      <span
+                        className={`text-5xl font-bold ${
+                          isPro ? "text-cyan-600" : "text-slate-800"
+                        }`}
+                      >
+                        {plan.price}
+                      </span>
+                      <span className="text-slate-500 text-lg">
+                        {plan.period}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <a
+                    href="/clinic/register"
+                    className={`block w-full py-4 px-6 rounded-full font-semibold text-center transition-all duration-200 mb-8 ${
+                      isPro
+                        ? "bg-cyan-500 hover:bg-cyan-600 text-white shadow-lg hover:shadow-xl"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-800"
+                    }`}
+                  >
+                    {plan.buttonText}
+                  </a>
+
+                  {/* Features List */}
+                  <ul className="space-y-3 text-sm flex-1">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <CheckCircle
+                          className={`w-5 h-5 ${
+                            isPro ? "text-cyan-500" : "text-slate-400"
+                          } mt-0.5 flex-shrink-0`}
+                        />
+                        <span className="text-slate-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Enhanced Additional Info */}
-        <div id="tour-subscription-features" className="text-center mt-16">
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200/60 max-w-4xl mx-auto">
-            <p className="text-slate-600 mb-8 text-lg">
-              All plans include enterprise-grade security and compliance
-              features
+        {/* Trust Features */}
+        <div className="text-center mt-12 md:mt-16">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 max-w-2xl mx-auto">
+            <p className="text-slate-600 mb-6">
+              All plans include security and essential features
             </p>
-            <div className="flex flex-wrap justify-center gap-8 text-slate-600">
-              <div className="flex items-center gap-3 bg-cyan-50 px-4 py-3 rounded-xl">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 text-sm">
+              <div className="flex items-center gap-2 text-slate-600">
                 <Shield className="w-5 h-5 text-cyan-500" />
-                <span className="font-medium">HIPAA Compliant</span>
+                <span>HIPAA Compliant</span>
               </div>
-              <div className="flex items-center gap-3 bg-cyan-50 px-4 py-3 rounded-xl">
+              <div className="flex items-center gap-2 text-slate-600">
                 <CreditCard className="w-5 h-5 text-cyan-500" />
-                <span className="font-medium">No credit card required</span>
+                <span>No credit card required</span>
               </div>
-              <div className="flex items-center gap-3 bg-cyan-50 px-4 py-3 rounded-xl">
-                <Clock className="w-5 h-5 text-cyan-500" />
-                <span className="font-medium">Cancel anytime</span>
+              <div className="flex items-center gap-2 text-slate-600">
+                <CheckCircle className="w-5 h-5 text-cyan-500" />
+                <span>Cancel anytime</span>
               </div>
-            </div>
-
-            {/* Trust Badge */}
-            <div className="mt-8 pt-6 border-t border-slate-200/60">
-              <p className="text-sm text-slate-500">
-                Trusted by 500+ clinics nationwide • 99.9% uptime • 24/7 support
-              </p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Custom Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%,
-          100% {
-            transform: translateY(0px) rotate(0deg);
-          }
-          50% {
-            transform: translateY(-10px) rotate(5deg);
-          }
-        }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-      `}</style>
     </section>
   );
-};
-
-export default Subscriptions;
+}
