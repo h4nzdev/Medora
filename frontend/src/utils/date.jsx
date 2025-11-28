@@ -10,9 +10,22 @@ export const useTime = (isoString) => {
   const twelveHour = hours % 12 || 12; // Convert 0 to 12 for midnight
 
   return `${twelveHour}:${minutes} ${ampm}`;
-  // Returns "9:00 AM" from "2025-10-19T09:00:00.000+00:00"
-  // Returns "2:30 PM" from "2025-10-19T14:30:00.000+00:00"
-  // Returns "12:00 AM" from "2025-10-19T00:00:00.000+00:00"
+};
+
+export const formatTo12Hour = (timeString) => {
+  if (!timeString) return "";
+  if (timeString.includes("AM") || timeString.includes("PM")) {
+    return timeString;
+  }
+
+  if (timeString.includes(":")) {
+    const [hours, minutes] = timeString.split(":");
+    let hour = parseInt(hours);
+    const period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    return `${hour}:${minutes} ${period}`;
+  }
+  return `${timeString}:00 PM`;
 };
 
 export const createISOFromDateAndTime = (date, time24h) => {

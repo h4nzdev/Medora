@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { useReminder } from "../../../context/ReminderContext";
 import AddReminderModal from "../../../components/ClientComponents/AddReminderModal/AddReminderModal";
 import ReminderDropdown from "../../../components/ClientComponents/ReminderDropdown/ReminderDropdown";
+import { formatTo12Hour } from "../../../utils/date";
+import Swal from "sweetalert2";
 
 const ClientReminders = () => {
   const { reminders, saveReminders } = useReminder();
@@ -20,8 +22,27 @@ const ClientReminders = () => {
     setReminderToEdit(null);
   };
 
-  const handleRemove = (id) => {
-    if (window.confirm("Are you sure you want to remove this reminder?")) {
+  const handleRemove = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, remove it!",
+      cancelButtonText: "Cancel",
+      background: "#ffffff",
+      customClass: {
+        popup: "rounded-2xl shadow-xl",
+        title: "text-slate-800 text-xl font-bold",
+        htmlContainer: "text-slate-600",
+        confirmButton: "rounded-lg px-6 py-3 font-semibold",
+        cancelButton: "rounded-lg px-6 py-3 font-semibold",
+      },
+    });
+
+    if (result.isConfirmed) {
       const updated = reminders.filter((r) => r.id !== id);
       saveReminders(updated);
       toast.success("Reminder removed!");
@@ -137,7 +158,8 @@ const ClientReminders = () => {
                 All Reminders
               </h2>
               <p className="text-slate-600 mt-2 text-lg">
-                {reminders.length} reminder{reminders.length !== 1 ? "s" : ""} found
+                {reminders.length} reminder{reminders.length !== 1 ? "s" : ""}{" "}
+                found
               </p>
             </div>
 
@@ -200,9 +222,11 @@ const ClientReminders = () => {
                       </div>
                       <div>
                         <p className="text-cyan-700 font-bold text-xl">
-                          {r.time}
+                          {formatTo12Hour(r.time)}
                         </p>
-                        <p className="text-cyan-600 text-sm font-medium">Reminder Time</p>
+                        <p className="text-cyan-600 text-sm font-medium">
+                          Reminder Time
+                        </p>
                       </div>
                     </div>
 

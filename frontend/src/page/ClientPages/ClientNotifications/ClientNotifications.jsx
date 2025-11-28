@@ -654,21 +654,32 @@ const ClientNotifications = () => {
                     </label>
                     <div className="bg-slate-50 rounded-lg p-4">
                       <p className="text-slate-800 whitespace-pre-line break-words">
-                        {selectedNotification.message}
+                        {/* Check if it's a system notification and use systemMessage if available */}
+                        {selectedNotification.type === "system" &&
+                        selectedNotification.systemMessage
+                          ? selectedNotification.systemMessage
+                          : selectedNotification.message}
                       </p>
                     </div>
                   </div>
 
-                  {/* Links Section */}
-                  {formatMessageWithLinks(selectedNotification.message)
-                    .hasLinks && (
+                  {/* Links Section - Update this too */}
+                  {formatMessageWithLinks(
+                    selectedNotification.type === "system" &&
+                      selectedNotification.systemMessage
+                      ? selectedNotification.systemMessage
+                      : selectedNotification.message
+                  ).hasLinks && (
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
                         Links
                       </label>
                       <div className="space-y-2">
                         {formatMessageWithLinks(
-                          selectedNotification.message
+                          selectedNotification.type === "system" &&
+                            selectedNotification.systemMessage
+                            ? selectedNotification.systemMessage
+                            : selectedNotification.message
                         ).links.map((link, index) => (
                           <a
                             key={index}
