@@ -103,7 +103,7 @@ const ClinicAppointmentsTableBody = ({ appointments }) => {
                 </td>
                 <td className="px-4">
                   <p className="font-medium text-slate-700">
-                    {appointment.doctorId?.name}
+                    {appointment.doctorId?.name || "Doctor is unavailable"}
                   </p>
                 </td>
                 <td className="px-4">

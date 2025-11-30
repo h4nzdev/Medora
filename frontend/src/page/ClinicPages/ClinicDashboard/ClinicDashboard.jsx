@@ -306,7 +306,8 @@ export default function ClinicDashboard() {
                                 </span>
                               </div>
                               <p className="text-slate-600">
-                                {appointment.doctorId?.name}
+                                {appointment.doctorId?.name ||
+                                  "Doctor is unavailable"}
                               </p>
                               <p className="text-slate-500 text-sm mt-1">
                                 {useDate(appointment?.date)} at{" "}

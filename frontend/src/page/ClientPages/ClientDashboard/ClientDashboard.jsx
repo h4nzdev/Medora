@@ -602,7 +602,7 @@ export default function ClientDashboard() {
                     </div>
                     <div>
                       <p className="font-medium text-slate-800">
-                        {app.doctorId.name}
+                        {app.doctorId?.name || "Doctor is unavailable"}
                       </p>
                       <p className="text-sm text-slate-600">
                         {formatDate(app.date)}

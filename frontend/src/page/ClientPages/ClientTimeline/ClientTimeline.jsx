@@ -135,7 +135,8 @@ const ClientTimeline = () => {
                             <div className="flex items-center text-slate-900 min-w-0">
                               <User className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-500 mr-2 flex-shrink-0" />
                               <span className="font-bold text-base sm:text-lg group-hover:text-cyan-600 transition-colors duration-300 truncate">
-                                {appointment.doctorId?.name}
+                                {appointment.doctorId?.name ||
+                                  "Doctor is unavailable"}
                               </span>
                             </div>
                             <div className="flex-shrink-0">

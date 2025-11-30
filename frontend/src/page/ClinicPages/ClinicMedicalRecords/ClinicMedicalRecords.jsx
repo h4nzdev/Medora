@@ -63,7 +63,8 @@ export default function ClinicMedicalRecords() {
     .filter((record) => {
       const searchTermLower = searchTerm.toLowerCase();
       const patientName = record.patientId?.name?.toLowerCase() || "";
-      const doctorName = record.doctorId?.name?.toLowerCase() || "";
+      const doctorName =
+        record.doctorId?.name?.toLowerCase() || "Doctor is unavailable";
       const diagnosis = record.diagnosis?.toLowerCase() || "";
 
       return (

@@ -139,7 +139,7 @@ const ClientAppointmentActions = ({
                   Appointment Options
                 </h3>
                 <p className="text-slate-500 text-sm mt-1 truncate">
-                  {appointment?.doctorId?.name}
+                  {appointment?.doctorId?.name || "Doctor is unavailable"}
                 </p>
               </div>
 

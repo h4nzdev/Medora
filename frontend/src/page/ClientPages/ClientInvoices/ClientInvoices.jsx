@@ -246,7 +246,8 @@ export default function ClientInvoices() {
                             Invoice #{invoice.invoiceNumber}
                           </p>
                           <p className="text-slate-600 text-sm mb-2">
-                            Dr. {invoice.doctorId?.name}
+                            Dr.{" "}
+                            {invoice.doctorId?.name || "Doctor is unavailable"}
                           </p>
                         </div>
                         <div className="ml-4 flex-shrink-0">

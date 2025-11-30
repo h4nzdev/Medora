@@ -212,7 +212,7 @@ const ClientMedicalRecords = () => {
                 >
                   <div className="flex-grow">
                     <p className="text-xl font-bold text-slate-800 tracking-tight group-hover:text-cyan-600 transition-colors duration-300">
-                      {record.doctorId?.name}
+                      {record.doctorId?.name || "Doctor is unavailable"}
                     </p>
                     <p className="text-cyan-600 font-semibold text-sm tracking-wide uppercase mt-1">
                       {formatDate(record.createdAt)}
