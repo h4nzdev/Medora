@@ -218,7 +218,7 @@ const AppointmentSidebar = ({ isOpen, onClose, appointment }) => {
                     <User className="w-4 h-4 text-slate-500" />
                     <div>
                       <p className="font-medium text-slate-700">
-                        {appointment.doctorId.name || "Doctor is unavailable"}
+                        {appointment.doctorId?.name || "Doctor is unavailable"}
                       </p>
                       <p className="text-sm text-slate-500">Doctor</p>
                     </div>

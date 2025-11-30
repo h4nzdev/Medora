@@ -136,7 +136,8 @@ const ClinicCalendarSideBar = ({
                         Doctor
                       </h4>
                       <p className="text-slate-600">
-                        Dr. {appointment.doctorId?.name}
+                        Dr.{" "}
+                        {appointment.doctorId?.name || "Doctor is unavailable"}
                       </p>
                     </div>
 
