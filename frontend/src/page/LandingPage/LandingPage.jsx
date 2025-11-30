@@ -14,8 +14,7 @@ import FAQ from "./FAQ";
 import Team from "./Team";
 import Contact from "./Contact";
 import Footer from "./Footer";
-import { useSubscriptionPopup } from "../../hooks/useSubscriptionPopup";
-import SubscriptionPopup from "../../components/ClinicComponents/SubscriptionPopup";
+import LandingPageSubscription from "../../components/LandingPageSubscription";
 
 // Animation Configurations
 const sectionVariants = {
@@ -46,12 +45,25 @@ const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isPopupOpen, popupFeature, popupRequiredPlan, showPopup, hidePopup } =
-    useSubscriptionPopup();
+  const [showSubscription, setShowSubscription] = useState(false);
+
+  // Check session storage on component mount
+  useEffect(() => {
+    const subscriptionDismissed = sessionStorage.getItem(
+      "subscriptionDismissed"
+    );
+    if (!subscriptionDismissed) {
+      // Show subscription after a delay or based on scroll position
+      const timer = setTimeout(() => {
+        setShowSubscription(true);
+      }, 3000); // Show after 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   // Data fetching
   useEffect(() => {
-    showPopup("Unlock Exclusive Features", "pro");
     const fetchClinics = async () => {
       try {
         setLoading(true);
@@ -104,6 +116,20 @@ const LandingPage = () => {
     setIsMenuOpen(false);
   };
 
+  const handleCloseSubscription = (remindLater = false) => {
+    if (remindLater) {
+      // Save to session storage for this browser session only
+      sessionStorage.setItem("subscriptionDismissed", "true");
+    }
+    setShowSubscription(false);
+  };
+
+  const handleUpgradeClick = () => {
+    setShowSubscription(false);
+    // Optionally scroll to subscriptions section
+    scrollToSection("subscriptions");
+  };
+
   return (
     <motion.div
       className="min-h-screen bg-slate-50"
@@ -117,6 +143,18 @@ const LandingPage = () => {
         setIsMenuOpen={setIsMenuOpen}
         scrollToSection={scrollToSection}
       />
+
+      {/* Subscription Popup */}
+      {showSubscription && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="relative max-w-4xl w-full mx-auto">
+            <LandingPageSubscription
+              onClose={handleCloseSubscription}
+              onUpgrade={handleUpgradeClick}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content - Optimized Order & Timing */}
       <main>
@@ -163,13 +201,6 @@ const LandingPage = () => {
 
       {/* Footer */}
       <Footer />
-      <SubscriptionPopup
-        isOpen={isPopupOpen}
-        onClose={hidePopup}
-        featureName={popupFeature}
-        requiredPlan={popupRequiredPlan}
-        currentPlan="free"
-      />
     </motion.div>
   );
 };
