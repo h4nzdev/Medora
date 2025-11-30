@@ -14,6 +14,8 @@ import FAQ from "./FAQ";
 import Team from "./Team";
 import Contact from "./Contact";
 import Footer from "./Footer";
+import { useSubscriptionPopup } from "../../hooks/useSubscriptionPopup";
+import SubscriptionPopup from "../../components/ClinicComponents/SubscriptionPopup";
 
 // Animation Configurations
 const sectionVariants = {
@@ -44,9 +46,12 @@ const LandingPage = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isPopupOpen, popupFeature, popupRequiredPlan, showPopup, hidePopup } =
+    useSubscriptionPopup();
 
   // Data fetching
   useEffect(() => {
+    showPopup("Unlock Exclusive Features", "pro");
     const fetchClinics = async () => {
       try {
         setLoading(true);
@@ -158,6 +163,13 @@ const LandingPage = () => {
 
       {/* Footer */}
       <Footer />
+      <SubscriptionPopup
+        isOpen={isPopupOpen}
+        onClose={hidePopup}
+        featureName={popupFeature}
+        requiredPlan={popupRequiredPlan}
+        currentPlan="free"
+      />
     </motion.div>
   );
 };

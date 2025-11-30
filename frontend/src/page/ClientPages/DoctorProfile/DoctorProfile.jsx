@@ -74,7 +74,8 @@ const DoctorProfile = () => {
         (appointment) =>
           appointment.patientId?._id === user._id &&
           appointment.doctorId?._id === id &&
-          appointment.status === "pending"
+          (appointment.status === "scheduled" ||
+            appointment.status === "pending")
       );
 
       setHasPendingAppointment(!!pendingAppointment);
@@ -560,7 +561,7 @@ const DoctorProfile = () => {
                 ) : hasPendingAppointment ? (
                   <>
                     <Clock className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
-                    Appointment Pending
+                    Appointment Pending or Scheduled
                   </>
                 ) : hasUnpaid ? (
                   <>

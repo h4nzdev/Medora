@@ -14,6 +14,9 @@ import {
   Heart,
   Edit,
   Trash2,
+  Thermometer,
+  Scale,
+  Ruler,
 } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
@@ -73,8 +76,8 @@ const MedicalRecordDetailsSidebar = ({
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-slate-200">
               <div className="flex items-center gap-3">
-                <div className="bg-blue-100 p-2 rounded-lg">
-                  <FileText className="w-5 h-5 text-blue-600" />
+                <div className="bg-cyan-100 p-2 rounded-lg">
+                  <FileText className="w-5 h-5 text-cyan-600" />
                 </div>
                 <h2 className="text-xl font-semibold text-slate-800">
                   Medical Record
@@ -93,7 +96,7 @@ const MedicalRecordDetailsSidebar = ({
               {/* Patient Information */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                  <User className="w-5 h-5 text-blue-500" />
+                  <User className="w-5 h-5 text-cyan-500" />
                   Patient Information
                 </h3>
                 <div className="space-y-3">
@@ -121,7 +124,7 @@ const MedicalRecordDetailsSidebar = ({
               {/* Record Details */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-green-500" />
+                  <FileText className="w-5 h-5 text-cyan-500" />
                   Record Details
                 </h3>
                 <div className="space-y-3">
@@ -135,23 +138,104 @@ const MedicalRecordDetailsSidebar = ({
                     <Stethoscope className="w-4 h-4" />
                     <span>{record.doctorId?.name}</span>
                   </div>
-                  {record.type && (
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Activity className="w-4 h-4" />
-                      <span className="capitalize">{record.type}</span>
-                    </div>
-                  )}
                 </div>
               </div>
+
+              {/* Chief Complaint */}
+              {record.chiefComplaint && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-cyan-500" />
+                    Chief Complaint
+                  </h3>
+                  <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                    <p className="text-cyan-800">{record.chiefComplaint}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Vital Signs */}
+              {record.vitals && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-cyan-500" />
+                    Vital Signs
+                  </h3>
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                    {record.vitals.bloodPressure?.systolic &&
+                      record.vitals.bloodPressure?.diastolic && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">
+                            Blood Pressure:
+                          </span>
+                          <span className="font-medium text-slate-800">
+                            {record.vitals.bloodPressure.systolic}/
+                            {record.vitals.bloodPressure.diastolic} mmHg
+                          </span>
+                        </div>
+                      )}
+                    {record.vitals.heartRate && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Heart Rate:</span>
+                        <span className="font-medium text-slate-800">
+                          {record.vitals.heartRate} bpm
+                        </span>
+                      </div>
+                    )}
+                    {record.vitals.temperature && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Temperature:</span>
+                        <span className="font-medium text-slate-800">
+                          {record.vitals.temperature} °C
+                        </span>
+                      </div>
+                    )}
+                    {record.vitals.respiratoryRate && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">
+                          Respiratory Rate:
+                        </span>
+                        <span className="font-medium text-slate-800">
+                          {record.vitals.respiratoryRate} /min
+                        </span>
+                      </div>
+                    )}
+                    {record.vitals.oxygenSaturation && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">SpO2:</span>
+                        <span className="font-medium text-slate-800">
+                          {record.vitals.oxygenSaturation}%
+                        </span>
+                      </div>
+                    )}
+                    {record.vitals.weight && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Weight:</span>
+                        <span className="font-medium text-slate-800">
+                          {record.vitals.weight} kg
+                        </span>
+                      </div>
+                    )}
+                    {record.vitals.height && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Height:</span>
+                        <span className="font-medium text-slate-800">
+                          {record.vitals.height} cm
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Diagnosis */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-500" />
+                  <AlertTriangle className="w-5 h-5 text-cyan-500" />
                   Diagnosis
                 </h3>
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                  <p className="text-amber-800">{record.diagnosis}</p>
+                <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                  <p className="text-cyan-800">{record.diagnosis}</p>
                 </div>
               </div>
 
@@ -159,37 +243,84 @@ const MedicalRecordDetailsSidebar = ({
               {record.treatment && (
                 <div>
                   <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                    <Pill className="w-5 h-5 text-purple-500" />
+                    <Pill className="w-5 h-5 text-cyan-500" />
                     Treatment
                   </h3>
-                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-                    <p className="text-purple-800">{record.treatment}</p>
+                  <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                    <p className="text-cyan-800">{record.treatment}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Prescriptions */}
+              {record.prescriptions && record.prescriptions.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <Pill className="w-5 h-5 text-cyan-500" />
+                    Prescriptions
+                  </h3>
+                  <div className="space-y-3">
+                    {record.prescriptions.map((prescription, index) => (
+                      <div
+                        key={index}
+                        className="bg-slate-50 border border-slate-200 rounded-xl p-4"
+                      >
+                        <div className="font-medium text-slate-800 mb-2">
+                          {prescription.medicine}
+                        </div>
+                        <div className="text-sm text-slate-600 space-y-1">
+                          <div>Dosage: {prescription.dosage}</div>
+                          <div>Duration: {prescription.duration}</div>
+                          {prescription.notes && (
+                            <div>Notes: {prescription.notes}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Follow-up */}
+              {record.followUp && (
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-cyan-500" />
+                    Follow-up
+                  </h3>
+                  <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-cyan-700">Date:</span>
+                        <span className="font-medium text-cyan-800">
+                          {new Date(record.followUp.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      {record.followUp.notes && (
+                        <div>
+                          <span className="text-cyan-700">Notes:</span>
+                          <p className="text-cyan-800 mt-1">
+                            {record.followUp.notes}
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Notes */}
               {record.notes && (
-                <div>
+                <div className="pb-8">
                   <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                    <Heart className="w-5 h-5 text-red-500" />
+                    <FileText className="w-5 h-5 text-cyan-500" />
                     Additional Notes
                   </h3>
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                    <p className="text-slate-700">{record.notes}</p>
+                  <div className="bg-cyan-50 border border-cyan-200 rounded-xl p-4">
+                    <p className="text-cyan-800">{record.notes}</p>
                   </div>
                 </div>
               )}
-
-              {/* Status */}
-              <div>
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">
-                  Record Status
-                </h3>
-                <span className="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-lg text-sm">
-                  Reviewed
-                </span>
-              </div>
             </div>
 
             {/* Footer with Actions */}
@@ -197,7 +328,7 @@ const MedicalRecordDetailsSidebar = ({
               <div className="flex gap-3">
                 <button
                   onClick={handleEdit}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
                 >
                   <Edit className="w-4 h-4" />
                   Edit Record

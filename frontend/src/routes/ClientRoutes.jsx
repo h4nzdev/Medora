@@ -14,6 +14,7 @@ import DoctorsList from "../page/ClientPages/DoctorsList/DoctorsList";
 import DoctorProfile from "../page/ClientPages/DoctorProfile/DoctorProfile";
 import ClientInvoices from "../page/ClientPages/ClientInvoices/ClientInvoices";
 import ClientNotifications from "../page/ClientPages/ClientNotifications/ClientNotifications";
+import ClientMedicalRecordDetails from "../page/ClientPages/ClientMedicalRecords/components/ClientMedicalRecordDetails";
 
 const ClientRoutes = () => {
   return (
@@ -89,6 +90,14 @@ const ClientRoutes = () => {
           element={
             <ClientLayout>
               <ClientMedicalRecords />
+            </ClientLayout>
+          }
+        />
+        <Route
+          path="/client/medical-records/:id"
+          element={
+            <ClientLayout>
+              <ClientMedicalRecordDetails />
             </ClientLayout>
           }
         />

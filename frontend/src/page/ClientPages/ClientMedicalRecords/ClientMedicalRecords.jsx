@@ -10,14 +10,15 @@ import {
 } from "lucide-react";
 import useMedicalRecords from "../../../hooks/medicalRecords";
 import { useState } from "react";
-import MedicalRecordsModal from "../../../components/ClientComponents/MedicalRecordsModal/MedicalRecordsModal";
 import jsPDF from "jspdf";
 import { formatDate, useTime } from "../../../utils/date";
 import { deleteMedicalRecord } from "../../../services/medicalrecords_services/recordsServices";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const ClientMedicalRecords = () => {
   const { records } = useMedicalRecords();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
@@ -29,6 +30,10 @@ const ClientMedicalRecords = () => {
   const closeModal = () => {
     setIsOpen(false);
     setSelectedRecord(null);
+  };
+
+  const openRecordDetails = (recordId) => {
+    navigate(`/client/medical-records/${recordId}`);
   };
 
   const handleDownloadAll = (records) => {
@@ -218,7 +223,7 @@ const ClientMedicalRecords = () => {
                     </p>
                   </div>
                   <button
-                    onClick={() => openModal(record)}
+                    onClick={() => openRecordDetails(record._id)}
                     className="mt-auto flex items-center justify-center p-3 bg-slate-100/80 backdrop-blur-sm text-slate-700 rounded-lg hover:bg-slate-200 hover:shadow-md group-hover:bg-cyan-50 group-hover:text-cyan-700 transition-all duration-300 border border-slate-200/50 w-full"
                   >
                     <Eye className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-300" />
@@ -309,7 +314,7 @@ const ClientMedicalRecords = () => {
                       <td className="px-6 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => openModal(record)}
+                            onClick={() => openRecordDetails(record._id)}
                             className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-cyan-500 to-sky-500 text-white rounded-xl hover:shadow-md hover:scale-105 transition-all duration-300 text-sm font-semibold"
                           >
                             <Eye className="w-4 h-4 mr-1" />
@@ -348,11 +353,6 @@ const ClientMedicalRecords = () => {
           </div>
         </section>
       </div>
-      <MedicalRecordsModal
-        isOpen={isOpen}
-        setIsOpen={closeModal}
-        record={selectedRecord}
-      />
     </div>
   );
 };

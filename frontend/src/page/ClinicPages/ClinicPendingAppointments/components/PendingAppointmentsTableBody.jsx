@@ -97,7 +97,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
       const appointment = appointments.find((apt) => apt._id === appointmentId);
 
       // Define which booking types require consultation links
-      const needsConsultationLink = ["walk-in", "online"];
+      const needsConsultationLink = ["online"];
 
       // For appointments that need consultation links, open modal first
       if (
@@ -179,7 +179,7 @@ const PendingAppointmentsTableBody = ({ appointments }) => {
 
   const confirmAction = (appointmentId, action) => {
     const appointment = appointments.find((apt) => apt._id === appointmentId);
-    const needsConsultationLink = ["walk-in", "online"];
+    const needsConsultationLink = ["online"];
 
     // For appointments needing links, show different confirmation message
     if (

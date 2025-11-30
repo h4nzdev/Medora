@@ -48,7 +48,6 @@ export const loginClinic = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // ✅ CREATE JWT TOKEN instead of session
     const tokenPayload = {
       _id: clinic._id,
       email: clinic.email,

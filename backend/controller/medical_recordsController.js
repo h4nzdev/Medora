@@ -11,10 +11,13 @@ export const addMedicalRecord = async (req, res) => {
       clinicId,
       doctorId,
       appointmentId,
+      chiefComplaint,
+      vitals,
       diagnosis,
       treatment,
       notes,
       prescriptions,
+      followUp,
     } = req.body;
 
     // Create a new record document
@@ -23,10 +26,13 @@ export const addMedicalRecord = async (req, res) => {
       clinicId,
       doctorId,
       appointmentId,
+      chiefComplaint,
+      vitals,
       diagnosis,
       treatment,
       notes,
       prescriptions,
+      followUp,
     });
 
     // Save it to the database
@@ -54,7 +60,7 @@ export const addMedicalRecord = async (req, res) => {
 export const getAllMedicalRecords = async (req, res) => {
   try {
     const records = await MedicalRecord.find()
-      .populate("patientId", "name age gender") // only show some fields
+      .populate("patientId", "name age gender")
       .populate("doctorId", "name specialty")
       .populate("clinicId", "clinicName email")
       .populate("appointmentId", "date status");
@@ -105,22 +111,8 @@ export const getRecordsByPatient = async (req, res) => {
 };
 
 // ================================
-// Delete a medical record
+// Get all records for a specific clinic
 // ================================
-export const deleteMedicalRecord = async (req, res) => {
-  try {
-    const record = await MedicalRecord.findByIdAndDelete(req.params.id);
-
-    if (!record) {
-      return res.status(404).json({ message: "Medical record not found" });
-    }
-
-    res.json({ message: "Medical record deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
-
 export const getRecordsByClinic = async (req, res) => {
   try {
     const records = await MedicalRecord.find({
@@ -137,6 +129,23 @@ export const getRecordsByClinic = async (req, res) => {
     }
 
     res.json(records);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// ================================
+// Delete a medical record
+// ================================
+export const deleteMedicalRecord = async (req, res) => {
+  try {
+    const record = await MedicalRecord.findByIdAndDelete(req.params.id);
+
+    if (!record) {
+      return res.status(404).json({ message: "Medical record not found" });
+    }
+
+    res.json({ message: "Medical record deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

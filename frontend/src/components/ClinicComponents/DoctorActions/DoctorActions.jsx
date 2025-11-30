@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -46,34 +46,40 @@ const DoctorActions = ({ id, doctor, onEdit }) => {
     <div className="relative">
       <button
         type="button"
-        className="p-2 hover:bg-slate-100 rounded-md text-slate-500"
+        className="p-2 hover:bg-slate-100 rounded-md text-slate-500 transition-colors duration-200"
         aria-label="More"
         onClick={handleToggle}
       >
         <MoreHorizontal className="h-5 w-5" />
       </button>
+
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-50 px-4">
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 border border-slate-200 overflow-hidden">
           <button
             onClick={() => {
               onEdit();
               setIsOpen(false);
             }}
-            className="block py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start border-b border-gray-300"
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-200 border-b border-slate-100"
           >
-            Edit
+            <Edit className="h-4 w-4 text-cyan-600" />
+            <span>Edit Doctor</span>
           </button>
-          <button
-            onClick={confirmDelete}
-            className="block py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start border-b border-gray-300"
-          >
-            Delete
-          </button>
+
           <button
             onClick={() => navigate(`/clinic/doctor-profile/${id}`)}
-            className="block py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-start border-b border-gray-300"
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-200 border-b border-slate-100"
           >
-            View
+            <Eye className="h-4 w-4 text-blue-600" />
+            <span>View Profile</span>
+          </button>
+
+          <button
+            onClick={confirmDelete}
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+          >
+            <Trash2 className="h-4 w-4 text-red-600" />
+            <span>Delete Doctor</span>
           </button>
         </div>
       )}

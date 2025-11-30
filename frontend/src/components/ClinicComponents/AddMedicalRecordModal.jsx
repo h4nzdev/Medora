@@ -9,6 +9,10 @@ import {
   Stethoscope,
   ClipboardList,
   Loader2,
+  Heart,
+  Thermometer,
+  Scale,
+  Ruler,
 } from "lucide-react";
 import { toast } from "sonner";
 import { createNotification } from "../../services/notificationService";
@@ -22,16 +26,33 @@ const AddMedicalRecordModal = ({
   doctorId,
   appointmentId,
 }) => {
+  const [chiefComplaint, setChiefComplaint] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [treatment, setTreatment] = useState("");
   const [notes, setNotes] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { fetchAppointments } = useContext(AppointmentContext);
   const [prescriptions, setPrescriptions] = useState([
-    { medicine: "", dosage: "", duration: "" },
+    { medicine: "", dosage: "", duration: "", notes: "" },
   ]);
 
-  console.log(appointmentId);
+  // New state for vitals
+  const [vitals, setVitals] = useState({
+    bloodPressure: { systolic: "", diastolic: "" },
+    heartRate: "",
+    temperature: "",
+    respiratoryRate: "",
+    oxygenSaturation: "",
+    weight: "",
+    height: "",
+  });
+
+  // New state for follow-up
+  const [followUp, setFollowUp] = useState({
+    required: false,
+    date: "",
+    notes: "",
+  });
 
   const handlePrescriptionChange = (index, event) => {
     const values = [...prescriptions];
@@ -42,7 +63,7 @@ const AddMedicalRecordModal = ({
   const handleAddPrescription = () => {
     setPrescriptions([
       ...prescriptions,
-      { medicine: "", dosage: "", duration: "" },
+      { medicine: "", dosage: "", duration: "", notes: "" },
     ]);
   };
 
@@ -50,6 +71,33 @@ const AddMedicalRecordModal = ({
     const values = [...prescriptions];
     values.splice(index, 1);
     setPrescriptions(values);
+  };
+
+  // Handle vitals changes
+  const handleVitalsChange = (field, value) => {
+    if (field.includes(".")) {
+      const [parent, child] = field.split(".");
+      setVitals((prev) => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value,
+        },
+      }));
+    } else {
+      setVitals((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    }
+  };
+
+  // Handle follow-up changes
+  const handleFollowUpChange = (field, value) => {
+    setFollowUp((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -64,10 +112,13 @@ const AddMedicalRecordModal = ({
           clinicId,
           doctorId,
           appointmentId,
+          chiefComplaint,
+          vitals,
           diagnosis,
           treatment,
           notes,
           prescriptions,
+          followUp: followUp.required ? followUp : undefined,
         }
       );
 
@@ -87,7 +138,7 @@ const AddMedicalRecordModal = ({
 
       toast.success("Medical records was added successfully");
       fetchAppointments();
-      onClose(); // Close modal on success
+      onClose();
     } catch (error) {
       console.error("Error adding medical record:", error);
     } finally {
@@ -101,7 +152,7 @@ const AddMedicalRecordModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-      <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl w-full max-w-3xl shadow-2xl border border-slate-200/50 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl w-full max-w-4xl shadow-2xl border border-slate-200/50 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -126,6 +177,170 @@ const AddMedicalRecordModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Chief Complaint */}
+          <div className="group">
+            <label
+              htmlFor="chiefComplaint"
+              className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3 tracking-wide uppercase"
+            >
+              <Stethoscope className="w-4 h-4 text-red-600" />
+              Chief Complaint
+            </label>
+            <textarea
+              id="chiefComplaint"
+              value={chiefComplaint}
+              onChange={(e) => setChiefComplaint(e.target.value)}
+              rows="2"
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-slate-50/50 backdrop-blur-sm hover:border-slate-300 transition-all duration-300 text-slate-800 font-medium resize-none"
+              placeholder="Enter patient's main complaint..."
+              required
+            ></textarea>
+          </div>
+
+          {/* Vitals Section */}
+          <div className="group">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-4 tracking-wide uppercase">
+              <Heart className="w-4 h-4 text-red-600" />
+              Vital Signs
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Blood Pressure */}
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-slate-600 uppercase tracking-wide">
+                  Blood Pressure
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Systolic"
+                    value={vitals.bloodPressure.systolic}
+                    onChange={(e) =>
+                      handleVitalsChange(
+                        "bloodPressure.systolic",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                  />
+                  <span className="flex items-center text-slate-400">/</span>
+                  <input
+                    type="number"
+                    placeholder="Diastolic"
+                    value={vitals.bloodPressure.diastolic}
+                    onChange={(e) =>
+                      handleVitalsChange(
+                        "bloodPressure.diastolic",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Heart Rate */}
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                  Heart Rate (bpm)
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 72"
+                  value={vitals.heartRate}
+                  onChange={(e) =>
+                    handleVitalsChange("heartRate", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                />
+              </div>
+
+              {/* Temperature */}
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                  <Thermometer className="w-3 h-3 inline mr-1" />
+                  Temp (°C)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="e.g., 36.6"
+                  value={vitals.temperature}
+                  onChange={(e) =>
+                    handleVitalsChange("temperature", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                />
+              </div>
+
+              {/* Respiratory Rate */}
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                  Respiratory Rate
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 16"
+                  value={vitals.respiratoryRate}
+                  onChange={(e) =>
+                    handleVitalsChange("respiratoryRate", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                />
+              </div>
+
+              {/* Oxygen Saturation */}
+              <div>
+                <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                  SpO2 (%)
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 98"
+                  value={vitals.oxygenSaturation}
+                  onChange={(e) =>
+                    handleVitalsChange("oxygenSaturation", e.target.value)
+                  }
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                />
+              </div>
+
+              {/* Weight and Height */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                    <Scale className="w-3 h-3 inline mr-1" />
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="e.g., 70"
+                    value={vitals.weight}
+                    onChange={(e) =>
+                      handleVitalsChange("weight", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                    <Ruler className="w-3 h-3 inline mr-1" />
+                    Height (cm)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g., 175"
+                    value={vitals.height}
+                    onChange={(e) =>
+                      handleVitalsChange("height", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Diagnosis */}
           <div className="group">
             <label
@@ -164,6 +379,65 @@ const AddMedicalRecordModal = ({
               placeholder="Describe the treatment plan and procedures..."
               required
             ></textarea>
+          </div>
+
+          {/* Follow-up Section */}
+          <div className="group">
+            <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-3 tracking-wide uppercase">
+              <FileText className="w-4 h-4 text-orange-600" />
+              Follow-up
+            </label>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="followUpRequired"
+                  checked={followUp.required}
+                  onChange={(e) =>
+                    handleFollowUpChange("required", e.target.checked)
+                  }
+                  className="w-4 h-4 text-cyan-600 rounded focus:ring-cyan-500"
+                />
+                <label
+                  htmlFor="followUpRequired"
+                  className="text-slate-700 font-medium"
+                >
+                  Schedule Follow-up Appointment
+                </label>
+              </div>
+
+              {followUp.required && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                      Follow-up Date
+                    </label>
+                    <input
+                      type="date"
+                      value={followUp.date}
+                      onChange={(e) =>
+                        handleFollowUpChange("date", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                      Follow-up Notes
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Review test results"
+                      value={followUp.notes}
+                      onChange={(e) =>
+                        handleFollowUpChange("notes", e.target.value)
+                      }
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Notes */}
@@ -208,7 +482,7 @@ const AddMedicalRecordModal = ({
                   key={index}
                   className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-xl border border-slate-200/50 shadow-sm hover:shadow-md transition-all duration-300"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
                     <div>
                       <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
                         Medicine
@@ -244,6 +518,19 @@ const AddMedicalRecordModal = ({
                         name="duration"
                         placeholder="e.g., 7 days"
                         value={prescription.duration}
+                        onChange={(e) => handlePrescriptionChange(index, e)}
+                        className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1 uppercase tracking-wide">
+                        Notes
+                      </label>
+                      <input
+                        type="text"
+                        name="notes"
+                        placeholder="e.g., Take after meals"
+                        value={prescription.notes}
                         onChange={(e) => handlePrescriptionChange(index, e)}
                         className="w-full px-3 py-2 border border-slate-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-slate-800 font-medium"
                       />

@@ -26,14 +26,9 @@ clinicAuthRoutes.post("/send-verification", sendVerification);
 clinicAuthRoutes.post("/logout", authenticate, logoutClinic);
 clinicAuthRoutes.post(
   "/send-password-verification",
-  authenticate,
   sendClinicPasswordChangeVerification
 );
-clinicAuthRoutes.post(
-  "/verify-change-password",
-  authenticate,
-  verifyAndChangeClinicPassword
-);
+clinicAuthRoutes.post("/verify-change-password", verifyAndChangeClinicPassword);
 clinicAuthRoutes.patch(
   "/update-password/:clinicId",
   requireClinic,

@@ -20,23 +20,49 @@ const MedicalRecordSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Appointment",
   },
+
+  chiefComplaint: {
+    type: String,
+    required: true,
+  },
+  vitals: {
+    bloodPressure: {
+      systolic: Number,
+      diastolic: Number,
+    },
+    heartRate: Number,
+    temperature: Number,
+    respiratoryRate: Number,
+    oxygenSaturation: Number,
+    weight: Number, // in kg
+    height: Number, // in cm
+  },
+
   diagnosis: {
-    type: String, // e.g. "Flu", "Hypertension"
+    type: String,
     required: true,
   },
   treatment: {
-    type: String, // e.g. "Paracetamol 500mg, rest, hydration"
+    type: String,
   },
   notes: {
-    type: String, // doctor's additional notes
+    type: String,
   },
   prescriptions: [
     {
       medicine: String,
-      dosage: String, // e.g. "1 tablet twice a day"
-      duration: String, // e.g. "5 days"
+      dosage: String,
+      duration: String,
+      notes: String, // e.g., "Take after meals"
     },
   ],
+
+  followUp: {
+    required: Boolean,
+    date: Date,
+    notes: String, // e.g., "Review blood test results"
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

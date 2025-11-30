@@ -25,13 +25,8 @@ patientAuthRouter.post("/send-verification", sendVerification);
 patientAuthRouter.post("/logout", authenticate, logoutPatient); // ADDED: authenticate middleware
 patientAuthRouter.post(
   "/send-password-verification",
-  authenticate, // ADDED: User must be logged in to change password
   sendPasswordChangeVerification
 );
-patientAuthRouter.post(
-  "/verify-change-password",
-  authenticate, // ADDED: User must be logged in to change password
-  verifyAndChangePassword
-);
+patientAuthRouter.post("/verify-change-password", verifyAndChangePassword);
 
 export default patientAuthRouter;
