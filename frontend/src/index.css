@@ -4,6 +4,10 @@ html {
   scroll-behavior: smooth;
 }
 
+button {
+  cursor: pointer;
+}
+
 /* For Chrome, Safari, Edge */
 .hide-scroll::-webkit-scrollbar {
   display: none;

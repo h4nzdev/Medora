@@ -5,6 +5,8 @@ import { useContext } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
 import jsPDF from "jspdf";
 import { cleanSummary } from "../../../../utils/formatText";
+import { useSubscriptionPopup } from "../../../../hooks/useSubscriptionPopup";
+import SubscriptionPopup from "../../../../components/ClinicComponents/SubscriptionPopup";
 
 export default function ClientChatsModal({ patient, initialChat, onClose }) {
   const { user } = useContext(AuthContext);
@@ -13,6 +15,10 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
   const [summarizing, setSummarizing] = useState(false);
   const [summary, setSummary] = useState(null);
   const [showSummary, setShowSummary] = useState(false);
+  const { isPopupOpen, popupFeature, popupRequiredPlan, showPopup, hidePopup } =
+    useSubscriptionPopup();
+
+  const isNotPro = user.subscriptionPlan !== "pro";
 
   useEffect(() => {
     const fetchPatientChats = async () => {
@@ -114,6 +120,18 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
     doc.save(fileName);
   };
 
+  const showPlan = () => {
+    showPopup("Chat Summarization", "pro");
+  };
+
+  const handleSummarizeClick = () => {
+    if (isNotPro) {
+      showPlan();
+    } else {
+      handleSummarizeChat();
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 w-full max-w-4xl max-h-[90vh] flex flex-col">
@@ -204,13 +222,15 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
             <div className="flex justify-center">
               <button
                 type="button"
-                disabled={user.subscriptionPlan !== "pro" || summarizing}
-                onClick={handleSummarizeChat}
-                className={`group flex items-center gap-3 px-6 py-3 ${
-                  user.subscriptionPlan !== "pro" || summarizing
+                disabled={summarizing}
+                onClick={handleSummarizeClick}
+                className={`group flex items-center gap-3 px-6 py-3 cursor-pointer ${
+                  summarizing
                     ? "bg-gray-500/50 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 to-sky-500"
-                } text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 hover:from-cyan-600 hover:to-sky-600`}
+                    : isNotPro
+                    ? "bg-gradient-to-r from-slate-500 to-slate-500 hover:from-slate-600 hover:to-slate-600"
+                    : "bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-600 hover:to-sky-600"
+                } text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300`}
               >
                 {summarizing ? (
                   <>
@@ -307,6 +327,13 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
           </div>
         </div>
       )}
+      <SubscriptionPopup
+        isOpen={isPopupOpen}
+        onClose={hidePopup}
+        featureName={popupFeature}
+        requiredPlan={popupRequiredPlan}
+        currentPlan={user.subscriptionPlan}
+      />
     </div>
   );
 }

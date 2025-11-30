@@ -12,19 +12,19 @@ import {
   logoVariants,
   ringVariants,
 } from "../animations/splashscreen";
-import { useNotification } from "../context/NotificationContext"; // 👈 ADD THIS IMPORT
+import { useNotification } from "../context/NotificationContext";
 import Chatbot from "../components/ClinicComponents/Chatbot/Chatbot";
 
 const ClinicLayout = ({ children }) => {
   const isMobile = useResponsive();
   const { user } = useContext(AuthContext);
   const [showSplash, setShowSplash] = useState(true);
-  const { setShowSplashNotif } = useNotification(); // 👈 ADD THIS
+  const { setShowSplashNotif } = useNotification();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
-      setShowSplashNotif(false); // 👈 ADD THIS LINE - CRITICAL!
+      setShowSplashNotif(false);
     }, 3000);
     return () => clearTimeout(timer);
   }, []);

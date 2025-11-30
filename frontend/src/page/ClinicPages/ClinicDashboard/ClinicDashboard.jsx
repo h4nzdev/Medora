@@ -25,6 +25,8 @@ import DashboardCharts from "./DashboardCharts";
 import { getInvoicesByClinic } from "../../../services/invoiceService";
 import { Link } from "react-router-dom";
 import { useTourGuide } from "../../../hooks/useTourGuide";
+import SubscriptionPopup from "../../../components/ClinicComponents/SubscriptionPopup";
+import { useSubscriptionPopup } from "../../../hooks/useSubscriptionPopup";
 
 export default function ClinicDashboard() {
   const { appointments } = useContext(AppointmentContext);
@@ -35,6 +37,17 @@ export default function ClinicDashboard() {
   const [view, setView] = useState("default");
   const [invoices, setInvoices] = useState([]);
   const [showTour, setShowTour] = useState(false);
+
+  const { isPopupOpen, popupFeature, popupRequiredPlan, showPopup, hidePopup } =
+    useSubscriptionPopup();
+
+  const handleChartsClick = () => {
+    if (user.subscriptionPlan !== "pro") {
+      showPopup("Advanced Analytics & Charts", "pro");
+    } else {
+      setView("charts");
+    }
+  };
 
   // Check if this is the first visit
   useEffect(() => {
@@ -155,19 +168,16 @@ export default function ClinicDashboard() {
               Default
             </button>
             <button
-              disabled={user.subscriptionPlan !== "pro"}
-              onClick={() => setView("charts")}
-              className={`px-4 py-2 ${
-                user.subscriptionPlan !== "pro"
-                  ? "cursor-not-allowed"
-                  : "cursor-pointer"
-              } rounded-lg ${
+              onClick={handleChartsClick}
+              className={`px-4 py-2 rounded-lg ${
                 view === "charts"
                   ? "bg-cyan-600 text-white"
-                  : "bg-gray-200 text-gray-800"
+                  : user.subscriptionPlan === "pro"
+                  ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  : "bg-gray-200 text-gray-400"
               }`}
             >
-              Charts
+              Charts {user.subscriptionPlan !== "pro" && "(Pro)"}
             </button>
           </div>
         </div>
@@ -430,6 +440,13 @@ export default function ClinicDashboard() {
           <DashboardCharts />
         )}
       </div>
+      <SubscriptionPopup
+        isOpen={isPopupOpen}
+        onClose={hidePopup}
+        featureName={popupFeature}
+        requiredPlan={popupRequiredPlan}
+        currentPlan={user.subscriptionPlan}
+      />
     </div>
   );
 }
