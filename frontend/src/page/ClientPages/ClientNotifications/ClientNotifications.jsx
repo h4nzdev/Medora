@@ -144,8 +144,7 @@ const ClientNotifications = () => {
     }
 
     return {
-      label: "View Details",
-      path: "/client/dashboard",
+      label: "Click to view the update",
       color: "bg-slate-600 hover:bg-slate-700",
     };
   };
@@ -534,10 +533,9 @@ const ClientNotifications = () => {
 
                           {/* Action Link */}
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(actionLink.path);
-                            }}
+                            onClick={() =>
+                              showNotificationDetails(notification)
+                            }
                             className={`px-4 py-2 ${actionLink.color} text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 mb-4`}
                           >
                             {actionLink.label}
@@ -603,7 +601,7 @@ const ClientNotifications = () => {
             onClick={() => setShowDetailModal(false)}
           >
             <motion.div
-              className="bg-white w-full max-w-2xl max-h-[90vh] overflow-hidden sm:rounded-2xl"
+              className="bg-white w-full max-w-2xl overflow-hidden sm:rounded-2xl"
               variants={modalContentVariants}
               initial="hidden"
               animate="visible"
