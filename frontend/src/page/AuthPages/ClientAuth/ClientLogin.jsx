@@ -280,7 +280,7 @@ const ClientLogin = () => {
                           setIsDropdownOpen(false);
                           navigate(`/client/login?clinicId=${clinic._id}`);
                         }}
-                        className="px-4 py-3 hover:bg-cyan-50 cursor-pointer"
+                        className="px-4 py-3 rounded-2xl hover:bg-cyan-50 cursor-pointer"
                       >
                         {clinic.clinicName}
                       </div>

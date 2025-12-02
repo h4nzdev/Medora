@@ -92,7 +92,7 @@ const MedicalRecordDetailsSidebar = ({
             </div>
 
             {/* Content */}
-            <div className="p-6 space-y-6 overflow-y-auto h-[calc(100vh-140px)]">
+            <div className="p-6 space-y-6 overflow-y-auto h-[calc(100vh-140px)] hide-scroll">
               {/* Patient Information */}
               <div>
                 <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
