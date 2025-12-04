@@ -93,7 +93,11 @@ export default function ClinicSubscriptions() {
 
   const handlePaymentSubmit = async (bankDetails) => {
     console.log("Bank Details:", bankDetails); // Mock submission
-    setIsModalOpen(false);
+
+    if (!isLoading) {
+      setIsModalOpen(false);
+    }
+
     setIsPaymentSetup(true);
     await updateSubscription(selectedPlan);
   };
@@ -253,7 +257,7 @@ export default function ClinicSubscriptions() {
                       ? "bg-cyan-600 text-white cursor-not-allowed"
                       : "border border-cyan-600 text-cyan-600 hover:bg-cyan-50"
                   }`}
-                  disabled={isCurrentPlan}
+                  disabled={isCurrentPlan || isLoading}
                 >
                   {isCurrentPlan ? "Current Plan" : "Update Plan"}
                 </button>
