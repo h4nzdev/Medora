@@ -3,7 +3,7 @@ import cors from "cors";
 
 const allowedOrigins = [
   "https://medora-dun.vercel.app",
-  "https://medora-doc.vercel.app/",
+  "https://medora-doc.vercel.app",
   "https://klinikahub.vercel.app",
   "http://localhost:5173",
 ];
