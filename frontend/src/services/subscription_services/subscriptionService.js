@@ -25,6 +25,17 @@ export const getClinicSubscription = async (clinicId) => {
   }
 };
 
+// Get all subscriptions for a clinic (history)
+export const getClinicSubscriptionHistory = async (clinicId) => {
+  try {
+    const response = await axios.get(`${API_URL}/clinic/${clinicId}/history`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching subscription history for clinic ${clinicId}:`, error);
+    throw error;
+  }
+};
+
 // Update subscription status
 export const updateSubscription = async (id, updateData) => {
   try {

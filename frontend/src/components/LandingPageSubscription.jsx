@@ -14,9 +14,21 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react"; // Added useState and useEffect
 
 const LandingPageSubscription = ({ onClose, onUpgrade }) => {
   const navigate = useNavigate();
+  const [dontShowAgain, setDontShowAgain] = useState(false); // Added state for checkbox
+  const localStorageKey = "dontShowSubscriptionModal"; // Key for localStorage
+
+  // Check localStorage on component mount
+  useEffect(() => {
+    const storedPreference = localStorage.getItem(localStorageKey);
+    if (storedPreference === "true") {
+      onClose(false); // Close the modal if user previously selected "Don't show again"
+    }
+  }, []);
+
   const plans = [
     {
       name: "free",
@@ -110,13 +122,33 @@ const LandingPageSubscription = ({ onClose, onUpgrade }) => {
   };
 
   const handleRemindLater = () => {
+    // Save preference if checkbox is checked
+    if (dontShowAgain) {
+      localStorage.setItem(localStorageKey, "true");
+    }
     onClose(true);
   };
 
+  const handleClose = (remindLater) => {
+    // Save preference if checkbox is checked and user is closing
+    if (dontShowAgain && !remindLater) {
+      localStorage.setItem(localStorageKey, "true");
+    }
+    onClose(remindLater);
+  };
+
   const handleUpgrade = (planName) => {
+    // Save preference if checkbox is checked
+    if (dontShowAgain) {
+      localStorage.setItem(localStorageKey, "true");
+    }
     onUpgrade();
     navigate("/clinic/register");
     console.log(`User interested in: ${planName} plan`);
+  };
+
+  const handleCheckboxChange = () => {
+    setDontShowAgain(!dontShowAgain);
   };
 
   const getPlanIcon = (plan) => {
@@ -141,7 +173,7 @@ const LandingPageSubscription = ({ onClose, onUpgrade }) => {
     >
       {/* Close Button */}
       <button
-        onClick={() => onClose(false)}
+        onClick={() => handleClose(false)}
         className="absolute top-4 right-4 z-10 p-2 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"
       >
         <X className="w-5 h-5 text-slate-600" />
@@ -296,6 +328,30 @@ const LandingPageSubscription = ({ onClose, onUpgrade }) => {
             </span>{" "}
             14-day free trial • No credit card • Cancel anytime
           </div>
+        </motion.div>
+
+        {/* Don't Show Again Checkbox */}
+        <motion.div className="flex items-center mb-4" variants={itemVariants}>
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={dontShowAgain}
+              onChange={handleCheckboxChange}
+              className="sr-only" // Hide default checkbox
+            />
+            <div
+              className={`w-5 h-5 border rounded flex items-center justify-center mr-3 transition-all ${
+                dontShowAgain
+                  ? "bg-cyan-500 border-cyan-500"
+                  : "bg-white border-slate-300"
+              }`}
+            >
+              {dontShowAgain && <CheckCircle className="w-3 h-3 text-white" />}
+            </div>
+            <span className="text-sm text-slate-600">
+              Don't show this again
+            </span>
+          </label>
         </motion.div>
 
         {/* Action Buttons */}
