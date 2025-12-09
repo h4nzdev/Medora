@@ -143,7 +143,7 @@ export const chatWithGemini = async (req, res) => {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 350,
@@ -529,7 +529,7 @@ export const summarizeChatHistory = async (req, res) => {
     }
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 300,
