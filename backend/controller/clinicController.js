@@ -105,3 +105,41 @@ export const updateSubscriptionPlan = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// Update clinic status
+export const updateClinicStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    // Validate status
+    const validStatuses = ["pending", "approved", "rejected"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid status. Must be one of: pending, approved, rejected",
+      });
+    }
+
+    const clinic = await Clinic.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true }
+    ).select("-password");
+
+    if (!clinic) {
+      return res.status(404).json({ error: "Clinic not found" });
+    }
+
+    // Emit socket event if needed
+    if (req.io) {
+      req.io.emit("clinic_updated");
+    }
+
+    res.json({
+      message: "Clinic status updated successfully",
+      clinic,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

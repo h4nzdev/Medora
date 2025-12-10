@@ -41,6 +41,17 @@ export default function ClinicPatients() {
     }
   }, [user]);
 
+  // ADD THIS FUNCTION - It updates the local state when approval changes
+  const handleApprovalUpdate = (patientId, newApproval) => {
+    setPatients((prevPatients) =>
+      prevPatients.map((patient) =>
+        patient._id === patientId
+          ? { ...patient, approval: newApproval }
+          : patient
+      )
+    );
+  };
+
   const filteredPatients = patients.filter((patient) => {
     const searchTermLower = searchTerm.toLowerCase();
     const patientName = patient.name?.toLowerCase() || "";
@@ -87,7 +98,7 @@ export default function ClinicPatients() {
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards - UPDATED TO SHOW APPROVAL STATS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between">
@@ -109,10 +120,10 @@ export default function ClinicPatients() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  Active Patients
+                  Approved Patients
                 </p>
                 <p className="text-4xl font-semibold text-emerald-600">
-                  {patients.length}
+                  {patients.filter((p) => p.approval === "approve").length}
                 </p>
               </div>
               <div className="bg-emerald-500 p-4 rounded-2xl shadow-md">
@@ -125,9 +136,15 @@ export default function ClinicPatients() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  Inactive Patients
+                  Pending Patients
                 </p>
-                <p className="text-4xl font-semibold text-amber-600">0</p>
+                <p className="text-4xl font-semibold text-amber-600">
+                  {
+                    patients.filter(
+                      (p) => p.approval === "pending" || !p.approval
+                    ).length
+                  }
+                </p>
               </div>
               <div className="bg-amber-500 p-4 rounded-2xl shadow-md">
                 <User className="w-8 h-8 text-white" />
@@ -139,13 +156,13 @@ export default function ClinicPatients() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-600 uppercase tracking-wide">
-                  New Patients (30d)
+                  Rejected Patients
                 </p>
-                <p className="text-4xl font-semibold text-cyan-600">
-                  {patients.length}
+                <p className="text-4xl font-semibold text-red-600">
+                  {patients.filter((p) => p.approval === "reject").length}
                 </p>
               </div>
-              <div className="bg-cyan-500 p-4 rounded-2xl shadow-md">
+              <div className="bg-red-500 p-4 rounded-2xl shadow-md">
                 <User className="w-8 h-8 text-white" />
               </div>
             </div>
@@ -185,6 +202,10 @@ export default function ClinicPatients() {
                   <th className="font-semibold text-slate-700 px-4">Age</th>
                   <th className="font-semibold text-slate-700 px-4">Gender</th>
                   <th className="font-semibold text-slate-700 px-4">Phone</th>
+                  <th className="font-semibold text-slate-700 px-4">
+                    Approval Status
+                  </th>{" "}
+                  {/* ADD THIS HEADER */}
                   <th className="font-semibold text-slate-700 px-4">Email</th>
                   <th className="font-semibold text-slate-700 px-4">Address</th>
                   <th className="font-semibold text-slate-700 px-4 text-center w-20">
@@ -192,13 +213,20 @@ export default function ClinicPatients() {
                   </th>
                 </tr>
               </thead>
-              <ClinicPatientsTableBody patients={currentPatients} />
+              {/* PASS THE onApprovalUpdate PROP HERE */}
+              <ClinicPatientsTableBody
+                patients={currentPatients}
+                onApprovalUpdate={handleApprovalUpdate}
+              />
             </table>
           </div>
 
           {/* Mobile List */}
           <div className="block md:hidden">
-            <ClinicPatientsList patients={currentPatients} />
+            <ClinicPatientsList
+              patients={currentPatients}
+              onApprovalUpdate={handleApprovalUpdate} // Pass it here too if needed
+            />
           </div>
 
           {/* Results Summary */}

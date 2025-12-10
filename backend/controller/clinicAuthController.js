@@ -42,6 +42,21 @@ export const loginClinic = async (req, res) => {
       return res.status(404).json({ message: "Clinic not found" });
     }
 
+    // Check if clinic is rejected
+    if (clinic.status === "rejected") {
+      return res.status(403).json({
+        message: "Access denied. Your clinic registration has been rejected.",
+      });
+    }
+
+    // Check if clinic is rejected
+    if (clinic.status === "pending") {
+      return res.status(403).json({
+        message:
+          "Your clinic registration is pending approval. Please wait for administrator review.",
+      });
+    }
+
     // Compare password
     const isMatch = await bcrypt.compare(password, clinic.password);
     if (!isMatch) {
@@ -65,7 +80,7 @@ export const loginClinic = async (req, res) => {
     res.json({
       message: "Login successful",
       clinic: clinicWithoutPassword,
-      token: token, // Send token to frontend
+      token: token,
     });
   } catch (error) {
     res.status(500).json({ message: "Error logging in", error: error.message });

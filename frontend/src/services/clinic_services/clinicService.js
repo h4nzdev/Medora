@@ -62,3 +62,15 @@ export const updateClinicSubscription = async (clinicId, plan) => {
     throw error;
   }
 };
+
+export const updateClinicStatus = async (clinicId, status) => {
+  try {
+    const response = await axios.put(`${CLINIC_API_URL}/${clinicId}/status`, {
+      status,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating clinic status:", error);
+    throw error;
+  }
+};

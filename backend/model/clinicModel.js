@@ -35,6 +35,15 @@ const ClinicSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    document_id: {
+      type: String,
+      required: false,
+    },
     subscriptionPlan: {
       type: String,
       default: "free",

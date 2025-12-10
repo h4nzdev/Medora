@@ -46,6 +46,21 @@ export const loginClient = async (req, res) => {
       return res.status(404).json({ message: "Patient not found" });
     }
 
+    // Check if patient is rejected
+    if (patient.approval === "reject") {
+      return res.status(403).json({
+        message: "Access denied. Your patient registration has been rejected.",
+      });
+    }
+
+    // Check if patient is pending
+    if (patient.approval === "pending") {
+      return res.status(403).json({
+        message:
+          "Your patient registration is pending approval. Please wait for administrator review.",
+      });
+    }
+
     // Compare password
     const isMatch = await bcrypt.compare(password, patient.password);
     if (!isMatch) {

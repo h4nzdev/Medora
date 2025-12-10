@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
-  Plus,
   MoreVertical,
-  Edit,
-  Trash2,
   Eye,
   Building,
   Users,
@@ -18,10 +15,13 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  ChevronDown,
+  Trash2,
 } from "lucide-react";
 import {
   deleteClinic,
   getAllClinics,
+  updateClinicStatus,
 } from "../../../services/clinic_services/clinicService";
 import { getDoctorsByClinic } from "../../../services/doctor_services/doctorService";
 import { getPatientsByClinic } from "../../../services/patient_services/patientService";
@@ -34,52 +34,10 @@ const AdminClinics = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [clinicStats, setClinicStats] = useState({}); // Store real stats for each clinic
-
   const [selectedClinic, setSelectedClinic] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
-  const handleViewDetails = (clinic) => {
-    setSelectedClinic(clinic);
-    setIsSidebarOpen(true);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-    setSelectedClinic(null);
-  };
-
-  const handleDeleteClinic = async (clinic) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: `Delete ${clinic.clinicName}? This action cannot be undone.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await deleteClinic(clinic._id);
-        // Remove from local state
-        setClinics(clinics.filter((c) => c._id !== clinic._id));
-
-        Swal.fire(
-          "Deleted!",
-          `${clinic.clinicName} has been deleted.`,
-          "success"
-        );
-      } catch (error) {
-        Swal.fire("Error!", "Failed to delete clinic.", "error");
-        console.error(error);
-      }
-    }
-  };
-
-  // Fetch clinics and their real statistics
   // Fetch clinics and their real statistics
   const fetchClinics = async () => {
     try {
@@ -91,16 +49,10 @@ const AdminClinics = () => {
       const clinicsWithStats = await Promise.all(
         clinicsData.map(async (clinic) => {
           try {
-            // Get real doctors count
             const doctors = await getDoctorsByClinic(clinic._id);
-            const doctorsCount = doctors.length;
-
-            // Get real patients count
             const patients = await getPatientsByClinic(clinic._id);
-            const patientsCount = patients.length;
-
-            // Get real revenue from invoices
             const invoices = await getInvoicesByClinic(clinic._id);
+
             const revenue = invoices.reduce((total, invoice) => {
               return total + (invoice.totalAmount || 0);
             }, 0);
@@ -108,10 +60,9 @@ const AdminClinics = () => {
             return {
               ...clinic,
               realStats: {
-                doctors: doctorsCount,
-                patients: patientsCount,
+                doctors: doctors.length,
+                patients: patients.length,
                 revenue: revenue,
-                // Add other real stats as needed
               },
             };
           } catch (error) {
@@ -134,6 +85,7 @@ const AdminClinics = () => {
       setClinics(clinicsWithStats);
     } catch (error) {
       console.error("Error fetching clinics:", error);
+      Swal.fire("Error!", "Failed to load clinics.", "error");
     } finally {
       setLoading(false);
     }
@@ -143,119 +95,261 @@ const AdminClinics = () => {
     fetchClinics();
   }, []);
 
-  // Helper to get status (use real data from database)
-  const getClinicStatus = (clinic) => {
-    return clinic.status || "active";
+  const handleCloseSidebar = () => {
+    setIsSidebarOpen(false);
+    setSelectedClinic(null);
   };
 
-  // Helper to get subscription plan (use real data from database)
-  const getClinicPlan = (clinic) => {
-    return clinic.plan || clinic.subscriptionPlan || "free";
-  };
+  // Status update handler
+  const handleUpdateStatus = async (clinicId, newStatus) => {
+    try {
+      const clinic = clinics.find((c) => c._id === clinicId);
+      const currentStatus = clinic?.status || "pending";
 
-  // Helper to get join date (use real data from database)
-  const getJoinDate = (clinic) => {
-    return clinic.createdAt || clinic.joinDate || new Date().toISOString();
-  };
+      if (currentStatus === newStatus) {
+        setOpenDropdown(null);
+        return;
+      }
 
-  // Get real statistics for clinic
-  const getClinicStats = (clinic) => {
-    // Use real stats if available, otherwise use basic data from clinic
-    if (clinic.realStats) {
-      return {
-        doctors: clinic.realStats.doctors,
-        patients: clinic.realStats.patients,
-        appointments: clinic.appointmentsCount || 0, // You can add real appointments later
-        revenue: clinic.realStats.revenue,
-        rating: clinic.rating || 4.0, // Use real rating if available
-      };
+      const result = await Swal.fire({
+        title: "Update Status",
+        text: `Change clinic status from ${currentStatus} to ${newStatus}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, update",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        await updateClinicStatus(clinicId, newStatus);
+
+        // Update the clinic in local state
+        setClinics((prevClinics) =>
+          prevClinics.map((clinic) =>
+            clinic._id === clinicId ? { ...clinic, status: newStatus } : clinic
+          )
+        );
+
+        setOpenDropdown(null);
+
+        Swal.fire(
+          "Success!",
+          `Clinic status updated to ${newStatus}.`,
+          "success"
+        );
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      Swal.fire("Error!", "Failed to update clinic status.", "error");
     }
-
-    // Fallback to clinic data
-    return {
-      doctors: clinic.doctorsCount || 0,
-      patients: clinic.patientsCount || 0,
-      appointments: clinic.appointmentsCount || 0,
-      revenue: clinic.revenue || 0,
-      rating: clinic.rating || 4.0,
-    };
   };
 
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      active: {
-        color: "bg-green-100 text-green-800 border-green-200",
-        icon: CheckCircle,
-      },
-      pending: {
-        color: "bg-amber-100 text-amber-800 border-amber-200",
-        icon: Clock,
-      },
-      suspended: {
-        color: "bg-red-100 text-red-800 border-red-200",
-        icon: XCircle,
-      },
-    };
+  // Status options configuration
+  const statusOptions = [
+    {
+      value: "pending",
+      label: "Pending",
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+      icon: Clock,
+      description: "Awaiting approval",
+    },
+    {
+      value: "approved",
+      label: "Approved",
+      color: "text-green-600",
+      bg: "bg-green-50",
+      icon: CheckCircle,
+      description: "Active and approved",
+    },
+    {
+      value: "rejected",
+      label: "Rejected",
+      color: "text-red-600",
+      bg: "bg-red-50",
+      icon: XCircle,
+      description: "Registration rejected",
+    },
+  ];
 
-    const config = statusConfig[status] || statusConfig.active;
-    const Icon = config.icon;
+  // Get status badge component
+  const getStatusBadge = (status, clinicId, clinicName) => {
+    const option =
+      statusOptions.find((opt) => opt.value === status) || statusOptions[0];
+    const Icon = option.icon;
 
     return (
-      <span
-        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${config.color}`}
-      >
-        <Icon className="w-3 h-3" />
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${
+            option.bg
+          } ${option.color} border ${option.color.replace(
+            "text-",
+            "border-"
+          )} border-opacity-30`}
+        >
+          <Icon className="w-4 h-4" />
+          {option.label}
+        </span>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpenDropdown(openDropdown === clinicId ? null : clinicId);
+          }}
+          className="p-1 hover:bg-slate-100 rounded-lg transition-colors relative"
+        >
+          <ChevronDown className="w-4 h-4 text-slate-500" />
+        </button>
+
+        {/* Floating Dropdown Modal - OUTSIDE THE TABLE */}
+        {openDropdown === clinicId && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm"
+              onClick={() => setOpenDropdown(null)}
+            />
+
+            {/* Floating panel */}
+            <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-slate-300 overflow-hidden">
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-slate-800">
+                    Update Clinic Status
+                  </h3>
+                  <button
+                    onClick={() => setOpenDropdown(null)}
+                    className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                  >
+                    <XCircle className="w-5 h-5 text-slate-500" />
+                  </button>
+                </div>
+
+                {/* Clinic info */}
+                <div className="mb-6 p-4 bg-slate-50 rounded-xl">
+                  <p className="text-sm text-slate-600 mb-1">Clinic:</p>
+                  <p className="font-medium text-slate-800">{clinicName}</p>
+                  <p className="text-sm text-slate-500 mt-1">
+                    Current Status:{" "}
+                    <span className="font-medium">{option.label}</span>
+                  </p>
+                </div>
+
+                {/* Status options */}
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-slate-700">
+                    Select new status:
+                  </p>
+                  {statusOptions.map((option) => {
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          handleUpdateStatus(clinicId, option.value);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full flex items-center gap-4 p-4 text-left rounded-xl transition-all duration-200 ${
+                          option.bg
+                        } hover:scale-[1.02] hover:shadow-md ${
+                          status === option.value
+                            ? "ring-2 ring-offset-2 " +
+                              option.color.replace("text-", "ring-")
+                            : ""
+                        }`}
+                      >
+                        <div className={`p-2.5 rounded-lg ${option.bg}`}>
+                          <Icon className={`w-5 h-5 ${option.color}`} />
+                        </div>
+                        <div className="flex-1">
+                          <div className={`font-semibold ${option.color}`}>
+                            {option.label}
+                          </div>
+                          <div className="text-sm text-slate-600 mt-1">
+                            {option.description}
+                          </div>
+                        </div>
+                        {status === option.value && (
+                          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="border-t border-slate-100 p-4 bg-slate-50">
+                <button
+                  onClick={() => setOpenDropdown(null)}
+                  className="w-full py-3 text-sm font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-xl transition-all duration-200 border border-slate-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     );
   };
 
-  const getPlanBadge = (plan) => {
-    const planConfig = {
-      pro: {
-        color: "bg-purple-100 text-purple-800 border-purple-200",
-        label: "Pro",
-      },
-      basic: {
-        color: "bg-blue-100 text-blue-800 border-blue-200",
-        label: "Basic",
-      },
-      free: {
-        color: "bg-slate-100 text-slate-800 border-slate-200",
-        label: "Free",
-      },
-    };
-
-    const config = planConfig[plan] || planConfig.free;
-
-    return (
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${config.color}`}
-      >
-        {config.label}
-      </span>
-    );
+  // Handle view details
+  const handleViewDetails = (clinic) => {
+    setSelectedClinic(clinic);
+    setIsSidebarOpen(true);
   };
 
+  // Handle delete clinic
+  const handleDeleteClinic = async (clinicId, clinicName) => {
+    const result = await Swal.fire({
+      title: "Delete Clinic?",
+      text: `Are you sure you want to delete ${clinicName}? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteClinic(clinicId);
+        setClinics(clinics.filter((c) => c._id !== clinicId));
+        Swal.fire("Deleted!", `${clinicName} has been deleted.`, "success");
+      } catch (error) {
+        Swal.fire("Error!", "Failed to delete clinic.", "error");
+        console.error(error);
+      }
+    }
+  };
+
+  // Filter clinics
   const filteredClinics = clinics.filter((clinic) => {
     const matchesSearch =
       clinic.clinicName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       clinic.contactPerson?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       clinic.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || getClinicStatus(clinic) === statusFilter;
+      statusFilter === "all" || clinic.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
-  // Calculate real statistics from database
+  // Calculate statistics
   const stats = {
     total: clinics.length,
-    active: clinics.filter((c) => getClinicStatus(c) === "active").length,
-    pending: clinics.filter((c) => getClinicStatus(c) === "pending").length,
-    pro: clinics.filter((c) => getClinicPlan(c) === "pro").length,
-    basic: clinics.filter((c) => getClinicPlan(c) === "basic").length,
-    free: clinics.filter((c) => getClinicPlan(c) === "free").length,
+    approved: clinics.filter((c) => c.status === "approved").length,
+    pending: clinics.filter((c) => c.status === "pending").length,
+    rejected: clinics.filter((c) => c.status === "rejected").length,
+    pro: clinics.filter((c) => c.subscriptionPlan === "pro").length,
+    basic: clinics.filter((c) => c.subscriptionPlan === "basic").length,
+    free: clinics.filter(
+      (c) => c.subscriptionPlan === "free" || !c.subscriptionPlan
+    ).length,
   };
 
   if (loading) {
@@ -280,13 +374,13 @@ const AdminClinics = () => {
                 Clinic Management
               </h1>
               <p className="text-slate-600">
-                Manage all healthcare clinics on the Medora platform
+                Manage all healthcare clinics on the platform
               </p>
             </div>
           </div>
         </div>
 
-        {/* Stats Overview - Using Real Data */}
+        {/* Stats Overview */}
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
             <div className="text-2xl font-bold text-slate-800">
@@ -296,9 +390,9 @@ const AdminClinics = () => {
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
             <div className="text-2xl font-bold text-green-600">
-              {stats.active}
+              {stats.approved}
             </div>
-            <div className="text-slate-600 text-sm">Active</div>
+            <div className="text-slate-600 text-sm">Approved</div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
             <div className="text-2xl font-bold text-amber-600">
@@ -307,16 +401,16 @@ const AdminClinics = () => {
             <div className="text-slate-600 text-sm">Pending</div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
+            <div className="text-2xl font-bold text-red-600">
+              {stats.rejected}
+            </div>
+            <div className="text-slate-600 text-sm">Rejected</div>
+          </div>
+          <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
             <div className="text-2xl font-bold text-purple-600">
               {stats.pro}
             </div>
             <div className="text-slate-600 text-sm">Pro Plan</div>
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
-            <div className="text-2xl font-bold text-blue-600">
-              {stats.basic}
-            </div>
-            <div className="text-slate-600 text-sm">Basic Plan</div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-lg border border-slate-200">
             <div className="text-2xl font-bold text-slate-600">
@@ -347,9 +441,9 @@ const AdminClinics = () => {
                 className="px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               >
                 <option value="all">All Status</option>
-                <option value="active">Active</option>
+                <option value="approved">Approved</option>
                 <option value="pending">Pending</option>
-                <option value="suspended">Suspended</option>
+                <option value="rejected">Rejected</option>
               </select>
 
               <button className="px-4 py-3 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2">
@@ -360,7 +454,7 @@ const AdminClinics = () => {
           </div>
         </div>
 
-        {/* Clinics Table - Using Real Data */}
+        {/* Clinics Table */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -388,10 +482,11 @@ const AdminClinics = () => {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {filteredClinics.map((clinic) => {
-                  const status = getClinicStatus(clinic);
-                  const plan = getClinicPlan(clinic);
-                  const joinDate = getJoinDate(clinic);
-                  const stats = getClinicStats(clinic);
+                  const stats = clinic.realStats || {
+                    doctors: 0,
+                    patients: 0,
+                    revenue: 0,
+                  };
 
                   return (
                     <tr
@@ -422,13 +517,11 @@ const AdminClinics = () => {
                               {clinic.address || "No address provided"}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
-                              <Star className="w-4 h-4 text-amber-500 fill-current" />
-                              <span className="text-sm text-slate-700">
-                                {stats.rating}
-                              </span>
-                              <span className="text-slate-500">•</span>
                               <span className="text-sm text-slate-600">
-                                Joined {new Date(joinDate).toLocaleDateString()}
+                                Joined{" "}
+                                {new Date(
+                                  clinic.createdAt
+                                ).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
@@ -453,10 +546,24 @@ const AdminClinics = () => {
 
                       <td className="p-6">
                         <div className="space-y-2">
-                          {getPlanBadge(plan)}
+                          <span
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                              clinic.subscriptionPlan === "pro"
+                                ? "bg-purple-100 text-purple-800"
+                                : clinic.subscriptionPlan === "basic"
+                                ? "bg-blue-100 text-blue-800"
+                                : "bg-slate-100 text-slate-800"
+                            }`}
+                          >
+                            {clinic.subscriptionPlan
+                              ? clinic.subscriptionPlan
+                                  .charAt(0)
+                                  .toUpperCase() +
+                                clinic.subscriptionPlan.slice(1)
+                              : "Free"}
+                          </span>
                           <div className="text-sm text-slate-600">
-                            Patients: {clinic.currentPatientCount || 0}/
-                            {clinic.dailyPatientLimit || "Unlimited"}
+                            {clinic.subscriptionStatus || "Inactive"}
                           </div>
                         </div>
                       </td>
@@ -487,7 +594,7 @@ const AdminClinics = () => {
                               Appointments
                             </div>
                             <div className="font-semibold text-slate-800">
-                              {stats.appointments}
+                              {clinic.appointmentsCount || 0}
                             </div>
                           </div>
                           <div>
@@ -502,7 +609,9 @@ const AdminClinics = () => {
                         </div>
                       </td>
 
-                      <td className="p-6">{getStatusBadge(status)}</td>
+                      <td className="p-6">
+                        {getStatusBadge(clinic.status || "pending", clinic._id)}
+                      </td>
 
                       <td className="p-6">
                         <div className="flex items-center gap-2">
@@ -514,7 +623,9 @@ const AdminClinics = () => {
                             <Eye className="w-5 h-5" />
                           </button>
                           <button
-                            onClick={() => handleDeleteClinic(clinic)} // Pass the whole clinic object, not just clinic._id
+                            onClick={() =>
+                              handleDeleteClinic(clinic._id, clinic.clinicName)
+                            }
                             className="p-2 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                             title="Delete Clinic"
                           >
@@ -545,11 +656,17 @@ const AdminClinics = () => {
           )}
         </div>
       </div>
+
       <ClinicDetailsSidebar
         clinic={selectedClinic}
         isOpen={isSidebarOpen}
         onClose={handleCloseSidebar}
-        stats={stats}
+        onStatusUpdate={(clinicId, newStatus) => {
+          handleUpdateStatus(clinicId, newStatus);
+          if (selectedClinic?._id === clinicId) {
+            setSelectedClinic((prev) => ({ ...prev, status: newStatus }));
+          }
+        }}
       />
     </div>
   );

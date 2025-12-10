@@ -156,3 +156,37 @@ export const getPatientsByClinic = async (req, res) => {
     });
   }
 };
+
+// Update patient approval status
+export const updatePatientApproval = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { approval } = req.body;
+
+    // Validate approval status
+    const validApprovals = ["pending", "approve", "reject"];
+    if (!validApprovals.includes(approval)) {
+      return res.status(400).json({
+        error:
+          "Invalid approval status. Must be one of: pending, approve, reject",
+      });
+    }
+
+    const patient = await Patient.findByIdAndUpdate(
+      id,
+      { approval: approval },
+      { new: true }
+    ).select("-password");
+
+    if (!patient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    res.json({
+      message: "Patient approval status updated successfully",
+      patient,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};

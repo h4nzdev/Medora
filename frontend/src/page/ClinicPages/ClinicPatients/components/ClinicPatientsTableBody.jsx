@@ -1,6 +1,178 @@
+import React, { useState } from "react";
+import {
+  MoreVertical,
+  CheckCircle,
+  XCircle,
+  Clock,
+  ChevronDown,
+} from "lucide-react";
+import { updatePatientApproval } from "../../../../services/patient_services/patientService";
 import PatientActions from "../../../../components/ClinicComponents/PatientActions/PatientActions";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
-const ClinicPatientsTableBody = ({ patients }) => {
+const ClinicPatientsTableBody = ({ patients, onApprovalUpdate }) => {
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [loading, setLoading] = useState(null);
+
+  // Status options configuration
+  const approvalOptions = [
+    {
+      value: "pending",
+      label: "Pending",
+      color: "text-amber-600",
+      bg: "bg-amber-100",
+      icon: Clock,
+      description: "Awaiting approval",
+    },
+    {
+      value: "approve",
+      label: "Approved",
+      color: "text-green-600",
+      bg: "bg-green-100",
+      icon: CheckCircle,
+      description: "Patient approved",
+    },
+    {
+      value: "reject",
+      label: "Rejected",
+      color: "text-red-600",
+      bg: "bg-red-100",
+      icon: XCircle,
+      description: "Registration rejected",
+    },
+  ];
+
+  // Handle approval update
+  const handleUpdateApproval = async (patientId, newApproval) => {
+    try {
+      const patient = patients.find((p) => p._id === patientId);
+      const currentApproval = patient?.approval || "pending";
+
+      if (currentApproval === newApproval) {
+        setOpenDropdown(null);
+        return;
+      }
+
+      const result = await Swal.fire({
+        title: "Update Patient Status",
+        text: `Change patient status from ${currentApproval} to ${newApproval}?`,
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, update",
+        cancelButtonText: "Cancel",
+      });
+
+      if (result.isConfirmed) {
+        setLoading(patientId);
+
+        await updatePatientApproval(patientId, newApproval);
+
+        // Update the patient in local state via parent
+        if (onApprovalUpdate) {
+          onApprovalUpdate(patientId, newApproval);
+        }
+
+        setOpenDropdown(null);
+        setLoading(null);
+
+        toast.success(`Patient status updated to ${newApproval}.`);
+      }
+    } catch (error) {
+      console.error("Error updating patient approval:", error);
+      toast.error("Error!", "Failed to update patient status.", "error");
+      setLoading(null);
+    }
+  };
+
+  // Toggle dropdown
+  const toggleDropdown = (patientId) => {
+    setOpenDropdown(openDropdown === patientId ? null : patientId);
+  };
+
+  // Get approval badge component
+  const getApprovalBadge = (approval, patientId) => {
+    const option =
+      approvalOptions.find((opt) => opt.value === approval) ||
+      approvalOptions[0];
+    const Icon = option.icon;
+
+    return (
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${
+            option.bg
+          } ${option.color} border ${option.color.replace(
+            "text-",
+            "border-"
+          )} border-opacity-30 min-w-[90px] justify-center`}
+        >
+          <Icon className="w-4 h-4" />
+          {option.label}
+        </span>
+
+        <div className="relative">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleDropdown(patientId);
+            }}
+            className="p-1 hover:bg-slate-100 rounded-lg transition-colors"
+            disabled={loading === patientId}
+          >
+            {loading === patientId ? (
+              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-500" />
+            )}
+          </button>
+
+          {/* Dropdown menu */}
+          {openDropdown === patientId && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-10 overflow-hidden">
+              <div className="p-2 flex flex-col gap-2">
+                <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Change Status
+                </div>
+                {approvalOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() =>
+                        handleUpdateApproval(patientId, option.value)
+                      }
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors ${
+                        option.bg
+                      } hover:opacity-90 ${
+                        approval === option.value
+                          ? "" + option.color.replace("text-", "ring-")
+                          : ""
+                      }`}
+                      disabled={loading === patientId}
+                    >
+                      <Icon className={`w-4 h-4 ${option.color}`} />
+                      <div className="text-left">
+                        <div className={`font-medium ${option.color}`}>
+                          {option.label}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {option.description}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <tbody className="divide-y divide-slate-100">
       {patients.length > 0 ? (
@@ -88,6 +260,11 @@ const ClinicPatientsTableBody = ({ patients }) => {
               </div>
             </td>
 
+            {/* Approval Status */}
+            <td className="px-4">
+              {getApprovalBadge(patient.approval || "pending", patient._id)}
+            </td>
+
             {/* Email with better styling */}
             <td className="px-4">
               <div className="flex items-center gap-2 text-slate-500">
@@ -153,7 +330,7 @@ const ClinicPatientsTableBody = ({ patients }) => {
         ))
       ) : (
         <tr>
-          <td colSpan="7" className="text-center py-16">
+          <td colSpan="8" className="text-center py-16">
             <div className="flex flex-col items-center justify-center">
               <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                 <svg

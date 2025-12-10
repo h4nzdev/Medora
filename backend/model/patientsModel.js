@@ -41,6 +41,11 @@ const PatientSchema = new mongoose.Schema(
       default: "active",
       enum: ["active", "inactive"],
     },
+    approval: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "approve", "reject"],
+    },
     password: {
       type: String,
       required: true,

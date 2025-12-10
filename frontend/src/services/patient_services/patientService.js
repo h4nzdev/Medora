@@ -70,3 +70,16 @@ export const getPatientsByClinic = async (clinicId) => {
     throw error;
   }
 };
+
+export const updatePatientApproval = async (patientId, approval) => {
+  try {
+    const response = await axios.put(
+      `${PATIENT_API_URL}/${patientId}/approval`,
+      { approval }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating patient approval:", error);
+    throw error;
+  }
+};
