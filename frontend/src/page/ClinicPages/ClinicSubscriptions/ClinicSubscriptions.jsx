@@ -319,36 +319,42 @@ export default function ClinicSubscriptions() {
             return (
               <div
                 key={plan.name}
-                className={`relative rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-2 ${
+                className={`relative rounded-2xl shadow-lg transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full ${
                   isCurrentPlan
-                    ? "ring-4 ring-cyan-500 ring-opacity-50"
-                    : "hover:shadow-2xl"
+                    ? "ring-4 ring-cyan-500"
+                    : "ring-1 ring-slate-200 hover:ring-slate-300 hover:shadow-2xl"
                 } ${disabledPlan ? "opacity-75" : ""}`}
               >
                 {/* Popular badge */}
                 {plan.popular && !disabledPlan && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-gradient-to-r from-amber-400 to-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
                       MOST POPULAR
                     </div>
                   </div>
                 )}
 
                 <div
-                  className={`bg-white rounded-2xl p-6 h-full ${
-                    disabledPlan
-                      ? "border-2 border-dashed border-slate-300"
-                      : "border border-slate-200"
+                  className={`rounded-2xl p-6 flex flex-col h-full ${
+                    isCurrentPlan
+                      ? "bg-gradient-to-br from-cyan-50 to-white border border-cyan-100"
+                      : disabledPlan
+                      ? "bg-white border-2 border-dashed border-slate-300"
+                      : "bg-white border border-slate-200"
                   }`}
                 >
                   {/* Plan Header */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-xl font-bold text-slate-800 capitalize">
+                      <h3
+                        className={`text-xl font-bold capitalize ${
+                          isCurrentPlan ? "text-cyan-800" : "text-slate-800"
+                        }`}
+                      >
                         {plan.name} Plan
                       </h3>
                       {isCurrentPlan && (
-                        <div className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-sm font-medium">
+                        <div className="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-sm font-medium">
                           Current
                         </div>
                       )}
@@ -357,10 +363,18 @@ export default function ClinicSubscriptions() {
                     {/* Price */}
                     <div className="mb-4">
                       <div className="flex items-baseline">
-                        <span className="text-4xl font-bold text-slate-900">
+                        <span
+                          className={`text-4xl font-bold ${
+                            isCurrentPlan ? "text-cyan-700" : "text-slate-900"
+                          }`}
+                        >
                           {plan.price}
                         </span>
-                        <span className="ml-2 text-slate-600">
+                        <span
+                          className={`ml-2 ${
+                            isCurrentPlan ? "text-cyan-600" : "text-slate-600"
+                          }`}
+                        >
                           {plan.priceDetails}
                         </span>
                       </div>
@@ -375,9 +389,13 @@ export default function ClinicSubscriptions() {
                     )}
                   </div>
 
-                  {/* Features List */}
-                  <div className="mb-8">
-                    <h4 className="font-semibold text-slate-700 mb-4">
+                  {/* Features List - This will grow to fill available space */}
+                  <div className="flex-grow mb-8">
+                    <h4
+                      className={`font-semibold mb-4 ${
+                        isCurrentPlan ? "text-cyan-700" : "text-slate-700"
+                      }`}
+                    >
                       What's included:
                     </h4>
                     <ul className="space-y-3">
@@ -386,9 +404,19 @@ export default function ClinicSubscriptions() {
                         return (
                           <li key={i} className="flex items-start">
                             <Icon
-                              className={`w-5 h-5 mr-3 mt-0.5 text-${plan.color}-500 flex-shrink-0`}
+                              className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${
+                                isCurrentPlan
+                                  ? "text-cyan-500"
+                                  : "text-slate-500"
+                              }`}
                             />
-                            <span className="text-slate-700">
+                            <span
+                              className={
+                                isCurrentPlan
+                                  ? "text-cyan-800"
+                                  : "text-slate-700"
+                              }
+                            >
                               {feature.text}
                             </span>
                           </li>
@@ -397,42 +425,40 @@ export default function ClinicSubscriptions() {
                     </ul>
                   </div>
 
-                  {/* Action Button */}
-                  <button
-                    type="button"
-                    onClick={() => handlePlanSelect(plan.name)}
-                    disabled={isCurrentPlan || isLoading || disabledPlan}
-                    className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 ${
-                      isCurrentPlan
-                        ? "bg-slate-100 text-slate-500 cursor-not-allowed"
-                        : disabledPlan
-                        ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
-                        : plan.name === "pro"
-                        ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600"
-                        : plan.name === "basic"
-                        ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600"
-                        : "bg-gradient-to-r from-slate-600 to-slate-700 text-white hover:from-slate-700 hover:to-slate-800"
-                    }`}
-                  >
-                    {isCurrentPlan
-                      ? "Current Plan"
-                      : disabledPlan
-                      ? "Unavailable"
-                      : isLoading
-                      ? "Processing..."
-                      : plan.name === "free"
-                      ? "Downgrade to Free"
-                      : `Upgrade to ${
-                          plan.name.charAt(0).toUpperCase() + plan.name.slice(1)
-                        }`}
-                  </button>
-
+                  {/* Action Button - Fixed at bottom */}
                   {/* Downgrade warning for pro plan */}
                   {plan.name === "free" && currentPlan === "pro" && (
-                    <p className="text-sm text-amber-600 mt-3 text-center">
+                    <p className="text-sm text-amber-600 mb-3 text-center">
                       Downgrading may limit your current features
                     </p>
                   )}
+                  <div className="mt-auto pt-4 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => handlePlanSelect(plan.name)}
+                      disabled={isCurrentPlan || isLoading || disabledPlan}
+                      className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 ${
+                        isCurrentPlan
+                          ? "bg-cyan-100 text-cyan-700 cursor-not-allowed"
+                          : disabledPlan
+                          ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
+                          : "bg-gradient-to-r from-slate-700 to-slate-800 text-white hover:from-slate-800 hover:to-slate-900"
+                      }`}
+                    >
+                      {isCurrentPlan
+                        ? "Current Plan"
+                        : disabledPlan
+                        ? "Unavailable"
+                        : isLoading
+                        ? "Processing..."
+                        : plan.name === "free"
+                        ? "Downgrade to Free"
+                        : `Upgrade to ${
+                            plan.name.charAt(0).toUpperCase() +
+                            plan.name.slice(1)
+                          }`}
+                    </button>
+                  </div>
                 </div>
               </div>
             );

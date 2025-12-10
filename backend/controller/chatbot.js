@@ -540,8 +540,6 @@ export const summarizeChatHistory = async (req, res) => {
     const summaryPrompt = `
 You are a medical assistant helping clinic staff in the Philippines understand patient conversations.
 
-Please analyze the following complete chat conversation between a patient and our chatbot, and provide a comprehensive summary for Philippine healthcare providers.
-
 COMPLETE CONVERSATION HISTORY:
 ${messages
   .map((msg, index) => `[${index + 1}] ${msg.role.toUpperCase()}: ${msg.text}`)

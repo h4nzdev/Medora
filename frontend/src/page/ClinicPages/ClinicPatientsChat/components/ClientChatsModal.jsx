@@ -281,10 +281,14 @@ export default function ClientChatsModal({ patient, initialChat, onClose }) {
             <div className="flex-1 overflow-hidden p-6">
               <div className="h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
                 <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
-                  <div className="prose prose-slate max-w-none">
-                    <pre className="whitespace-pre-wrap text-slate-700 text-sm leading-relaxed font-medium">
+                  <div className="max-w-full overflow-x-hidden">
+                    <div
+                      className="text-slate-700 text-sm leading-relaxed font-medium 
+                       whitespace-pre-line break-all word-break-break-word
+                       hyphens-auto overflow-wrap-anywhere"
+                    >
                       {summary.summary}
-                    </pre>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -44,7 +44,7 @@ const ClinicPatientProfile = () => {
     return (
       <div className="w-full min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-cyan-200 border-t-cyan-600 rounded-full animate-spin"></div>
           <p className="text-slate-600 font-medium">Loading patient data...</p>
         </div>
       </div>
@@ -76,7 +76,7 @@ const ClinicPatientProfile = () => {
             >
               <ArrowLeft className="w-6 h-6 text-slate-600" />
             </button>
-            <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-3 rounded-2xl shadow-lg">
+            <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-3 rounded-2xl shadow-lg">
               <Eye className="w-8 h-8 text-white" />
             </div>
 
@@ -93,17 +93,17 @@ const ClinicPatientProfile = () => {
                       e.target.nextElementSibling.style.display = "flex";
                     }}
                   />
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl hidden items-center justify-center font-bold text-white text-2xl shadow-lg border-4 border-white">
+                  <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl hidden items-center justify-center font-bold text-white text-2xl shadow-lg border-4 border-white">
                     {initials}
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-md"></div>
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-3 border-white shadow-md"></div>
                 </div>
               ) : (
                 <div className="relative">
-                  <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center font-bold text-white text-2xl shadow-lg border-4 border-white">
+                  <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center font-bold text-white text-2xl shadow-lg border-4 border-white">
                     {initials}
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-md"></div>
+                  <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-500 rounded-full border-3 border-white shadow-md"></div>
                 </div>
               )}
             </div>
@@ -116,7 +116,7 @@ const ClinicPatientProfile = () => {
                 Patient Profile & Medical History
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                   Active Patient
                 </span>
                 <span className="text-slate-400 text-sm">
@@ -133,7 +133,7 @@ const ClinicPatientProfile = () => {
             {/* Personal Information */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center">
                   <User className="w-5 h-5 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800">
@@ -151,19 +151,19 @@ const ClinicPatientProfile = () => {
                   icon={Calendar}
                   title="Age"
                   value={`${patient.age} years old`}
-                  color="blue"
+                  color="cyan"
                 />
                 <InfoCard
                   icon={UserCheck}
                   title="Gender"
                   value={patient.gender}
-                  color="emerald"
+                  color="cyan"
                 />
                 <InfoCard
                   icon={User}
                   title="Role"
                   value={patient.role}
-                  color="purple"
+                  color="cyan"
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ const ClinicPatientProfile = () => {
             {/* Contact Information */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center">
                   <Mail className="w-5 h-5 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800">
@@ -183,7 +183,7 @@ const ClinicPatientProfile = () => {
                   icon={Mail}
                   title="Email Address"
                   value={patient.email}
-                  color="red"
+                  color="cyan"
                   fullWidth={true}
                 />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -191,13 +191,13 @@ const ClinicPatientProfile = () => {
                     icon={Phone}
                     title="Phone Number"
                     value={patient.phone}
-                    color="indigo"
+                    color="cyan"
                   />
                   <InfoCard
                     icon={MapPin}
                     title="Address"
                     value={patient.address}
-                    color="orange"
+                    color="cyan"
                   />
                 </div>
               </div>
@@ -209,7 +209,7 @@ const ClinicPatientProfile = () => {
             {/* Account Details */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-800">
@@ -218,8 +218,8 @@ const ClinicPatientProfile = () => {
               </div>
               <div className="space-y-4">
                 <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
-                  <div className="bg-white p-3 rounded-xl shadow-sm">
-                    <User className="w-6 h-6 text-slate-600" />
+                  <div className="bg-cyan-50 p-3 rounded-xl shadow-sm">
+                    <User className="w-6 h-6 text-cyan-600" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-600">
@@ -231,8 +231,8 @@ const ClinicPatientProfile = () => {
                   </div>
                 </div>
                 <div className="flex items-center space-x-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl border border-slate-200">
-                  <div className="bg-white p-3 rounded-xl shadow-sm">
-                    <Calendar className="w-6 h-6 text-slate-600" />
+                  <div className="bg-cyan-50 p-3 rounded-xl shadow-sm">
+                    <Calendar className="w-6 h-6 text-cyan-600" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium text-slate-600">
@@ -247,19 +247,19 @@ const ClinicPatientProfile = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
+            <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-8 text-white shadow-lg">
               <h3 className="text-xl font-bold mb-4">Quick Stats</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-blue-100">Total Appointments</span>
+                  <span className="text-cyan-100">Total Appointments</span>
                   <span className="text-2xl font-bold">
                     {patientAppointments?.length || 0}
                   </span>
                 </div>
-                <div className="h-px bg-blue-400/30"></div>
+                <div className="h-px bg-cyan-400/30"></div>
                 <div className="flex justify-between items-center">
-                  <span className="text-blue-100">Account Status</span>
-                  <span className="bg-green-500 px-3 py-1 rounded-full text-sm font-medium">
+                  <span className="text-cyan-100">Account Status</span>
+                  <span className="bg-emerald-500 px-3 py-1 rounded-full text-sm font-medium">
                     Active
                   </span>
                 </div>
@@ -272,7 +272,7 @@ const ClinicPatientProfile = () => {
         <div className="mt-12">
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-md transition-all duration-300">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -334,8 +334,8 @@ const ClinicPatientProfile = () => {
                         >
                           <td className="py-4 px-6">
                             <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                                <User className="w-5 h-5 text-blue-600" />
+                              <div className="w-10 h-10 bg-cyan-50 rounded-xl flex items-center justify-center">
+                                <User className="w-5 h-5 text-cyan-600" />
                               </div>
                               <div>
                                 <p className="font-semibold text-slate-800">
@@ -358,7 +358,7 @@ const ClinicPatientProfile = () => {
                             </div>
                           </td>
                           <td className="py-4 px-6">
-                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-semibold bg-purple-100 text-purple-800 capitalize">
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-semibold bg-cyan-100 text-cyan-800 capitalize">
                               {app.type}
                             </span>
                           </td>
@@ -391,42 +391,6 @@ const InfoCard = ({ icon: Icon, title, value, color, fullWidth = false }) => {
       text: "text-cyan-600",
       iconBg: "bg-cyan-100",
       border: "border-cyan-200",
-    },
-    blue: {
-      bg: "bg-blue-50",
-      text: "text-blue-600",
-      iconBg: "bg-blue-100",
-      border: "border-blue-200",
-    },
-    emerald: {
-      bg: "bg-emerald-50",
-      text: "text-emerald-600",
-      iconBg: "bg-emerald-100",
-      border: "border-emerald-200",
-    },
-    purple: {
-      bg: "bg-purple-50",
-      text: "text-purple-600",
-      iconBg: "bg-purple-100",
-      border: "border-purple-200",
-    },
-    red: {
-      bg: "bg-red-50",
-      text: "text-red-600",
-      iconBg: "bg-red-100",
-      border: "border-red-200",
-    },
-    indigo: {
-      bg: "bg-indigo-50",
-      text: "text-indigo-600",
-      iconBg: "bg-indigo-100",
-      border: "border-indigo-200",
-    },
-    orange: {
-      bg: "bg-orange-50",
-      text: "text-orange-600",
-      iconBg: "bg-orange-100",
-      border: "border-orange-200",
     },
   };
 

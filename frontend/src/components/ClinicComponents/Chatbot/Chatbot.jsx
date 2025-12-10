@@ -12,7 +12,6 @@ const Chatbot = () => {
   const { isPopupOpen, popupFeature, popupRequiredPlan, showPopup, hidePopup } =
     useSubscriptionPopup();
 
-  console.log(user);
   const isNotPro = user.subscriptionPlan !== "pro";
 
   const toggleChat = () => {
