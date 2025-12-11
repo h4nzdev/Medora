@@ -698,7 +698,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice, isLoading }) => {
                     <div className="w-32">
                       <div className="relative">
                         <span className="absolute left-3 top-3 text-slate-500">
-                          $
+                          ₱
                         </span>
                         <input
                           type="number"
@@ -733,7 +733,7 @@ const AddInvoiceModal = ({ isOpen, onClose, onAddInvoice, isLoading }) => {
                         Total Amount:
                       </span>
                       <span className="text-2xl font-bold text-cyan-700">
-                        ${formData.totalAmount.toFixed(2)}
+                        ₱{formData.totalAmount.toFixed(2)}
                       </span>
                     </div>
                   </div>

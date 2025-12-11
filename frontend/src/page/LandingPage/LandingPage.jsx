@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
-import { getAllSubscriptions } from "../../services/subscription_services/subscriptionService";
 
 // Components
 import Header from "./LandingPageHeader/Header";
@@ -15,6 +13,7 @@ import Team from "./Team";
 import Contact from "./Contact";
 import Footer from "./Footer";
 import LandingPageSubscription from "../../components/LandingPageSubscription";
+import { getAllClinics } from "../../services/clinic_services/clinicService";
 
 // Animation Configurations
 const sectionVariants = {
@@ -62,41 +61,14 @@ const LandingPage = () => {
     }
   }, []);
 
-  // Data fetching
+  // Fetch ALL clinics using the service
   useEffect(() => {
-    const fetchClinics = async () => {
+    const fetchAllClinicsData = async () => {
       try {
         setLoading(true);
-        const subscriptionsResponse = await getAllSubscriptions();
-        const activeSubscriptions = subscriptionsResponse.data || [];
-
-        if (activeSubscriptions.length === 0) {
-          setClinics([]);
-          return;
-        }
-
-        const clinicPromises = activeSubscriptions.map(async (subscription) => {
-          try {
-            const clinicResponse = await axios.get(
-              `${import.meta.env.VITE_API_URL}/clinic/${
-                subscription.clinicId._id
-              }`
-            );
-
-            return {
-              ...clinicResponse.data,
-              subscriptionPlan: subscription.plan,
-              subscriptionAmount: subscription.amount,
-            };
-          } catch (error) {
-            console.error("Error fetching clinic:", error);
-            return null;
-          }
-        });
-
-        const clinicsData = await Promise.all(clinicPromises);
-        const validClinics = clinicsData.filter((clinic) => clinic !== null);
-        setClinics(validClinics);
+        // Use the getAllClinics service
+        const clinicsData = await getAllClinics();
+        setClinics(clinicsData || []);
       } catch (error) {
         console.error("Error fetching clinics:", error);
         setClinics([]);
@@ -105,7 +77,7 @@ const LandingPage = () => {
       }
     };
 
-    fetchClinics();
+    fetchAllClinicsData();
   }, []);
 
   const scrollToSection = (sectionId) => {
@@ -173,7 +145,7 @@ const LandingPage = () => {
           <Features />
         </AnimatedSection>
 
-        {/* Social Proof - Build trust */}
+        {/* Social Proof - Build trust - Show ALL clinics */}
         <AnimatedSection delay={0.3}>
           <FeaturedClinics clinics={clinics} loading={loading} />
         </AnimatedSection>

@@ -2,7 +2,7 @@ import { MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
-import MedicalRecordDetailsSidebar from "./MedicalRecordDetailsSidebar";
+import { useNavigate } from "react-router-dom";
 
 const ClinicMedicalRecordsTableBody = ({
   records,
@@ -12,12 +12,10 @@ const ClinicMedicalRecordsTableBody = ({
   const [showActions, setShowActions] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleView = (record) => {
-    setSelectedRecord(record);
-    setIsSidebarOpen(true);
-    setShowActions(null);
+    navigate(`/clinic/medical-records/${record._id}`);
   };
 
   const handleEdit = (record) => {
@@ -45,22 +43,12 @@ const ClinicMedicalRecordsTableBody = ({
         }
         toast.success("Medical record deleted successfully");
         setShowActions(null);
-
-        // Close sidebar if the deleted record is currently open
-        if (selectedRecord?._id === record._id) {
-          handleCloseSidebar();
-        }
       }
     });
   };
 
   const toggleActions = (recordId) => {
     setShowActions(showActions === recordId ? null : recordId);
-  };
-
-  const handleCloseSidebar = () => {
-    setIsSidebarOpen(false);
-    setSelectedRecord(null);
   };
 
   // Close actions when clicking outside
@@ -160,15 +148,6 @@ const ClinicMedicalRecordsTableBody = ({
           ))
         )}
       </tbody>
-
-      {/* Medical Record Details Sidebar */}
-      <MedicalRecordDetailsSidebar
-        isOpen={isSidebarOpen}
-        onClose={handleCloseSidebar}
-        record={selectedRecord}
-        onRecordDelete={onRecordDelete}
-        onRecordUpdate={onRecordUpdate}
-      />
     </>
   );
 };

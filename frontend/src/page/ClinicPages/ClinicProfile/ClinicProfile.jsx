@@ -14,6 +14,7 @@ import {
   Instagram,
   Youtube,
   ArrowLeft,
+  Building,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../context/AuthContext";
@@ -82,19 +83,23 @@ const ClinicProfile = () => {
             {/* Clinic Image */}
             <div className="flex-shrink-0">
               <div className="w-32 h-32 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center">
-                <img
-                  src={user.clinicPicture}
-                  alt={user.clinicName}
-                  className="w-28 h-28 rounded-2xl object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
-                  }}
-                />
+                {user.clinicPicture ? (
+                  <img
+                    src={user.clinicPicture}
+                    alt={user.clinicName}
+                    className="w-28 h-28 rounded-2xl object-cover"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      e.target.nextSibling.style.display = "flex";
+                    }}
+                  />
+                ) : (
+                  <Building />
+                )}
                 <div className="hidden w-28 h-28 rounded-2xl bg-white/30 items-center justify-center flex-col">
                   <Users className="w-12 h-12 text-white" />
                   <span className="text-white text-sm font-medium mt-2">
-                    Medora
+                    {user.clinicName}
                   </span>
                 </div>
               </div>
@@ -148,7 +153,7 @@ const ClinicProfile = () => {
             {/* About Section */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
               <h2 className="text-2xl font-bold text-slate-800 mb-4">
-                About Medora
+                About {user.clinicName}
               </h2>
               <p className="text-slate-600 leading-relaxed">
                 A modern healthcare facility located in IT Park, providing
