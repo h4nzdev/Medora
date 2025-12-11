@@ -175,126 +175,98 @@ const AdminClinics = () => {
   ];
 
   // Get status badge component
-  const getStatusBadge = (status, clinicId, clinicName) => {
+  const getStatusBadge = (status, clinicId) => {
     const option =
       statusOptions.find((opt) => opt.value === status) || statusOptions[0];
     const Icon = option.icon;
 
     return (
-      <div className="flex items-center gap-2">
-        <span
-          className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium ${
-            option.bg
-          } ${option.color} border ${option.color.replace(
-            "text-",
-            "border-"
-          )} border-opacity-30`}
-        >
-          <Icon className="w-4 h-4" />
-          {option.label}
-        </span>
-
+      <div className="relative">
         <button
           onClick={(e) => {
             e.stopPropagation();
             setOpenDropdown(openDropdown === clinicId ? null : clinicId);
           }}
-          className="p-1 hover:bg-slate-100 rounded-lg transition-colors relative"
+          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
+            option.bg
+          } ${option.color} border ${option.color.replace(
+            "text-",
+            "border-"
+          )} border-opacity-30 hover:opacity-90 transition-opacity`}
         >
-          <ChevronDown className="w-4 h-4 text-slate-500" />
+          <Icon className="w-4 h-4" />
+          {option.label}
+          <ChevronDown className="w-3 h-3" />
         </button>
 
-        {/* Floating Dropdown Modal - OUTSIDE THE TABLE */}
+        {/* Dropdown Menu */}
         {openDropdown === clinicId && (
-          <>
-            {/* Backdrop */}
-            <div
-              className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm"
-              onClick={() => setOpenDropdown(null)}
-            />
-
-            {/* Floating panel */}
-            <div className="fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw] bg-white rounded-2xl shadow-2xl border border-slate-300 overflow-hidden">
-              <div className="p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-800">
-                    Update Clinic Status
-                  </h3>
+          <div className="absolute top-full left-0 mt-1 z-[9999] w-56 bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden">
+            <div className="p-2">
+              <div className="text-xs font-medium text-slate-500 px-3 py-2">
+                Change Status:
+              </div>
+              {statusOptions.map((option) => {
+                const Icon = option.icon;
+                return (
                   <button
-                    onClick={() => setOpenDropdown(null)}
-                    className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                    key={option.value}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpdateStatus(clinicId, option.value);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-colors hover:bg-slate-50 ${
+                      status === option.value ? option.bg : ""
+                    }`}
                   >
-                    <XCircle className="w-5 h-5 text-slate-500" />
+                    <div className={`p-1.5 rounded-lg ${option.bg}`}>
+                      <Icon className={`w-4 h-4 ${option.color}`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className={`font-medium ${option.color}`}>
+                        {option.label}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {option.description}
+                      </div>
+                    </div>
+                    {status === option.value && (
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    )}
                   </button>
-                </div>
-
-                {/* Clinic info */}
-                <div className="mb-6 p-4 bg-slate-50 rounded-xl">
-                  <p className="text-sm text-slate-600 mb-1">Clinic:</p>
-                  <p className="font-medium text-slate-800">{clinicName}</p>
-                  <p className="text-sm text-slate-500 mt-1">
-                    Current Status:{" "}
-                    <span className="font-medium">{option.label}</span>
-                  </p>
-                </div>
-
-                {/* Status options */}
-                <div className="space-y-3">
-                  <p className="text-sm font-medium text-slate-700">
-                    Select new status:
-                  </p>
-                  {statusOptions.map((option) => {
-                    const Icon = option.icon;
-                    return (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          handleUpdateStatus(clinicId, option.value);
-                          setOpenDropdown(null);
-                        }}
-                        className={`w-full flex items-center gap-4 p-4 text-left rounded-xl transition-all duration-200 ${
-                          option.bg
-                        } hover:scale-[1.02] hover:shadow-md ${
-                          status === option.value
-                            ? "ring-2 ring-offset-2 " +
-                              option.color.replace("text-", "ring-")
-                            : ""
-                        }`}
-                      >
-                        <div className={`p-2.5 rounded-lg ${option.bg}`}>
-                          <Icon className={`w-5 h-5 ${option.color}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className={`font-semibold ${option.color}`}>
-                            {option.label}
-                          </div>
-                          <div className="text-sm text-slate-600 mt-1">
-                            {option.description}
-                          </div>
-                        </div>
-                        {status === option.value && (
-                          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div className="border-t border-slate-100 p-4 bg-slate-50">
-                <button
-                  onClick={() => setOpenDropdown(null)}
-                  className="w-full py-3 text-sm font-medium text-slate-700 hover:bg-white hover:shadow-sm rounded-xl transition-all duration-200 border border-slate-200"
-                >
-                  Cancel
-                </button>
-              </div>
+                );
+              })}
             </div>
-          </>
+            <div className="border-t border-slate-100 p-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenDropdown(null);
+                }}
+                className="w-full text-sm text-slate-600 hover:text-slate-800 px-3 py-2 text-left rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         )}
       </div>
     );
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".status-dropdown-container")) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
 
   // Handle view details
   const handleViewDetails = (clinic) => {
@@ -610,7 +582,12 @@ const AdminClinics = () => {
                       </td>
 
                       <td className="p-6">
-                        {getStatusBadge(clinic.status || "pending", clinic._id)}
+                        <div className="status-dropdown-container">
+                          {getStatusBadge(
+                            clinic.status || "pending",
+                            clinic._id
+                          )}
+                        </div>
                       </td>
 
                       <td className="p-6">

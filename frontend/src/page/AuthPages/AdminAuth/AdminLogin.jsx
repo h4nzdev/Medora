@@ -76,14 +76,14 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-slate-900 flex">
       {/* Left Side - Admin Branding */}
       <div
-        className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 relative bg-cover overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-cyan-900 to-slate-800 relative bg-cover overflow-hidden"
         style={{ backgroundImage: `url(${adminBg})` }}
       >
         {/* Dark overlay for better contrast */}
         <div className="absolute inset-0 bg-slate-900/80" />
 
         {/* Animated background elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl animate-pulse"></div>
         <div className="absolute bottom-32 right-16 w-24 h-24 bg-blue-500/10 rounded-full blur-xl animate-pulse delay-1000"></div>
         <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-cyan-500/10 rounded-full blur-lg animate-pulse delay-500"></div>
 
@@ -93,14 +93,14 @@ export default function AdminLogin() {
             <div className="flex items-center justify-center mb-8">
               <img
                 src={logo}
-                className="w-20 h-20 rounded-3xl shadow-2xl shadow-purple-500/20 border border-purple-500/30"
+                className="w-20 h-20 rounded-3xl shadow-2xl shadow-cyan-500/20 border border-cyan-500/30"
                 alt="Medora Admin"
               />
               <div className="ml-6 text-left">
                 <h1 className="text-4xl font-bold text-white tracking-tight">
                   Medora
                 </h1>
-                <p className="text-purple-200 font-medium tracking-wider">
+                <p className="text-cyan-200 font-medium tracking-wider">
                   Admin Portal
                 </p>
               </div>
@@ -112,10 +112,10 @@ export default function AdminLogin() {
                 <h2 className="text-3xl font-bold text-white leading-tight">
                   System Administration
                   <br />
-                  <span className="text-purple-300">Control Center</span>
+                  <span className="text-cyan-300">Control Center</span>
                 </h2>
               </div>
-              <p className="text-purple-100 text-lg leading-relaxed max-w-md">
+              <p className="text-cyan-100 text-lg leading-relaxed max-w-md">
                 Manage clinics, monitor system health, and oversee platform
                 operations with powerful administrative tools.
               </p>
@@ -124,10 +124,10 @@ export default function AdminLogin() {
 
           {/* Admin Features */}
           <div className="grid grid-cols-2 gap-6 w-full max-w-sm">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20 hover:border-purple-400/30 transition-all duration-300">
-              <Settings className="w-8 h-8 text-purple-300 mx-auto mb-3" />
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20 hover:border-cyan-400/30 transition-all duration-300">
+              <Settings className="w-8 h-8 text-cyan-300 mx-auto mb-3" />
               <h3 className="text-white font-bold text-lg">System</h3>
-              <p className="text-purple-200 text-sm">Management</p>
+              <p className="text-cyan-200 text-sm">Management</p>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center border border-white/20 hover:border-blue-400/30 transition-all duration-300">
               <Users className="w-8 h-8 text-blue-300 mx-auto mb-3" />
@@ -148,7 +148,7 @@ export default function AdminLogin() {
 
           {/* Bottom Security Notice */}
           <div className="absolute bottom-8 left-12 right-12">
-            <p className="text-purple-300 text-sm text-center flex items-center justify-center gap-2">
+            <p className="text-cyan-300 text-sm text-center flex items-center justify-center gap-2">
               <Shield className="w-4 h-4" />
               Restricted Access • Administrative Personnel Only
             </p>
@@ -174,12 +174,12 @@ export default function AdminLogin() {
             <div className="flex items-center justify-center mb-6">
               <img
                 src={logo}
-                className="w-16 h-16 rounded-2xl border border-purple-200"
+                className="w-16 h-16 rounded-2xl border border-cyan-200"
                 alt="Medora Admin"
               />
               <div className="ml-4 text-left">
                 <h1 className="text-2xl font-bold text-slate-800">Medora</h1>
-                <p className="text-purple-600 text-sm font-medium">
+                <p className="text-cyan-600 text-sm font-medium">
                   Admin Portal
                 </p>
               </div>
@@ -213,7 +213,7 @@ export default function AdminLogin() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   type="email"
-                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  className="w-full px-4 py-4 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
                   placeholder="admin@medora.com"
                 />
               </div>
@@ -231,7 +231,7 @@ export default function AdminLogin() {
                     setFormData({ ...formData, password: e.target.value })
                   }
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-4 pr-12 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-purple-500/30 focus:border-purple-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
+                  className="w-full px-4 py-4 pr-12 bg-white border border-slate-300 rounded-2xl focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition-all duration-300 placeholder:text-slate-400 text-slate-800"
                   placeholder="Enter admin password"
                 />
                 <button
@@ -260,7 +260,7 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-purple-500/20 focus:outline-none shadow-lg shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-700 hover:to-cyan-600 text-white font-bold py-4 px-6 rounded-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-cyan-500/20 focus:outline-none shadow-lg shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -279,7 +279,7 @@ export default function AdminLogin() {
           {/* Security Notice */}
           <div className="mt-8 p-4 bg-slate-100 rounded-2xl border border-slate-200">
             <div className="flex items-start gap-3">
-              <Shield className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+              <Shield className="w-5 h-5 text-cyan-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-slate-800">
                   Secure Administrative Access
@@ -294,11 +294,11 @@ export default function AdminLogin() {
 
           {/* Quick Links */}
           <div className="mt-6 flex justify-center gap-4 text-sm">
-            <button className="text-purple-600 hover:text-purple-700 font-medium transition-colors">
+            <button className="text-cyan-600 hover:text-cyan-700 font-medium transition-colors">
               System Status
             </button>
             <span className="text-slate-400">•</span>
-            <button className="text-purple-600 hover:text-purple-700 font-medium transition-colors">
+            <button className="text-cyan-600 hover:text-cyan-700 font-medium transition-colors">
               Help Desk
             </button>
           </div>
