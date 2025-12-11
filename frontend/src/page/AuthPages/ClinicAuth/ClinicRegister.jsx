@@ -26,6 +26,7 @@ import PaymentModal from "../../../components/ClinicComponents/PaymentModal/Paym
 import logo from "../../../assets/medoralogo.png";
 import { useNavigate } from "react-router-dom";
 import clinic from "../../../assets/clinic.jpg";
+import { createNotification } from "../../../services/notificationService";
 
 export default function ClinicRegister() {
   const [error, setError] = useState();
@@ -92,6 +93,25 @@ export default function ClinicRegister() {
     }));
   };
 
+  const sendAdminNotification = async (
+    message,
+    systemMessage,
+    type = "system",
+    relatedId = null
+  ) => {
+    try {
+      await createNotification({
+        recipientType: "all", // This will notify all admins (system-wide)
+        message: message,
+        systemMessage: systemMessage,
+        type: type,
+        relatedId: relatedId,
+      });
+    } catch (error) {
+      console.error("Failed to send admin notification:", error);
+    }
+  };
+
   const handlePictureChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -124,17 +144,35 @@ export default function ClinicRegister() {
     if (plan === "free") {
       setIsPaymentSetup(true);
       toast.success("Free plan selected! No payment required.");
+
+      // Send notification
+      sendAdminNotification(
+        `A clinic selected the Free plan: ${
+          formData.clinicName || "New Clinic"
+        }`,
+        "New Free Plan Subscription",
+        "system"
+      );
     } else {
       setIsPaymentSetup(false);
       setIsModalOpen(true);
     }
   };
 
-  const handlePaymentSubmit = (bankDetails) => {
+  const handlePaymentSubmit = async (bankDetails) => {
     console.log("Bank Details:", bankDetails);
     setIsModalOpen(false);
     setIsPaymentSetup(true);
     toast.success("Payment details saved successfully!");
+
+    // Send notification for premium plan payment
+    await sendAdminNotification(
+      `${formData.clinicName || "New Clinic"} set up payment for ${
+        formData.subscriptionPlan
+      } plan`,
+      "Payment Setup Complete",
+      "payment"
+    );
   };
 
   const allPasswordRequirementsMet =
@@ -232,6 +270,13 @@ export default function ClinicRegister() {
         }
       );
       toast.success(res.data.message);
+
+      await sendAdminNotification(
+        `New clinic registered: ${formData.clinicName}`,
+        "New Clinic Registration",
+        "system",
+        res.data.clinic?._id || res.data.clinic?.id // If your API returns the created clinic ID
+      );
 
       // Show success animation
       setTimeout(() => {

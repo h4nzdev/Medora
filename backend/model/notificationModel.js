@@ -10,7 +10,7 @@ const notificationSchema = new mongoose.Schema({
   },
   recipientType: {
     type: String,
-    enum: ["Client", "Clinic", "all"],
+    enum: ["Client", "Clinic", "Admin", "all"],
     required: true,
   },
   message: {
@@ -19,7 +19,7 @@ const notificationSchema = new mongoose.Schema({
   },
   systemMessage: {
     type: String,
-    required: false, // Optional field for detailed system update messages
+    required: false,
   },
   type: {
     type: String,
@@ -28,7 +28,6 @@ const notificationSchema = new mongoose.Schema({
   },
   relatedId: {
     type: mongoose.Schema.Types.ObjectId,
-    // Reference to the system update or other related document
     required: false,
   },
   isRead: {
