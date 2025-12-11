@@ -101,7 +101,7 @@ export default function AdminLogin() {
                   Medora
                 </h1>
                 <p className="text-cyan-200 font-medium tracking-wider">
-                  Admin Portal
+                  Admin Portale
                 </p>
               </div>
             </div>
