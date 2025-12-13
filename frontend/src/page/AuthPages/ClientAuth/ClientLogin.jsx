@@ -24,6 +24,7 @@ const ClientLogin = () => {
   const [warningShown, setWarningShown] = useState(false);
   const [error, setError] = useState();
   const [clinics, setClinics] = useState([]);
+  const [approvedClinics, setApprovedClinics] = useState([]); // New state for filtered clinics
   const [selectedClinic, setSelectedClinic] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +47,12 @@ const ClientLogin = () => {
         if (response.ok) {
           const data = await response.json();
           setClinics(data);
+
+          // Filter clinics to only show approved ones
+          const filteredClinics = data.filter(
+            (clinic) => clinic.status === "approved"
+          );
+          setApprovedClinics(filteredClinics);
         } else {
           console.error("Failed to fetch clinics");
         }
@@ -63,13 +70,13 @@ const ClientLogin = () => {
     const searchParams = new URLSearchParams(location.search);
     const clinicId = searchParams.get("clinicId");
 
-    if (clinicId && clinics.length > 0) {
-      const clinicFromUrl = clinics.find((c) => c._id === clinicId);
+    if (clinicId && approvedClinics.length > 0) {
+      const clinicFromUrl = approvedClinics.find((c) => c._id === clinicId);
       if (clinicFromUrl) {
         setSelectedClinic(clinicFromUrl);
       }
     }
-  }, [location.search, clinics]);
+  }, [location.search, approvedClinics]);
 
   const handleLogin = async (e) => {
     // REMOVE THIS LINE: axios.defaults.withCredentials = true;
@@ -272,19 +279,25 @@ const ClientLogin = () => {
                 </button>
                 {isDropdownOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-white border border-slate-300 rounded-2xl shadow-lg">
-                    {clinics.map((clinic) => (
-                      <div
-                        key={clinic._id}
-                        onClick={() => {
-                          setSelectedClinic(clinic);
-                          setIsDropdownOpen(false);
-                          navigate(`/client/login?clinicId=${clinic._id}`);
-                        }}
-                        className="px-4 py-3 rounded-2xl hover:bg-cyan-50 cursor-pointer"
-                      >
-                        {clinic.clinicName}
+                    {approvedClinics.length > 0 ? (
+                      approvedClinics.map((clinic) => (
+                        <div
+                          key={clinic._id}
+                          onClick={() => {
+                            setSelectedClinic(clinic);
+                            setIsDropdownOpen(false);
+                            navigate(`/client/login?clinicId=${clinic._id}`);
+                          }}
+                          className="px-4 py-3 rounded-2xl hover:bg-cyan-50 cursor-pointer"
+                        >
+                          {clinic.clinicName}
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-slate-500 text-center">
+                        No approved clinics available
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>

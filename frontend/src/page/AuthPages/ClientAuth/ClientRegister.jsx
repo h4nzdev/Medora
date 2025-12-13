@@ -34,6 +34,7 @@ export default function ClientRegister() {
   const [verificationInput, setVerificationInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [clinics, setClinics] = useState([]);
+  const [approvedClinics, setApprovedClinics] = useState([]); // New state for filtered clinics
   const navigate = useNavigate();
   const passwordValidationTimer = useRef(null);
 
@@ -42,6 +43,12 @@ export default function ClientRegister() {
       try {
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/clinic`);
         setClinics(res.data);
+
+        // Filter clinics to only show approved ones
+        const filteredClinics = res.data.filter(
+          (clinic) => clinic.status === "approved"
+        );
+        setApprovedClinics(filteredClinics);
       } catch (error) {
         console.error("Error fetching clinics:", error);
       }
@@ -348,11 +355,17 @@ export default function ClientRegister() {
                     <option value="" disabled>
                       -- Choose a clinic --
                     </option>
-                    {clinics?.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.clinicName}
+                    {approvedClinics.length > 0 ? (
+                      approvedClinics.map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.clinicName}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No approved clinics available
                       </option>
-                    ))}
+                    )}
                   </select>
                 </div>
 

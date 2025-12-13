@@ -7,6 +7,14 @@ const FeaturedClinics = ({ clinics, loading }) => {
   console.log("Clinics data:", clinics);
   console.log("Number of clinics:", clinics?.length);
 
+  // Remove duplicate clinics by ID
+  const uniqueClinics = clinics
+    ? clinics.filter(
+        (clinic, index, self) =>
+          index === self.findIndex((c) => c._id === clinic._id)
+      )
+    : [];
+
   return (
     <section
       id="clinics"
@@ -52,42 +60,30 @@ const FeaturedClinics = ({ clinics, loading }) => {
         )}
 
         {/* Horizontal Scroll for Mobile, Grid for Desktop */}
-        {!loading && clinics && clinics.length > 0 && (
+        {!loading && uniqueClinics.length > 0 && (
           <>
-            {/* Mobile - Horizontal Scroll */}
+            {/* Mobile - Horizontal Scroll (limit to 3 for swiping) */}
             <div className="md:hidden">
               <div className="flex overflow-x-auto pb-6 -mx-6 px-6 snap-x snap-mandatory scrollbar-hide gap-4">
-                {clinics
-                  .filter(
-                    (clinic, index, self) =>
-                      index === self.findIndex((c) => c._id === clinic._id)
-                  )
-                  .slice(0, 3)
-                  .map((clinic) => (
-                    <div
-                      key={clinic._id}
-                      className="flex-shrink-0 w-[85vw] snap-center"
-                    >
-                      <ClinicCard clinic={clinic} />
-                    </div>
-                  ))}
+                {uniqueClinics.slice(0, 3).map((clinic) => (
+                  <div
+                    key={clinic._id}
+                    className="flex-shrink-0 w-[85vw] snap-center"
+                  >
+                    <ClinicCard clinic={clinic} />
+                  </div>
+                ))}
               </div>
               <div className="text-center mt-4 text-sm text-white/80">
                 Swipe to see more clinics
               </div>
             </div>
 
-            {/* Desktop - Grid */}
+            {/* Desktop - Grid (show all or more clinics) */}
             <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {clinics
-                .filter(
-                  (clinic, index, self) =>
-                    index === self.findIndex((c) => c._id === clinic._id)
-                )
-                .slice(0, 3)
-                .map((clinic) => (
-                  <ClinicCard key={clinic._id} clinic={clinic} />
-                ))}
+              {uniqueClinics.map((clinic) => (
+                <ClinicCard key={clinic._id} clinic={clinic} />
+              ))}
             </div>
           </>
         )}
