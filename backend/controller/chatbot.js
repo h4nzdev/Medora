@@ -147,7 +147,6 @@ export const chatWithGemini = async (req, res) => {
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 65535,
-        thinkingBudget: 0,
       },
     });
 
@@ -534,7 +533,6 @@ export const summarizeChatHistory = async (req, res) => {
       generationConfig: {
         temperature: 0.3,
         maxOutputTokens: 65535,
-        thinkingBudget: 0,
       },
     });
 
