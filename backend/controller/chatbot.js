@@ -146,7 +146,8 @@ export const chatWithGemini = async (req, res) => {
       model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 350,
+        maxOutputTokens: 65535,
+        thinkingBudget: 0,
       },
     });
 
@@ -532,7 +533,8 @@ export const summarizeChatHistory = async (req, res) => {
       model: "gemini-2.5-flash",
       generationConfig: {
         temperature: 0.3,
-        maxOutputTokens: 300,
+        maxOutputTokens: 65535,
+        thinkingBudget: 0,
       },
     });
 
