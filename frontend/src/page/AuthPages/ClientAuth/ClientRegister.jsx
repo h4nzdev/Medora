@@ -398,6 +398,7 @@ export default function ClientRegister() {
                     <input
                       type="text"
                       name="name"
+                      maxLength={100}
                       value={formData.name}
                       onChange={handleInputChange}
                       required
@@ -412,6 +413,7 @@ export default function ClientRegister() {
                     <input
                       type="number"
                       name="age"
+                      max={100}
                       value={formData.age}
                       onChange={handleInputChange}
                       required
@@ -503,6 +505,7 @@ export default function ClientRegister() {
                     <input
                       type="text"
                       name="emergencyContact.name"
+                      maxLength={100}
                       value={formData.emergencyContact.name}
                       onChange={handleInputChange}
                       placeholder="John Davis"
@@ -551,6 +554,7 @@ export default function ClientRegister() {
                     <input
                       type="password"
                       name="password"
+                      maxLength={16}
                       value={formData.password}
                       onChange={handleInputChange}
                       onFocus={() => setShowPasswordValidation(true)}
@@ -591,6 +595,7 @@ export default function ClientRegister() {
                     <input
                       type="password"
                       name="confirmPassword"
+                      maxLength={16}
                       value={formData.confirmPassword}
                       onChange={handleInputChange}
                       required

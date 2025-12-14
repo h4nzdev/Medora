@@ -623,6 +623,7 @@ export default function ClinicRegister() {
                         <input
                           type="text"
                           name="clinicName"
+                          maxLength={100}
                           value={formData.clinicName}
                           onChange={handleInputChange}
                           required
@@ -640,6 +641,7 @@ export default function ClinicRegister() {
                         <input
                           type="text"
                           name="contactPerson"
+                          maxLength={100}
                           value={formData.contactPerson}
                           onChange={handleInputChange}
                           required
@@ -785,6 +787,7 @@ export default function ClinicRegister() {
                         <input
                           type={showPassword ? "text" : "password"}
                           name="password"
+                          maxLength={16}
                           value={formData.password}
                           onChange={handleInputChange}
                           required
@@ -835,6 +838,7 @@ export default function ClinicRegister() {
                       </label>
                       <div className="relative">
                         <input
+                          maxLength={16}
                           type={showConfirmPassword ? "text" : "password"}
                           name="confirmPassword"
                           value={formData.confirmPassword}
