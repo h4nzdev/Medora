@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import { formatDate } from "../../../utils/date";
 import { getInvoicesByPatient } from "../../../services/invoiceService";
-import { isAppointmentLimitReached } from "../../../utils/appointmentLimit";
 
 const DoctorProfile = () => {
   const { id } = useParams();
@@ -38,7 +37,6 @@ const DoctorProfile = () => {
   const [invoices, setInvoices] = useState([]);
   const [hasPendingAppointment, setHasPendingAppointment] = useState(false);
   const [checkingAppointment, setCheckingAppointment] = useState(true);
-  const limitReached = isAppointmentLimitReached(appointments, user, clinics);
 
   const doctor = doctors?.find((doc) => doc._id === id);
   const hasUnpaid = invoices.some((invoice) => invoice.status === "unpaid");
@@ -547,10 +545,7 @@ const DoctorProfile = () => {
               <button
                 onClick={handleBook}
                 disabled={
-                  hasPendingAppointment ||
-                  hasUnpaid ||
-                  checkingAppointment ||
-                  limitReached
+                  hasPendingAppointment || hasUnpaid || checkingAppointment
                 }
                 className={`group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
                   hasPendingAppointment || hasUnpaid || checkingAppointment
