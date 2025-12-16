@@ -96,7 +96,7 @@ export const sendConsultationLinkEmail = async (
   try {
     const res = await emailjs.send(
       EMAILJS_CONFIG.SERVICE_ID,
-      EMAILJS_CONFIG.APPROVAL_TEMPLATE_ID,
+      EMAILJS_CONFIG.CONSULTATION_TEMPLATE_ID,
       templateParams,
       EMAILJS_CONFIG.PUBLIC_KEY
     );

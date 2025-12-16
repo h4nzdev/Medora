@@ -26,7 +26,7 @@ const plans = [
     price: "₱0",
     priceDetails: "/month",
     features: [
-      { text: "Up to 20 patients", icon: Users },
+      { text: "Up to 10 patients", icon: Users },
       { text: "Basic scheduling", icon: Calendar },
       { text: "Email support", icon: Headphones },
     ],
