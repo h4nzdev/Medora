@@ -1,13 +1,14 @@
 import { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { toast } from "sonner"; // Changed from sonner to sonner
+import { toast } from "sonner";
 import { DoctorContext } from "../../../context/DoctorContext";
 import { AuthContext } from "../../../context/AuthContext";
+import { AppointmentContext } from "../../../context/AppointmentContext";
+import { ClinicContext } from "../../../context/ClinicContext";
 import AddAppointmentModal from "../../../components/ClientComponents/AddAppointmentModal/AddAppointmentModal";
 import AddReviewModal from "../../../components/ClientComponents/AddReviewModal/AddReviewModal";
 import { getAppointmentsByPatient } from "../../../services/appointmentService";
-import { getDoctorsByClinic } from "../../../services/doctor_services/doctorService";
 import {
   Stethoscope,
   GraduationCap,
@@ -18,18 +19,22 @@ import {
   Calendar,
   Clock,
   Award,
-  MapPin,
   Star,
   Badge,
   MessageCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { formatDate } from "../../../utils/date";
 import { getInvoicesByPatient } from "../../../services/invoiceService";
+import { checkAppointmentLimit } from "../../../utils/appointmentLimit";
 
 const DoctorProfile = () => {
   const { id } = useParams();
   const { doctors } = useContext(DoctorContext);
   const { user } = useContext(AuthContext);
+  const { appointments } = useContext(AppointmentContext);
+  const { clinics } = useContext(ClinicContext);
+
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviews, setReviews] = useState([]);
@@ -46,7 +51,9 @@ const DoctorProfile = () => {
     0
   );
 
-  console.log(balances);
+  // Check appointment limit using the utility function
+  const appointmentLimit = checkAppointmentLimit(appointments, user, clinics);
+  const { limitReached, plan } = appointmentLimit;
 
   const fetchReviews = async () => {
     if (doctor) {
@@ -125,6 +132,15 @@ const DoctorProfile = () => {
       );
     }
 
+    if (limitReached) {
+      return toast.error(
+        `The clinic has reached its appointment limit for the ${plan} plan.`,
+        {
+          id: "limit-reached-notif",
+        }
+      );
+    }
+
     return setIsAppointmentModalOpen(true);
   };
 
@@ -184,8 +200,20 @@ const DoctorProfile = () => {
       />
       <div className="w-full min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/30 pb-6">
         <div className="mx-auto py-4 md:py-6">
-          {/* Header Card */}
+          {/* Header Card with Limit Warning */}
           <div className="bg-white/80 backdrop-blur-sm rounded-xl md:rounded-2xl shadow-lg border border-white/20 p-4 md:p-6 lg:p-8 mb-4 md:mb-6">
+            {limitReached && (
+              <div className="mb-4 md:mb-6 p-3 md:p-4 border border-red-500 bg-red-200 rounded-xl md:rounded-2xl">
+                <p className="text-red-600 font-semibold flex items-center justify-center text-sm md:text-base">
+                  <AlertTriangle className="mr-2 flex-shrink-0" />
+                  The clinic has reached its appointment limit for the {
+                    plan
+                  }{" "}
+                  plan.
+                </p>
+              </div>
+            )}
+
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6 md:gap-8">
               {/* Doctor Image */}
               <div className="flex-shrink-0">
@@ -545,10 +573,16 @@ const DoctorProfile = () => {
               <button
                 onClick={handleBook}
                 disabled={
-                  hasPendingAppointment || hasUnpaid || checkingAppointment
+                  hasPendingAppointment ||
+                  hasUnpaid ||
+                  checkingAppointment ||
+                  limitReached
                 }
                 className={`group flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-white rounded-xl md:rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${
-                  hasPendingAppointment || hasUnpaid || checkingAppointment
+                  hasPendingAppointment ||
+                  hasUnpaid ||
+                  checkingAppointment ||
+                  limitReached
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-cyan-500 to-sky-500 cursor-pointer hover:from-cyan-600 hover:to-sky-600"
                 } font-semibold text-base md:text-lg mx-auto`}
@@ -567,6 +601,11 @@ const DoctorProfile = () => {
                   <>
                     <span className="mr-2">⚠️</span>
                     Unpaid Balance
+                  </>
+                ) : limitReached ? (
+                  <>
+                    <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 mr-2 md:mr-3" />
+                    Appointment Limit Reached
                   </>
                 ) : (
                   <>
