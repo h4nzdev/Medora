@@ -26,7 +26,7 @@ const plans = [
     price: "₱0",
     priceDetails: "/month",
     features: [
-      { text: "Up to 10 patients", icon: Users },
+      { text: "Up to 10 appointments", icon: Users },
       { text: "Basic scheduling", icon: Calendar },
       { text: "Email support", icon: Headphones },
     ],
@@ -38,7 +38,7 @@ const plans = [
     price: "₱199",
     priceDetails: "/month",
     features: [
-      { text: "Up to 20 patients", icon: Users },
+      { text: "Up to 20 appointments", icon: Users },
       { text: "Advanced scheduling", icon: Calendar },
       { text: "Priority support", icon: Headphones },
       { text: "Basic analytics", icon: BarChart },
@@ -51,7 +51,7 @@ const plans = [
     price: "₱299",
     priceDetails: "/month",
     features: [
-      { text: "Unlimited patients", icon: Users },
+      { text: "Unlimited appointments", icon: Users },
       { text: "Full features access", icon: Zap },
       { text: "24/7 premium support", icon: Headphones },
       { text: "Advanced analytics", icon: BarChart },

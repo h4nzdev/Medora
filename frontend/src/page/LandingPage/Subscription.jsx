@@ -17,7 +17,7 @@ const plans = [
     price: "₱0",
     period: "/month",
     features: [
-      "Up to 10 patients",
+      "Up to 10 appointments",
       "Basic scheduling",
       "Email support",
       "Standard templates",
@@ -33,7 +33,7 @@ const plans = [
     price: "₱299",
     period: "/month",
     features: [
-      "Unlimited patients",
+      "Unlimited appointments",
       "Full features access",
       "24/7 premium support",
       "Advanced analytics dashboard",
@@ -51,7 +51,7 @@ const plans = [
     price: "₱199",
     period: "/month",
     features: [
-      "Up to 20 patients",
+      "Up to 20 appointments",
       "Advanced scheduling",
       "Priority support",
       "Basic analytics",

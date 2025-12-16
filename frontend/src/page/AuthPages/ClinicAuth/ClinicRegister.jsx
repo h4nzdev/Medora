@@ -324,7 +324,7 @@ export default function ClinicRegister() {
       id: "free",
       name: "Free",
       price: "₱0",
-      features: ["Up to 10 patients", "Basic scheduling", "Email support"],
+      features: ["Up to 10 appointments", "Basic scheduling", "Email support"],
       color: "border-slate-200",
       activeColor: "border-blue-500 bg-blue-50",
     },
@@ -333,7 +333,7 @@ export default function ClinicRegister() {
       name: "Basic",
       price: "₱199",
       features: [
-        "Up to 20 patients",
+        "Up to 20 appointments",
         "Advanced scheduling",
         "Priority support",
         "Basic analytics",
@@ -347,7 +347,7 @@ export default function ClinicRegister() {
       name: "Pro",
       price: "₱299",
       features: [
-        "Unlimited patients",
+        "Unlimited appointments",
         "Full features",
         "24/7 support",
         "Advanced analytics",
